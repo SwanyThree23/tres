@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Main Gateway Server
+  backend:
+    build: ./backend
+    environment:
+      - VAULT_MASTER_KEY=${VAULT_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_KEY}
+      - OPENROUTER_API_KEY=${AI_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_KEY}
+      - MONGO_URI=mongodb://mongo:27017/swanythree
+      - REDIS_URL=redis://redis:6379
+      - PORT=5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+      - mongo
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Real-time State
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # Persistence
+  mongo:
+    image: mongo:6
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+
+  # RTMP Ingest Server (For Embeddable Player)
+  rtmp-server:
+    image: tiangolo/nginx-rtmp
+    ports:
+      - "1935:1935"
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  mongo_data:

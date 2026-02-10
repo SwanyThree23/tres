@@ -1,0 +1,21 @@
+{
+  "beta_agreement_v1": {
+    "version": "1.0",
+    "effective_date": "2026-02-10",
+    "terms": [
+      "I acknowledge that SwanyThree facilitates 90% revenue pass-through.",
+      "I agree to not stream copyrighted content during Watch Parties.",
+      "I understand Guest Destinations require my own platform stream keys.",
+      "I accept that this is a beta product and may contain bugs or incomplete features.",
+      "I agree to report any issues or security vulnerabilities to the SwanyThree team."
+    ],
+    "revenue_policy": "Platform retains 10% gross. Processor fees are deducted before net calculation.",
+    "privacy": "Camera/Mic access is local-only via WebRTC until 'Go Live' is pressed.",
+    "data_retention": "Stream recordings are kept for 30 days unless the creator opts for permanent storage.",
+    "beta_limitations": [
+      "Maximum 20 simultaneous guests per panel",
+      "Watch Party supports YouTube, Vimeo, and direct MP4 URLs",
+      "Guest Destinations support RTMP-compatible platforms only"
+    ]
+  }
+}
