@@ -4,9 +4,7 @@ from api.database import get_db
 from api.middleware.auth import get_current_user
 from services.nft import nft_service
 from services.ai import ai_service
-from models.entities import User
-from pydantic import BaseModel
-from typing import Dict, Any
+from models.entities import User, NFT
 
 router = APIRouter()
 
@@ -14,10 +12,12 @@ class MintHighlightRequest(BaseModel):
     video_url: str
     title: str
     description: str | None = None
+    stream_id: str | None = None
 
 @router.post("/mint-highlight")
 async def mint_highlight(
     request: MintHighlightRequest,
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Mint a stream highlight as an NFT."""
@@ -45,4 +45,23 @@ async def mint_highlight(
     if not nft_result:
         raise HTTPException(status_code=500, detail="Failed to mint NFT")
         
-    return nft_result
+    # Persist in DB
+    new_nft = NFT(
+        user_id=current_user.id,
+        stream_id=request.stream_id,
+        title=request.title,
+        description=enhanced_desc or request.description,
+        video_url=request.video_url,
+        mint_hash=nft_result.get("mint_hash"),
+        token_id=nft_result.get("token_id"),
+        contract_address=nft_result.get("contract_address"),
+        blockchain=nft_result.get("blockchain", "polygon")
+    )
+    db.add(new_nft)
+    await db.commit()
+    await db.refresh(new_nft)
+    
+    return {
+        "nft_id": str(new_nft.id),
+        "mint_details": nft_result
+    }
