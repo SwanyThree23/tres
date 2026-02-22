@@ -103,7 +103,7 @@ async def init_db() -> None:
     # Ensure the pool is established by issuing a trivial connect.
     async with engine.begin() as conn:
         # Uncomment the next line ONLY for local dev / tests:
-        # await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
         pass
 
 
