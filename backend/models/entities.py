@@ -1200,6 +1200,38 @@ class EmbedConfig(Base):
     )
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 31. NFT
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class NFT(Base):
+    """
+    Track minted stream highlights as NFTs.
+    """
+    __tablename__ = "nfts"
+
+    id: Mapped[UUID] = _uuid_pk()
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    stream_id: Mapped[UUID] = mapped_column(ForeignKey("streams.id"), nullable=True)
+
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
+    video_url: Mapped[str] = mapped_column(Text, nullable=False)
+
+    mint_hash: Mapped[str] = mapped_column(String(255), nullable=True)
+    token_id: Mapped[str] = mapped_column(String(100), nullable=True)
+    contract_address: Mapped[str] = mapped_column(String(255), nullable=True)
+    blockchain: Mapped[str] = mapped_column(String(50), default="polygon")
+
+    created_at: Mapped[datetime] = _created_at()
+    updated_at: Mapped[datetime] = _updated_at()
+
+    # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="nfts")
+    stream: Mapped["Stream"] = relationship("Stream")
+
+
 # ---------------------------------------------------------------------------
 # Collect all model classes for convenient star-import.
 # ---------------------------------------------------------------------------
@@ -1235,6 +1267,7 @@ __all__ = [
     "PlatformMetrics",
     "VaultItem",
     "EmbedConfig",
+    "NFT",
     # Enums
     "UserRole",
     "StreamStatus",
@@ -1255,28 +1288,3 @@ __all__ = [
     "VaultItemType",
 ]
 
-class NFT(Base):
-    """
-    Track minted stream highlights as NFTs.
-    """
-    __tablename__ = "nfts"
-
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
-    stream_id: Mapped[UUID] = mapped_column(ForeignKey("streams.id"), nullable=True)
-    
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=True)
-    video_url: Mapped[str] = mapped_column(Text, nullable=False)
-    
-    mint_hash: Mapped[str] = mapped_column(String(255), nullable=True)
-    token_id: Mapped[str] = mapped_column(String(100), nullable=True)
-    contract_address: Mapped[str] = mapped_column(String(255), nullable=True)
-    blockchain: Mapped[str] = mapped_column(String(50), default="polygon")
-    
-    created_at: Mapped[datetime] = _created_at()
-    updated_at: Mapped[datetime] = _updated_at()
-
-    # Relationships
-    user: Mapped["User"] = relationship("User", back_populates="nfts")
-    stream: Mapped["Stream"] = relationship("Stream")
