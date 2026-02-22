@@ -157,6 +157,7 @@ const App: React.FC = () => {
                         <button
                             className="p-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors relative"
                             aria-label="Notifications"
+                            title="Notifications"
                         >
                             <Bell size={20} className="text-slate-400" />
                             {notifications.length > 0 && (

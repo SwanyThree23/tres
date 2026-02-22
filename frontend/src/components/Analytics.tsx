@@ -85,7 +85,10 @@ const Analytics: React.FC = () => {
                                         <span className="text-white font-mono">{source.value}%</span>
                                     </div>
                                     <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className={`h-full ${source.color}`} style={{ width: `${source.value}%` }} />
+                                        <div
+                                            className={`h-full ${source.color}`}
+                                            style={{ '--bar-width': `${source.value}%`, width: 'var(--bar-width)' } as React.CSSProperties}
+                                        />
                                     </div>
                                 </div>
                             ))}
