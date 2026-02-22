@@ -19,12 +19,14 @@ import Analytics from './components/Analytics';
 import Payouts from './components/Payouts';
 import NFTs from './components/NFTs';
 import Browse from './components/Browse';
+import Login from './components/Login';
 
 const App: React.FC = () => {
     const [activeTab, setActiveTab] = useState('studio');
     const [notifications, setNotifications] = useState<any[]>([]);
     const [isLive, setIsLive] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
 
     // WebSocket Integration
     useEffect(() => {
@@ -75,6 +77,15 @@ const App: React.FC = () => {
         }
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+    };
+
+    if (!isAuthenticated) {
+        return <Login onLogin={() => setIsAuthenticated(true)} />;
+    }
+
     const navItems = [
         { id: 'browse', icon: Compass, label: 'Explore' },
         { id: 'studio', icon: LayoutDashboard, label: 'Studio' },
@@ -100,8 +111,8 @@ const App: React.FC = () => {
                             aria-label={item.label}
                             title={item.label}
                             className={`p-4 rounded-2xl transition-all duration-300 relative group ${activeTab === item.id
-                                    ? 'bg-violet-600 text-white shadow-2xl shadow-violet-500/40'
-                                    : 'text-slate-500 hover:text-white hover:bg-white/5'
+                                ? 'bg-violet-600 text-white shadow-2xl shadow-violet-500/40'
+                                : 'text-slate-500 hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             <item.icon size={22} />
@@ -116,7 +127,11 @@ const App: React.FC = () => {
                     <button className="p-4 text-slate-500 hover:text-white transition-colors" title="Settings">
                         <SettingsIcon size={22} />
                     </button>
-                    <button className="p-4 text-slate-500 hover:text-red-400 transition-colors" title="Sign Out">
+                    <button
+                        onClick={handleLogout}
+                        className="p-4 text-slate-500 hover:text-red-400 transition-colors"
+                        title="Sign Out"
+                    >
                         <LogOut size={22} />
                     </button>
                 </div>
