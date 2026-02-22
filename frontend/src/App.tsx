@@ -152,6 +152,7 @@ const App: React.FC = () => {
                             <button
                                 onClick={() => addNotification('Simulation', 'Tip received: $20.00')}
                                 className="glass-panel p-5 hover:border-violet-500/50 transition-all group text-left"
+                                aria-label="View Stripe Payouts"
                             >
                                 <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 text-green-500">
                                     <DollarSign size={20} />
@@ -162,6 +163,7 @@ const App: React.FC = () => {
 
                             <button
                                 className="glass-panel p-5 hover:border-cyan-500/50 transition-all group text-left"
+                                aria-label="Manage AI Highlights"
                             >
                                 <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-4 text-cyan-400">
                                     <Zap size={20} />
@@ -172,6 +174,7 @@ const App: React.FC = () => {
 
                             <button
                                 className="glass-panel p-5 hover:border-violet-500/50 transition-all group text-left"
+                                aria-label="View Advanced Analytics"
                             >
                                 <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4 text-violet-500">
                                     <BarChart3 size={20} />
