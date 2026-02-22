@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --font-main: 'Outfit', sans-serif;
+    --bg-deep: hsl(240, 20%, 3%);
+    --bg-surface: hsl(240, 20%, 8%);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-blur: blur(12px);
+    --primary: hsl(262, 80%, 60%);
+    --accent: hsl(190, 90%, 50%);
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-deep);
+    color: white;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+}
+
+/* Custom Utilities since Tailwind might not be fully linked yet */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.grid {
+    display: grid;
+}
+
+.grid-cols-12 {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.col-span-8 {
+    grid-column: span 8 / span 8;
+}
+
+.col-span-4 {
+    grid-column: span 4 / span 4;
+}
+
+.col-span-11 {
+    grid-column: span 11 / span 11;
+}
+
+.col-span-1 {
+    grid-column: span 1 / span 1;
+}
+
+.gap-6 {
+    gap: 1.5rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.p-6 {
+    padding: 1.5rem;
+}
+
+.p-4 {
+    padding: 1rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mx-4 {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.bg-violet-600 {
+    background-color: rgb(124 58 237);
+}
+
+.text-cyan-400 {
+    color: rgb(34 211 238);
+}
+
+.rounded-2xl {
+    border-radius: 1rem;
+}
+
+.rounded-3xl {
+    border-radius: 1.5rem;
+}
+
+.aspect-video {
+    aspect-ratio: 16 / 9;
+}
+
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.sticky {
+    position: sticky;
+}
+
+.top-0 {
+    top: 0;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.min-h-screen {
+    min-height: 100vh;
+}
