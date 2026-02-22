@@ -20,6 +20,10 @@ class StreamRead(BaseModel):
     class Config:
         from_attributes = True
 
+class StreamCreate(BaseModel):
+    title: str
+    description: str | None = None
+
 @router.get("/", response_model=List[StreamRead])
 async def list_active_per_streams(db: AsyncSession = Depends(get_db)):
     """List all currently live streams."""
@@ -30,16 +34,15 @@ async def list_active_per_streams(db: AsyncSession = Depends(get_db)):
 
 @router.post("/", response_model=StreamRead)
 async def create_stream(
-    title: str,
-    description: str = None,
+    stream_data: StreamCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Create a new stream session for the current user."""
     new_stream = Stream(
         user_id=current_user.id,
-        title=title,
-        description=description,
+        title=stream_data.title,
+        description=stream_data.description,
         status=StreamStatus.scheduled
     )
     db.add(new_stream)
