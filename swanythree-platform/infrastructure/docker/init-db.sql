@@ -1036,3 +1036,25 @@ INSERT INTO weekly_challenges (title, description, icon, action_type, target, xp
 --   SELECT count(*) FROM badges;
 --   SELECT count(*) FROM weekly_challenges;
 -- =============================================================================
+
+-- ---------------------------------------------------------
+-- NFTs
+-- ---------------------------------------------------------
+CREATE TABLE nfts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    stream_id UUID REFERENCES streams(id) ON DELETE SET NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    video_url TEXT NOT NULL,
+    mint_hash VARCHAR(255),
+    token_id VARCHAR(100),
+    contract_address VARCHAR(255),
+    blockchain VARCHAR(50) DEFAULT 'polygon',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX ix_nfts_user_id ON nfts(user_id);
+CREATE INDEX ix_nfts_stream_id ON nfts(stream_id);
+CREATE TRIGGER trigger_update_nfts_updated_at BEFORE UPDATE ON nfts FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

@@ -241,6 +241,7 @@ class User(Base):
     post_comments: Mapped[List["PostComment"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     ai_tasks: Mapped[List["AITask"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     vault_items: Mapped[List["VaultItem"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    nfts: Mapped[List["NFT"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index("ix_users_email", "email"),
@@ -1253,3 +1254,29 @@ __all__ = [
     "AITaskType",
     "VaultItemType",
 ]
+
+class NFT(Base):
+    """
+    Track minted stream highlights as NFTs.
+    """
+    __tablename__ = "nfts"
+
+    id: Mapped[UUID] = _uuid_pk()
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    stream_id: Mapped[UUID] = mapped_column(ForeignKey("streams.id"), nullable=True)
+    
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
+    video_url: Mapped[str] = mapped_column(Text, nullable=False)
+    
+    mint_hash: Mapped[str] = mapped_column(String(255), nullable=True)
+    token_id: Mapped[str] = mapped_column(String(100), nullable=True)
+    contract_address: Mapped[str] = mapped_column(String(255), nullable=True)
+    blockchain: Mapped[str] = mapped_column(String(50), default="polygon")
+    
+    created_at: Mapped[datetime] = _created_at()
+    updated_at: Mapped[datetime] = _updated_at()
+
+    # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="nfts")
+    stream: Mapped["Stream"] = relationship("Stream")

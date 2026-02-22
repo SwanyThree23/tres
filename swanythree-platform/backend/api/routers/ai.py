@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.database import get_db
 from api.middleware.auth import get_current_user
-from api.services.nft import nft_service
-from api.services.ai import ai_service
+from services.nft import nft_service
+from services.ai import ai_service
 from models.entities import User
 from pydantic import BaseModel
 from typing import Dict, Any
