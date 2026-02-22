@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.database import get_db
 from api.middleware.auth import get_current_user
-from services.analytics import analytics_service
+from services.payment import payment_service
 from models.entities import User
 from pydantic import BaseModel
 
