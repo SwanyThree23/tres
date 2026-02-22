@@ -1,6 +1,6 @@
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
-uvloop==0.21.0
+# uvloop==0.21.0 (Not supported on Windows)
 httptools==0.6.4
 python-socketio==5.11.4
 sqlalchemy[asyncio]==2.0.36
