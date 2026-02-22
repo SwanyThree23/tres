@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from uuid import UUID
 from api.database import get_db
 from api.middleware.auth import get_current_user
@@ -30,5 +31,3 @@ async def get_stream_analytics(
         raise HTTPException(status_code=404, detail="Analytics not available for this stream yet")
         
     return analytics
-
-from sqlalchemy import select # Fixed missing import
