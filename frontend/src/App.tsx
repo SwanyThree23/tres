@@ -66,7 +66,11 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <button className="p-2 hover:bg-white/5 rounded-lg transition-colors relative">
+                    <button
+                        className="p-2 hover:bg-white/5 rounded-lg transition-colors relative"
+                        aria-label="View notifications"
+                        title="Notifications"
+                    >
                         <Bell size={20} className="text-slate-400" />
                         {notifications.length > 0 && (
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -95,9 +99,11 @@ const App: React.FC = () => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
+                            aria-label={`Switch to ${tab.id} view`}
+                            title={tab.id.charAt(0).toUpperCase() + tab.id.slice(1)}
                             className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === tab.id
-                                    ? 'bg-violet-600 text-white shadow-xl shadow-violet-500/40'
-                                    : 'text-slate-500 hover:text-white hover:bg-white/5'
+                                ? 'bg-violet-600 text-white shadow-xl shadow-violet-500/40'
+                                : 'text-slate-500 hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             <tab.icon size={24} />
@@ -120,6 +126,8 @@ const App: React.FC = () => {
                                 ) : (
                                     <button
                                         onClick={() => setIsLive(true)}
+                                        aria-label="Start live broadcast"
+                                        title="Go Live"
                                         className="w-16 h-16 rounded-full bg-violet-600 flex items-center justify-center hover:scale-110 transition-transform shadow-2xl shadow-violet-500/50"
                                     >
                                         <Play className="text-white fill-white ml-1" size={28} />
