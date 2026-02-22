@@ -71,7 +71,11 @@ const Browse: React.FC = () => {
                             </div>
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                                <button className="w-12 h-12 rounded-full bg-violet-600 flex items-center justify-center shadow-xl shadow-violet-500/40">
+                                <button
+                                    className="w-12 h-12 rounded-full bg-violet-600 flex items-center justify-center shadow-xl shadow-violet-500/40"
+                                    aria-label={`Watch ${stream.user}`}
+                                    title="Watch Now"
+                                >
                                     <Play fill="white" size={20} className="ml-1" />
                                 </button>
                             </div>
@@ -85,7 +89,11 @@ const Browse: React.FC = () => {
                                 <h4 className="font-bold text-white group-hover:text-violet-400 transition-colors line-clamp-1">{stream.title}</h4>
                                 <p className="text-xs text-slate-500 mt-1 font-medium">{stream.user} • {stream.category}</p>
                             </div>
-                            <button className="p-2 text-slate-500 hover:text-red-500 transition-colors">
+                            <button
+                                className="p-2 text-slate-500 hover:text-red-500 transition-colors"
+                                aria-label={`Follow ${stream.user}`}
+                                title="Follow Creator"
+                            >
                                 <Heart size={18} />
                             </button>
                         </div>
