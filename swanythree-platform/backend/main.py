@@ -13,6 +13,8 @@ async def lifespan(app: FastAPI):
     # Shutdown
     await close_db()
 
+from api.routers import root_router
+
 app = FastAPI(
     title="SwanyThree API",
     description="Production-grade backend for the SwanyThree live-streaming platform.",
@@ -23,6 +25,9 @@ app = FastAPI(
 # Setup Middleware
 setup_cors(app)
 app.add_middleware(RateLimitMiddleware)
+
+# Setup Routers
+app.include_router(root_router)
 
 @app.get("/api/health")
 async def health_check():
