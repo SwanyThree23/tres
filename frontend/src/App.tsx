@@ -276,7 +276,7 @@ const App: React.FC = () => {
                             <Zap className="text-white fill-white" size={16} />
                         </div>
                         <div>
-                            <h2 className="text-sm md:text-base font-bold text-white truncate max-w-[120px] md:max-w-none">{pageTitle[activeTab]}</h2>
+                            <h2 className="text-base md:text-lg font-black text-white truncate max-w-[150px] md:max-w-none tracking-tight">{pageTitle[activeTab]}</h2>
                             <div className="flex items-center gap-1.5 mt-0.5">
                                 {isConnected ? (
                                     <Wifi size={9} className="text-emerald-400" />
@@ -362,16 +362,15 @@ const App: React.FC = () => {
 
                         {/* User profile */}
                         <button
-                            id="profile-btn"
-                            className="flex items-center gap-3 hover:bg-white/5 pl-1 pr-3 py-1 rounded-2xl transition-colors"
                             id="user-profile-btn"
-                            className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5 shrink-0 hover:scale-105 transition-transform"
-                            aria-label="User profile"
+                            className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5 shrink-0 hover:scale-105 transition-transform overflow-hidden"
+                            onClick={() => setActiveTab('settings')}
+                            aria-label="User profile and settings"
                         >
                             <img
                                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'Felix'}`}
                                 className="w-full h-full rounded-[10px] bg-slate-900 object-cover"
-                                alt="Profile"
+                                alt="User Avatar"
                             />
                         </button>
                     </div>
@@ -379,12 +378,18 @@ const App: React.FC = () => {
 
                 {/* ── Main Viewport ─────────────────────────────────────── */}
                 <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar pb-32 md:pb-8">
-                    {activeTab === 'home' && <Dashboard />}
-                    {activeTab === 'browse' && <Browse onWatchChannel={(id) => { setStreamId(id); setActiveTab('watch'); }} />}
-                    {activeTab === 'studio' && <Studio onAction={addNotification} />}
-                    {activeTab === 'watch' && <Watch streamId={streamId || undefined} onAction={addNotification} />}
-                    {activeTab === 'analytics' && <Analytics />}
-                    {activeTab === 'settings' && <Settings />}
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.18 }}
+                            className="h-full"
+                        >
+                            {renderContent()}
+                        </motion.div>
+                    </AnimatePresence>
                 </main>
             </div>
 
