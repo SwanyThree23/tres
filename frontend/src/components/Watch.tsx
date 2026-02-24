@@ -80,36 +80,58 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
         { id: '6', user: 'Starlight', avatar: 'E5', isLive: true },
     ];
 
+    const [infoPanels, setInfoPanels] = useState([
+        { id: 1, title: 'About the Streamer', content: 'Building the future of decentralized media. AI researcher by day, creative coder by night.' },
+        { id: 2, title: 'Streaming Schedule', content: 'Mon-Fri: 8 PM EST. Weekends: Surprise deep-dive sessions.' },
+    ]);
+
+    const addPanel = () => {
+        const id = Date.now();
+        setInfoPanels([...infoPanels, { 
+            id, 
+            title: 'New Panel', 
+            content: 'Click edit to customize this space for your audience.' 
+        }]);
+    };
+
     return (
         <div className="grid grid-cols-12 gap-5 h-full animate-fade-in">
 
             {/* ── Left Column: Live Panel (Bigo Style) ──────────────── */}
-            <div className="col-span-1 glass-panel flex flex-col items-center py-5 gap-4 overflow-y-auto no-scrollbar shrink-0">
-                <div className="text-[8px] font-black uppercase text-slate-500 tracking-tighter mb-2">Live Now</div>
-                {streamers.map((s, i) => (
-                    <motion.button
-                        key={s.id}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.05 }}
-                        className={`relative w-12 h-12 rounded-2xl border-2 shrink-0 transition-all group ${s.id === streamId ? 'border-violet-500 bg-violet-500/10 scale-110 shadow-lg shadow-violet-500/30' : 'border-white/5 hover:border-white/20'}`}
+            <div className="col-span-2 glass-panel flex flex-col items-center py-5 gap-4 overflow-y-auto no-scrollbar shrink-0">
+                <div className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2 px-4 text-center">Live Discovery</div>
+                <div className="w-full px-3 space-y-3">
+                    {streamers.map((s, i) => (
+                        <motion.button
+                            key={s.id}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.05 }}
+                            className={`relative w-full aspect-square rounded-2xl border-2 shrink-0 transition-all group overflow-hidden ${s.id === streamId ? 'border-violet-500 bg-violet-500/10 scale-[1.02] shadow-lg shadow-violet-500/30' : 'border-white/5 hover:border-white/20'}`}
+                        >
+                            <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${s.avatar}`} className="w-full h-full object-cover" alt={s.user} />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                                <span className="text-[8px] font-bold text-white truncate">{s.user}</span>
+                            </div>
+                            {s.isLive && (
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full live-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+                            )}
+                        </motion.button>
+                    ))}
+                    <button 
+                        onClick={() => alert('Start your stream in the Studio to appear here!')}
+                        className="w-full aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-500 hover:text-cyan-400 hover:border-cyan-500/30 transition-all gap-1"
                     >
-                        <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${s.avatar}`} className="w-full h-full rounded-[0.8rem]" alt={s.user} />
-                        {s.isLive && (
-                            <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 border-2 border-deep-dark rounded-full live-pulse" />
-                        )}
-                        <div className="tooltip-text">{s.user}</div>
-                    </motion.button>
-                ))}
+                        <Zap size={16} />
+                        <span className="text-[8px] font-bold uppercase">Go Live</span>
+                    </button>
+                </div>
                 <div className="flex-1" />
-                <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-500 hover:text-white transition-colors">
-                    <X size={16} />
-                </button>
             </div>
 
             {/* ── Middle Column: Video Player ───────────────────────── */}
-            <div className="col-span-7 flex flex-col gap-4">
-                <div className="relative bg-black rounded-3xl overflow-hidden aspect-video group">
+            <div className="col-span-6 flex flex-col gap-4 overflow-y-auto no-scrollbar pb-10">
+                <div className="relative bg-black rounded-3xl overflow-hidden aspect-video group shrink-0 border border-white/5 shadow-2xl">
                     {/* Simulated video feed */}
                     <div className="absolute inset-0 bg-gradient-to-br from-violet-900/30 via-slate-900 to-cyan-900/30 flex items-center justify-center">
                         <div className="text-center relative z-10 p-6 backdrop-blur-md rounded-3xl bg-black/20">
@@ -254,10 +276,39 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                         </div>
                     </div>
                 </div>
+
+                {/* Info Panels Section */}
+                <div className="grid grid-cols-2 gap-4">
+                    {infoPanels.map(panel => (
+                        <motion.div
+                            key={panel.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="glass-panel p-6 border-white/5 group relative"
+                        >
+                            <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-[0.2em] mb-4">{panel.title}</h3>
+                            <p className="text-sm text-slate-400 leading-relaxed">
+                                {panel.content}
+                            </p>
+                            <button className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/5 rounded-lg text-slate-500">
+                                <Settings2 size={12} />
+                            </button>
+                        </motion.div>
+                    ))}
+                    
+                    {/* Create Panel Button */}
+                    <button
+                        onClick={addPanel}
+                        className="glass-panel p-6 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-violet-400 hover:border-violet-500/30 transition-all"
+                    >
+                        <Zap size={20} className="animate-glow-pulse" />
+                        <span className="text-xs font-bold uppercase tracking-widest">Create New Panel</span>
+                    </button>
+                </div>
             </div>
 
             {/* Chat Panel */}
-            <div className="col-span-4 glass-panel flex flex-col">
+            <div className="col-span-4 glass-panel flex flex-col h-full">
                 {/* Chat Header */}
                 <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2">
