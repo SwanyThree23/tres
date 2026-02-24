@@ -124,6 +124,63 @@ const App: React.FC = () => {
 
     return (
         <div className="flex flex-col md:flex-row h-screen bg-deep-dark overflow-hidden text-slate-200">
+
+            {/* ── Initial Entry Splash (Media Prompt + Focus) ────────── */}
+            <AnimatePresence>
+                {!hasInteracted && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] bg-[hsl(240,20%,2%)] flex items-center justify-center p-6"
+                    >
+                        <div className="absolute inset-0 overflow-hidden">
+                             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/20 blur-[120px] rounded-full animate-pulse" />
+                             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600/20 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                        </div>
+
+                        <motion.div 
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="relative z-10 max-w-2xl w-full text-center"
+                        >
+                            <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-violet-600 to-cyan-400 rounded-3xl flex items-center justify-center shadow-2xl shadow-violet-500/40 mx-auto mb-10">
+                                <Zap className="text-white fill-white" size={32} />
+                            </div>
+
+                            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-6 leading-tight">
+                                Experience the <br/> <span className="gradient-text">Future of Live Media</span>
+                            </h1>
+                            <p className="text-slate-400 text-base md:text-lg mb-12 max-w-sm mx-auto leading-relaxed">
+                                Grant access to interact in real-time.
+                            </p>
+
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
+                                <button
+                                    onClick={() => requestMedia('watch')}
+                                    className="px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs md:text-sm shadow-2xl shadow-violet-600/40 transition-all active:scale-95 flex items-center justify-center gap-3"
+                                >
+                                    <Tv2 size={20} /> Join Watch Party
+                                </button>
+                                <button
+                                    onClick={() => requestMedia('browse')}
+                                    className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-[2rem] font-black uppercase tracking-widest text-xs md:text-sm backdrop-blur-xl transition-all active:scale-95 flex items-center justify-center gap-3"
+                                >
+                                    <LayoutDashboard size={20} className="text-cyan-400" /> Create Studio
+                                </button>
+                            </div>
+                            
+                            <button 
+                                onClick={() => setHasInteracted(true)}
+                                className="mt-12 text-slate-600 hover:text-slate-400 text-[9px] font-bold uppercase tracking-[0.3em] transition-colors"
+                            >
+                                Skip interactive setup
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* ── Sidebar Navigation (Desktop) ────────────────────────── */}
             <aside className="hidden md:flex w-24 flex-col items-center py-8 border-r border-white/5 bg-surface-dark z-50 shrink-0">
                 {/* Logo */}
