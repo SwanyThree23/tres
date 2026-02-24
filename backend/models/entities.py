@@ -263,7 +263,7 @@ class UserSession(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -292,7 +292,7 @@ class UserOAuth(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -320,7 +320,7 @@ class UserSettings(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -332,7 +332,7 @@ class UserSettings(Base):
     auto_record: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), nullable=False)
     default_stream_quality: Mapped[str] = mapped_column(String(20), server_default=text("'720p'"), nullable=False)
     ai_features_enabled: Mapped[bool] = mapped_column(Boolean, server_default=text("true"), nullable=False)
-    custom_preferences: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    custom_preferences: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     updated_at: Mapped[datetime] = _updated_at()
 
     user: Mapped["User"] = relationship(back_populates="user_settings")
@@ -348,7 +348,7 @@ class Stream(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -364,7 +364,7 @@ class Stream(Base):
     viewer_count: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
     peak_viewers: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
     category: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    tags: Mapped[Optional[list[Any]]] = mapped_column(JSONB, nullable=True)
+    tags: Mapped[Optional[list[Any]]] = mapped_column(JSON, nullable=True)
     scheduled_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     ended_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -397,12 +397,12 @@ class StreamGuest(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     stream_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -433,7 +433,7 @@ class StreamDestination(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     stream_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -463,7 +463,7 @@ class Recording(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     stream_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -497,12 +497,12 @@ class Transaction(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     recipient_id: Mapped[Optional[UUID]] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
@@ -519,7 +519,7 @@ class Transaction(Base):
     currency: Mapped[str] = mapped_column(String(3), server_default=text("'USD'"), nullable=False)
     platform_fee: Mapped[float] = mapped_column(Float, server_default=text("0.0"), nullable=False)
     stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
     updated_at: Mapped[datetime] = _updated_at()
 
@@ -543,7 +543,7 @@ class Payout(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -575,7 +575,7 @@ class Subscription(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -610,7 +610,7 @@ class UserGamification(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -637,7 +637,7 @@ class XPHistory(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -647,7 +647,7 @@ class XPHistory(Base):
     )
     xp_amount: Mapped[int] = mapped_column(Integer, nullable=False)
     multiplier: Mapped[float] = mapped_column(Float, server_default=text("1.0"), nullable=False)
-    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
     user: Mapped["User"] = relationship(back_populates="xp_history")
@@ -677,7 +677,7 @@ class Badge(Base):
         nullable=False,
     )
     xp_reward: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
-    criteria: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    criteria: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
     user_badges: Mapped[List["UserBadge"]] = relationship(back_populates="badge", cascade="all, delete-orphan")
@@ -693,12 +693,12 @@ class UserBadge(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     badge_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("badges.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -724,7 +724,7 @@ class WeeklyChallenge(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     xp_reward: Mapped[int] = mapped_column(Integer, nullable=False)
-    criteria: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    criteria: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     goal_value: Mapped[int] = mapped_column(Integer, server_default=text("1"), nullable=False)
     status: Mapped[ChallengeStatus] = mapped_column(
         Enum(ChallengeStatus, name="challenge_status", create_constraint=True),
@@ -752,12 +752,12 @@ class UserChallengeProgress(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     challenge_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("weekly_challenges.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -784,19 +784,19 @@ class ChatMessage(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     stream_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), nullable=False)
     is_pinned: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), nullable=False)
-    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
     stream: Mapped["Stream"] = relationship(back_populates="chat_messages")
@@ -818,17 +818,17 @@ class ChatBan(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     stream_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     banned_by: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -856,12 +856,12 @@ class Follower(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     follower_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     following_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -886,7 +886,7 @@ class Notification(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -898,7 +898,7 @@ class Notification(Base):
     body: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     is_read: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), nullable=False)
     action_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
     user: Mapped["User"] = relationship(back_populates="notifications")
@@ -919,12 +919,12 @@ class Post(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    media_urls: Mapped[Optional[list[Any]]] = mapped_column(JSONB, nullable=True)
+    media_urls: Mapped[Optional[list[Any]]] = mapped_column(JSON, nullable=True)
     like_count: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
     comment_count: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
     is_pinned: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), nullable=False)
@@ -951,12 +951,12 @@ class PostLike(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     post_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("posts.id", ondelete="CASCADE"),
         nullable=False,
     )
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -980,18 +980,18 @@ class PostComment(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     post_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("posts.id", ondelete="CASCADE"),
         nullable=False,
     )
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     parent_id: Mapped[Optional[UUID]] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("post_comments.id", ondelete="CASCADE"),
         nullable=True,
     )
@@ -1017,12 +1017,12 @@ class AITask(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     stream_id: Mapped[Optional[UUID]] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="SET NULL"),
         nullable=True,
     )
@@ -1035,8 +1035,8 @@ class AITask(Base):
         server_default=text("'queued'"),
         nullable=False,
     )
-    input_data: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
-    output_data: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    input_data: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
+    output_data: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     model_used: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     tokens_used: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
@@ -1063,7 +1063,7 @@ class StreamTranscript(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     stream_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -1093,7 +1093,7 @@ class StreamAnalytics(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     stream_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -1104,9 +1104,9 @@ class StreamAnalytics(Base):
     chat_message_count: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
     new_followers: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
     revenue: Mapped[float] = mapped_column(Float, server_default=text("0.0"), nullable=False)
-    viewer_timeline: Mapped[Optional[list[Any]]] = mapped_column(JSONB, nullable=True)
-    geo_distribution: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
-    device_breakdown: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    viewer_timeline: Mapped[Optional[list[Any]]] = mapped_column(JSON, nullable=True)
+    geo_distribution: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
+    device_breakdown: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
     updated_at: Mapped[datetime] = _updated_at()
 
@@ -1129,7 +1129,7 @@ class PlatformMetrics(Base):
     total_revenue: Mapped[float] = mapped_column(Float, server_default=text("0.0"), nullable=False)
     new_signups: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
     ai_tasks_processed: Mapped[int] = mapped_column(Integer, server_default=text("0"), nullable=False)
-    extra_metrics: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    extra_metrics: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
     __table_args__ = (
@@ -1147,7 +1147,7 @@ class VaultItem(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -1181,11 +1181,11 @@ class EmbedConfig(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     stream_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
-    allowed_domains: Mapped[Optional[list[Any]]] = mapped_column(JSONB, nullable=True)
+    allowed_domains: Mapped[Optional[list[Any]]] = mapped_column(JSON, nullable=True)
     theme: Mapped[str] = mapped_column(String(20), server_default=text("'dark'"), nullable=False)
     chat_enabled: Mapped[bool] = mapped_column(Boolean, server_default=text("true"), nullable=False)
     autoplay: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), nullable=False)
