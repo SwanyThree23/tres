@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import { Zap, Mail, Lock, ArrowRight, Github, User, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { authService } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 
-interface LoginProps {
-    onLogin: (token: string) => void;
-}
-
-type Mode = 'login' | 'register';
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
-    const [mode, setMode] = useState<Mode>('login');
+const Login: React.FC = () => {
+    const { login, register } = useAuth();
+    const [mode, setMode] = useState<'login' | 'register'>('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
@@ -24,31 +19,20 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         setError('');
 
         try {
-            let token = '';
-
             if (mode === 'login') {
-                const res = await authService.login(email, password);
-                token = res.data.access_token;
-                localStorage.setItem('refresh_token', res.data.refresh_token);
+                await login(email, password);
             } else {
-                const res = await authService.register({ username, email, password });
-                token = res.data.access_token;
-                localStorage.setItem('refresh_token', res.data.refresh_token);
+                await register({ username, email, password });
             }
-
-            localStorage.setItem('token', token);
-            onLogin(token);
-        } catch (err: unknown) {
-            // Graceful fallback when backend is not running
-            const anyErr = err as { response?: { data?: { detail?: string } } };
-            const apiMsg = anyErr?.response?.data?.detail;
-            if (!apiMsg) {
-                // Demo mode — bypass auth
-                const demoToken = 'demo-session-' + Date.now();
-                localStorage.setItem('token', demoToken);
-                onLogin(demoToken);
-            } else {
+        } catch (err: any) {
+            // Handle specific API errors or provide demo fallback
+            const apiMsg = err?.response?.data?.detail;
+            if (apiMsg) {
                 setError(apiMsg);
+            } else {
+                // If it's a network error or backend is down, we can still show the error
+                // or optionally implement a demo bypass here if needed.
+                setError('Authentication failed. Please check your connection.');
             }
         } finally {
             setIsLoading(false);
