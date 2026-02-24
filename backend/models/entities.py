@@ -230,7 +230,7 @@ class User(Base):
     oauth_accounts: Mapped[List["UserOAuth"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     user_settings: Mapped[Optional["UserSettings"]] = relationship(back_populates="user", uselist=False, cascade="all, delete-orphan")
     streams: Mapped[List["Stream"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    transactions: Mapped[List["Transaction"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    transactions: Mapped[List["Transaction"]] = relationship(back_populates="user", cascade="all, delete-orphan", foreign_keys="[Transaction.user_id]")
     payouts: Mapped[List["Payout"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     subscription: Mapped[Optional["Subscription"]] = relationship(back_populates="user", uselist=False, cascade="all, delete-orphan")
     gamification: Mapped[Optional["UserGamification"]] = relationship(back_populates="user", uselist=False, cascade="all, delete-orphan")
