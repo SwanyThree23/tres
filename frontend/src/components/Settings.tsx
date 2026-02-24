@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     User, Shield, Bell, Palette, Webhook, Key,
     Save, Eye, EyeOff, CheckCircle2, Moon,
     Sliders, Globe, CreditCard, Trash2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { userService } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 
 type Tab = 'profile' | 'security' | 'notifications' | 'integrations' | 'appearance';
 
@@ -23,15 +25,42 @@ const Settings: React.FC = () => {
     });
 
     const [profile, setProfile] = useState({
-        displayName: 'Swany_Dev',
-        bio: 'Master affiliate. AI-powered livestreaming pioneer.',
-        location: 'San Francisco, CA',
-        website: 'https://swanythree.io',
+        displayName: '',
+        bio: '',
+        location: '',
+        website: '',
+        avatarUrl: '',
     });
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleSave = () => {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2500);
+    useEffect(() => {
+        userService.getMe()
+            .then(res => {
+                const u = res.data;
+                setProfile({
+                    displayName: u.display_name || '',
+                    bio: u.bio || '',
+                    location: 'Earth', // Placeholder as not in schema yet
+                    website: 'https://swanythree.io', // Placeholder
+                    avatarUrl: u.avatar_url || '',
+                });
+            })
+            .catch(err => console.error('Failed to load profile', err))
+            .finally(() => setIsLoading(false));
+    }, []);
+
+    const handleSave = async () => {
+        try {
+            await userService.updateMe({
+                display_name: profile.displayName,
+                bio: profile.bio,
+                avatar_url: profile.avatarUrl,
+            });
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2500);
+        } catch (err) {
+            console.error('Failed to update profile', err);
+        }
     };
 
     const tabs: { id: Tab; icon: React.ElementType; label: string }[] = [
@@ -91,8 +120,8 @@ const Settings: React.FC = () => {
                                     <div className="relative">
                                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5">
                                             <img
-                                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
-                                                className="w-full h-full rounded-2xl bg-slate-900"
+                                                src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.displayName || 'Felix'}`}
+                                                className="w-full h-full rounded-2xl bg-slate-900 object-cover"
                                                 alt="Avatar"
                                             />
                                         </div>

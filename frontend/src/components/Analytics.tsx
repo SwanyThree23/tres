@@ -1,17 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Users, Clock, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { analyticsService } from '../services/api';
 
 const Analytics: React.FC = () => {
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        analyticsService.getGlobal()
+            .then(res => setData(res.data))
+            .catch(err => console.error('Failed to fetch analytics', err))
+            .finally(() => setLoading(false));
+    }, []);
+
+    const stats = [
+        { label: 'Total Viewers', value: data ? data.viewers.total.toLocaleString() : '...', icon: Users, color: 'text-violet-400', trend: data ? `+${data.growth.weekly_pct}%` : '' },
+        { label: 'Avg Watch Time', value: '18:42', icon: Clock, color: 'text-cyan-400', trend: '+5%' },
+        { label: 'Peak Concurrency', value: data ? data.viewers.peak_ever.toLocaleString() : '...', icon: Zap, color: 'text-emerald-400', trend: '+24%' },
+        { label: 'Total Revenue', value: data ? `$${data.revenue.total.toLocaleString()}` : '...', icon: TrendingUp, color: 'text-amber-400', trend: data ? `+${data.growth.monthly_pct}%` : '' },
+    ];
+
     return (
         <div className="space-y-6 animate-fade-in">
             <div className="grid grid-cols-4 gap-6">
-                {[
-                    { label: 'Total Viewers', value: '42.8K', icon: Users, color: 'text-violet-400', trend: '+12%' },
-                    { label: 'Avg Watch Time', value: '18:42', icon: Clock, color: 'text-cyan-400', trend: '+5%' },
-                    { label: 'Peak Concurrency', value: '2,481', icon: Zap, color: 'text-emerald-400', trend: '+24%' },
-                    { label: 'Growth Rate', value: '8.4%', icon: TrendingUp, color: 'text-amber-400', trend: '+2%' },
-                ].map((stat, i) => (
+                {stats.map((stat, i) => (
                     <motion.div
                         key={i}
                         initial={{ opacity: 0, y: 20 }}
@@ -101,7 +114,7 @@ const Analytics: React.FC = () => {
                             <h3 className="font-bold">AI Suggestion</h3>
                         </div>
                         <p className="text-xs text-slate-300 leading-relaxed">
-                            Based on recent 4K highlights, your audience engagement peaks during **High-Action Combat** scenes. Consider more frequent AI Highlight minting in the next broadcast.
+                            {data?.ai_suggestion || "Recalibrating AI models for current stream data. Continue broadcasting for better insights."}
                         </p>
                     </div>
                 </div>

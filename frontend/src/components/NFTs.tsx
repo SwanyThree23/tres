@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Clapperboard, Layers, Share2, ShoppingCart, Zap, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { nftService } from '../services/api';
 
 const NFTs: React.FC = () => {
+    const [nfts, setNfts] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        nftService.list()
+            .then(res => setNfts(res.data))
+            .catch(err => console.error('Failed to load NFTs', err))
+            .finally(() => setIsLoading(false));
+    }, []);
+
     return (
         <div className="space-y-6 animate-fade-in">
             <div className="flex justify-between items-center mb-4">
@@ -21,12 +32,17 @@ const NFTs: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-4 gap-6">
-                {[
-                    { title: 'Triple Kill Spree', date: 'Oct 20, 2026', price: '0.42 ETH', video: 'https://api.dicebear.com/7.x/shapes/svg?seed=123', tag: 'Legacy' },
-                    { title: 'Epic Clutch Moment', date: 'Oct 18, 2026', price: '0.15 ETH', video: 'https://api.dicebear.com/7.x/shapes/svg?seed=456', tag: 'Rare' },
-                    { title: 'Victory Dance', date: 'Oct 15, 2026', price: '0.08 ETH', video: 'https://api.dicebear.com/7.x/shapes/svg?seed=789', tag: 'Common' },
-                    { title: 'The Great Glitch', date: 'Oct 14, 2026', price: '1.20 ETH', video: 'https://api.dicebear.com/7.x/shapes/svg?seed=012', tag: 'Legendary' },
-                ].map((item, i) => (
+                {isLoading ? (
+                    [1, 2, 3, 4].map(i => (
+                        <div key={i} className="glass-panel aspect-[4/5] animate-pulse bg-white/5" />
+                    ))
+                ) : nfts.length === 0 ? (
+                    <div className="col-span-4 py-20 text-center glass-panel">
+                        <Clapperboard size={48} className="mx-auto text-slate-700 mb-4" />
+                        <h3 className="text-lg font-bold text-slate-400">No Highlights Yet</h3>
+                        <p className="text-sm text-slate-500">Go live and let the AI Director capture your best moments.</p>
+                    </div>
+                ) : nfts.map((item, i) => (
                     <motion.div
                         key={i}
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -35,9 +51,9 @@ const NFTs: React.FC = () => {
                         className="glass-panel overflow-hidden group border-white/5 hover:border-cyan-500/30 transition-all"
                     >
                         <div className="aspect-video relative bg-slate-900">
-                            <img src={item.video} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" alt={item.title} />
+                            <img src={item.video_url || `https://api.dicebear.com/7.x/shapes/svg?seed=${item.id}`} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" alt={item.title} />
                             <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-[8px] font-bold text-cyan-400 border border-cyan-500/30 uppercase tracking-widest">
-                                {item.tag}
+                                {item.blockchain}
                             </div>
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
                                 <Clapperboard className="text-white" size={32} />
@@ -45,12 +61,12 @@ const NFTs: React.FC = () => {
                         </div>
                         <div className="p-4">
                             <h4 className="font-bold text-sm mb-1">{item.title}</h4>
-                            <p className="text-[10px] text-slate-500 mb-4">{item.date} • #SY-{9000 + i}</p>
+                            <p className="text-[10px] text-slate-500 mb-4">{new Date(item.created_at).toLocaleDateString()} • {item.token_id || 'Pending Mint'}</p>
 
                             <div className="flex justify-between items-center pt-4 border-t border-white/5">
                                 <div>
-                                    <p className="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Market Price</p>
-                                    <p className="text-xs font-bold text-cyan-400 font-mono italic">{item.price}</p>
+                                    <p className="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Market Status</p>
+                                    <p className="text-xs font-bold text-cyan-400 font-mono italic">{item.mint_hash ? 'On-Chain' : 'Processing'}</p>
                                 </div>
                                 <div className="flex gap-2">
                                     <button className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors" title="Share NFT">

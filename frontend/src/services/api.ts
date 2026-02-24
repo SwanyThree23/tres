@@ -80,6 +80,7 @@ export const analyticsService = {
 
 // ── NFT / AI Service ───────────────────────────────────────────────────────
 export const nftService = {
+    list: () => api.get('/nfts/'),
     mintHighlight: (data: {
         video_url: string;
         title: string;
@@ -102,6 +103,8 @@ export const notificationsService = {
 // ── User / Profile Service ─────────────────────────────────────────────────
 export const userService = {
     getMe: () => api.get('/users/me'),
+    updateMe: (data: { display_name?: string; bio?: string; avatar_url?: string }) =>
+        api.patch('/users/me', data),
     list: () => api.get('/users'),
 };
 
