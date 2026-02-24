@@ -57,7 +57,11 @@ const recentActivity = [
     { user: 'IronGamer', action: 'followed you', amount: '', time: '3h ago', avatar: 'Epsilon' },
 ];
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+    initialAction?: 'watch' | 'panel' | 'browse';
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ initialAction }) => {
     const { user } = useAuth();
     const [time, setTime] = useState(new Date());
     const [isWatchPartyModalOpen, setIsWatchPartyModalOpen] = useState(false);
@@ -77,6 +81,11 @@ const Dashboard: React.FC = () => {
         const t = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(t);
     }, []);
+
+    useEffect(() => {
+        if (initialAction === 'watch') setIsWatchPartyModalOpen(true);
+        if (initialAction === 'panel') setIsPanelModalOpen(true);
+    }, [initialAction]);
 
     useEffect(() => {
         analyticsService.getGlobal()
