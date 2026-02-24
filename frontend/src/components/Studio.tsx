@@ -16,6 +16,7 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
         isStarting,
         isStopping,
         viewerCount,
+        streamId,
         startStream,
         stopStream,
     } = useStream(onAction);
@@ -260,7 +261,7 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
             <div className="col-span-4 flex flex-col gap-5 overflow-y-auto no-scrollbar pb-10">
 
                 {/* Guest Streaming Destinations */}
-                <Destinations />
+                <Destinations streamId={streamId || undefined} />
 
                 {/* Revenue Snapshot */}
                 <div className="glass-panel p-6 bg-gradient-to-br from-violet-600/8 to-transparent flex-1">

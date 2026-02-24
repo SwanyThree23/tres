@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft, Settings2, Shield, Lock, ExternalLink, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { streamService } from '../services/api';
+import { streamService, userService, aiService, createWebSocket } from '../services/api';
 import PermissionModal from './PermissionModal';
 
 interface ChatMsg {
@@ -13,7 +13,7 @@ interface ChatMsg {
 }
 
 interface InfoPanel {
-    id: number;
+    id: string;
     title: string;
     content: string;
 }
@@ -40,12 +40,40 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
     useEffect(() => {
         if (streamId) {
             streamService.getStream(streamId)
-                .then(res => setStream(res.data))
+                .then(res => {
+                    setStream(res.data);
+                    setIsPartyActive(res.data.is_party_active);
+                    setPartyUrl(res.data.party_url || '');
+                })
                 .catch(err => console.error("Failed to fetch stream", err))
                 .finally(() => setLoading(false));
         } else {
             setLoading(false);
         }
+    }, [streamId]);
+
+    useEffect(() => {
+        // Fetch panels for the current user or streamer
+        userService.getMyPanels()
+            .then(res => setInfoPanels(res.data))
+            .catch(err => console.error("Failed to fetch panels", err));
+
+        // WS Setup for sync
+        const ws = createWebSocket();
+        ws.onopen = () => {
+            if (streamId) {
+                ws.send(JSON.stringify({ type: 'subscribe', room: `stream_${streamId}` }));
+            }
+        };
+        ws.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            if (data.type === 'party_sync') {
+                setIsPartyActive(data.is_active);
+                setPartyUrl(data.url);
+                // In a real app, we'd sync player time here
+            }
+        };
+        return () => ws.close();
     }, [streamId]);
     const [chatMessages, setChatMessages] = useState<ChatMsg[]>([
         { id: 1, user: 'NeonVibes', text: 'LETS GOOOO 🔥', avatar: 'A1', isHighlight: false },
@@ -92,6 +120,12 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
         }, 2000);
     };
 
+    const [infoPanels, setInfoPanels] = useState<InfoPanel[]>([]);
+    const [editingPanel, setEditingPanel] = useState<string | null>(null);
+    const [showPermissions, setShowPermissions] = useState(false);
+    const [isPartyActive, setIsPartyActive] = useState(false);
+    const [partyUrl, setPartyUrl] = useState('');
+
     const streamers = [
         { id: '1', user: 'NeonVibes', avatar: 'A1', isLive: true },
         { id: '2', user: 'CyberPunker', avatar: 'B2', isLive: true },
@@ -101,36 +135,55 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
         { id: '6', user: 'Starlight', avatar: 'E5', isLive: true },
     ];
 
-    const [infoPanels, setInfoPanels] = useState<InfoPanel[]>([
-        { id: 1, title: 'About the Streamer', content: 'Building the future of decentralized media. AI researcher by day, creative coder by night.' },
-        { id: 2, title: 'Streaming Schedule', content: 'Mon-Fri: 8 PM EST. Weekends: Surprise deep-dive sessions.' },
-    ]);
-
-    const addPanel = () => {
-        const id = Date.now();
-        setInfoPanels([...infoPanels, { 
-            id, 
-            title: 'New Panel', 
-            content: 'Click edit to customize this space for your audience.' 
-        }]);
+    const startParty = async (url: string) => {
+        if (!url || !streamId) return;
+        try {
+            await streamService.updateStreamSync(streamId, {
+                is_party_active: true,
+                party_url: url
+            });
+            setPartyUrl(url);
+            setIsPartyActive(true);
+            onAction?.('Party Started', 'Your watch party is now live and syncing.');
+        } catch (err) {
+            onAction?.('Error', 'Failed to start watch party.');
+        }
     };
 
-    const [showPermissions, setShowPermissions] = useState(false);
-    const [isPartyActive, setIsPartyActive] = useState(false);
-    const [partyUrl, setPartyUrl] = useState('');
-    const [editingPanel, setEditingPanel] = useState<number | null>(null);
-
-    const startParty = (url: string) => {
-        if (!url) return;
-        setPartyUrl(url);
-        setIsPartyActive(true);
-        onAction?.('Party Started', 'Your watch party is now live and syncing.');
+    const stopParty = async () => {
+        if (!streamId) return;
+        try {
+            await streamService.updateStreamSync(streamId, {
+                is_party_active: false
+            });
+            setIsPartyActive(false);
+            onAction?.('Party Ended', 'The watch party has been terminated.');
+        } catch (err) {
+            onAction?.('Error', 'Failed to stop watch party.');
+        }
     };
 
-    const savePanel = (id: number, title: string, content: string) => {
-        setInfoPanels(prev => prev.map(p => p.id === id ? { ...p, title, content } : p));
-        setEditingPanel(null);
-        onAction?.('Panel Updated', 'Your changes have been saved to the stream.');
+    const savePanel = async (id: string, title: string, content: string) => {
+        try {
+            await userService.updatePanel(id, { title, content });
+            setInfoPanels(prev => prev.map(p => p.id === id ? { ...p, title, content } : p));
+            setEditingPanel(null);
+            onAction?.('Panel Updated', 'Your changes have been saved.');
+        } catch (err) {
+            onAction?.('Error', 'Failed to save panel.');
+        }
+    };
+
+    const addPanel = async () => {
+        try {
+            const res = await userService.createPanel({
+                title: 'New Panel',
+                content: 'Customize this space for your audience.'
+            });
+            setInfoPanels([...infoPanels, res.data]);
+        } catch (err) {
+            onAction?.('Error', 'Failed to create panel.');
+        }
     };
 
     return (
@@ -207,7 +260,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
                                     Sharing media via <br/> <span className="text-cyan-400 font-mono">{partyUrl.substring(0, 40)}...</span>
                                 </p>
                                 <button 
-                                    onClick={() => setIsPartyActive(false)}
+                                    onClick={stopParty}
                                     title="Disconnect from Watch Party"
                                     className="px-8 py-3 bg-red-600 hover:bg-red-500 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-red-500/30 transition-all hover:scale-105"
                                 >
@@ -385,12 +438,16 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
                                 <div className="space-y-4">
                                     <input 
                                         autoFocus
+                                        title="Panel Title"
+                                        placeholder="Enter panel title..."
                                         className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-bold text-white focus:border-violet-500 outline-none"
                                         defaultValue={panel.title}
                                         onBlur={(e) => savePanel(panel.id, e.target.value, panel.content)}
                                         onKeyDown={(e) => e.key === 'Enter' && savePanel(panel.id, e.currentTarget.value, panel.content)}
                                     />
                                     <textarea 
+                                        title="Panel Content"
+                                        placeholder="Enter description..."
                                         className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-400 focus:border-violet-500 outline-none h-24 resize-none"
                                         defaultValue={panel.content}
                                         onBlur={(e) => savePanel(panel.id, panel.title, e.target.value)}
@@ -404,6 +461,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
                                     </p>
                                     <button 
                                         onClick={() => setEditingPanel(panel.id)}
+                                        title="Edit this panel"
                                         className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/5 rounded-lg text-slate-500"
                                     >
                                         <Settings2 size={12} />
