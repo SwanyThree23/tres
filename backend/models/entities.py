@@ -243,6 +243,7 @@ class User(Base):
     post_likes: Mapped[List["PostLike"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     post_comments: Mapped[List["PostComment"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     ai_tasks: Mapped[List["AITask"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    panels: Mapped[List["CreatorPanel"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     vault_items: Mapped[List["VaultItem"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     nfts: Mapped[List["NFT"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
@@ -250,6 +251,33 @@ class User(Base):
         Index("ix_users_email", "email"),
         Index("ix_users_username", "username"),
         Index("ix_users_stream_key", "stream_key"),
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 1.5 CreatorPanel
+# ═══════════════════════════════════════════════════════════════════════════
+
+class CreatorPanel(Base):
+    __tablename__ = "creator_panels"
+
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = _created_at()
+    updated_at: Mapped[datetime] = _updated_at()
+
+    user: Mapped["User"] = relationship(back_populates="panels")
+
+    __table_args__ = (
+        Index("ix_creator_panels_user_id", "user_id"),
     )
 
 
@@ -369,6 +397,12 @@ class Stream(Base):
     started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     ended_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     mediasoup_room_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    
+    # Watch Party Sync
+    is_party_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    party_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    party_sync_status: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True) # {time: 0, state: 'playing'}
+
     created_at: Mapped[datetime] = _created_at()
     updated_at: Mapped[datetime] = _updated_at()
 
