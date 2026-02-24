@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft } from 'lucide-react';
+import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft, Settings2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { streamService } from '../services/api';
 
