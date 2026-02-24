@@ -63,6 +63,8 @@ Remove-Item $TMP_FILE -Force
 # Run SSH Commands
 $REMOTE_SCRIPT = @"
     echo '[Server] Copying Nginx config into place...'
+    apt-get update && apt-get install -y nginx
+    
     # Remove default nginx config to prevent port 80 collisions
     rm -f /etc/nginx/sites-enabled/default
     
