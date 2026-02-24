@@ -45,8 +45,8 @@ Write-Host "`n[2/5] Creating release archive ($ARCHIVE_NAME)..." -ForegroundColo
 # Remove old archive if it exists
 if (Test-Path $ARCHIVE_NAME) { Remove-Item $ARCHIVE_NAME -Force }
 
-# Create a temporary staging directory
-$STAGING_DIR = "release_staging"
+# Create a temporary staging directory (outside project root to avoid watcher interference)
+$STAGING_DIR = Join-Path $env:TEMP "swanythree_release_staging"
 if (Test-Path $STAGING_DIR) { Remove-Item $STAGING_DIR -Recurse -Force }
 New-Item -ItemType Directory -Path $STAGING_DIR | Out-Null
 
