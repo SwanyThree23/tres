@@ -1,425 +1,416 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
 import {
-    User, Shield, Bell, Palette, Webhook, Key,
-    Save, Eye, EyeOff, CheckCircle2, Moon,
-    Sliders, Globe, CreditCard, Trash2
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-import { userService } from '../services/api';
-import { useAuth } from '../hooks/useAuth';
+  User,
+  Shield,
+  Bell,
+  CreditCard,
+  Lock,
+  LogOut,
+  ChevronRight,
+  Camera,
+  Check,
+  Zap,
+  Star,
+  Crown,
+  Wallet,
+  Smartphone,
+  Mail,
+  Globe,
+  EyeOff,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../hooks/useAuth";
 
-type Tab = 'profile' | 'security' | 'notifications' | 'integrations' | 'appearance';
+type SettingsTab =
+  | "profile"
+  | "payouts"
+  | "notifications"
+  | "subscription"
+  | "privacy";
 
 const Settings: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<Tab>('profile');
-    const [showKey, setShowKey] = useState(false);
-    const [saved, setSaved] = useState(false);
-    const [darkMode] = useState(true);
-    const [notifications, setNotifications] = useState({
-        tips: true,
-        subscriptions: true,
-        nftSales: true,
-        mentions: false,
-        broadcasts: true,
-        analytics: false,
-    });
+  const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
-    const [profile, setProfile] = useState({
-        displayName: '',
-        bio: '',
-        location: '',
-        website: '',
-        avatarUrl: '',
-    });
-    const [isLoading, setIsLoading] = useState(true);
+  // ─── Profile State ──────────────────────────────────────────────────────
+  const [displayName, setDisplayName] = useState(user?.display_name || "");
+  const [bio, setBio] = useState("");
 
-    useEffect(() => {
-        userService.getMe()
-            .then(res => {
-                const u = res.data;
-                setProfile({
-                    displayName: u.display_name || '',
-                    bio: u.bio || '',
-                    location: 'Earth', // Placeholder as not in schema yet
-                    website: 'https://swanythree.io', // Placeholder
-                    avatarUrl: u.avatar_url || '',
-                });
-            })
-            .catch(err => console.error('Failed to load profile', err))
-            .finally(() => setIsLoading(false));
-    }, []);
+  // ─── Notification Toggles ───────────────────────────────────────────────
+  const [notifs, setNotifs] = useState({
+    newStream: true,
+    tips: true,
+    subs: true,
+    email: false,
+  });
 
-    const handleSave = async () => {
-        try {
-            await userService.updateMe({
-                display_name: profile.displayName,
-                bio: profile.bio,
-                avatar_url: profile.avatarUrl,
-            });
-            setSaved(true);
-            setTimeout(() => setSaved(false), 2500);
-        } catch (err) {
-            console.error('Failed to update profile', err);
-        }
-    };
+  const tabs: { id: SettingsTab; label: string; icon: any }[] = [
+    { id: "profile", label: "My Identity", icon: User },
+    { id: "payouts", label: "Financials", icon: Wallet },
+    { id: "notifications", label: "Preferences", icon: Bell },
+    { id: "subscription", label: "Tier Plan", icon: Zap },
+    { id: "privacy", label: "Security", icon: Shield },
+  ];
 
-    const tabs: { id: Tab; icon: React.ElementType; label: string }[] = [
-        { id: 'profile', icon: User, label: 'Profile' },
-        { id: 'security', icon: Shield, label: 'Security' },
-        { id: 'notifications', icon: Bell, label: 'Notifications' },
-        { id: 'integrations', icon: Webhook, label: 'Integrations' },
-        { id: 'appearance', icon: Palette, label: 'Appearance' },
-    ];
+  const ToggleRow = ({ title, subtitle, active, onToggle }: any) => (
+    <div className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
+      <div>
+        <p className="text-xs font-black text-white uppercase tracking-widest">
+          {title}
+        </p>
+        <p className="text-[10px] text-slate-500 mt-0.5">{subtitle}</p>
+      </div>
+      <button
+        onClick={onToggle}
+        className={`w-10 h-5 rounded-full transition-all relative ${active ? "bg-accent" : "bg-slate-700"}`}
+      >
+        <div
+          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${active ? "left-5.5" : "left-0.5"}`}
+        />
+      </button>
+    </div>
+  );
 
-    return (
-        <div className="max-w-5xl mx-auto space-y-6 animate-fade-in">
-            <div>
-                <h1 className="text-2xl font-bold text-white">Settings</h1>
-                <p className="text-slate-400 text-sm mt-1">Manage your platform preferences and account.</p>
-            </div>
-
-            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 pb-20 lg:pb-0">
-                {/* Sidebar / Tabs */}
-                <nav className="lg:col-span-3">
-                    <div className="glass-panel p-2 flex lg:flex-col overflow-x-auto lg:overflow-visible no-scrollbar gap-1">
-                        {tabs.map(t => (
-                            <button
-                                key={t.id}
-                                onClick={() => setActiveTab(t.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left ${activeTab === t.id
-                                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
-                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
-                                    }`}
-                            >
-                                <t.icon size={16} className="shrink-0" />
-                                <span className="whitespace-nowrap">{t.label}</span>
-                            </button>
-                        ))}
-                    </div>
-                </nav>
-
-                {/* Content */}
-                <div className="lg:col-span-9">
-                    <motion.div
-                        key={activeTab}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.25 }}
-                        className="glass-panel p-7 space-y-6"
-                    >
-                        {/* Profile Tab */}
-                        {activeTab === 'profile' && (
-                            <>
-                                <div>
-                                    <h2 className="text-lg font-bold mb-1">Profile Information</h2>
-                                    <p className="text-sm text-slate-400">Update your public creator profile.</p>
-                                </div>
-
-                                {/* Avatar */}
-                                <div className="flex items-center gap-6">
-                                    <div className="relative">
-                                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5">
-                                            <img
-                                                src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.displayName || 'Felix'}`}
-                                                className="w-full h-full rounded-2xl bg-slate-900 object-cover"
-                                                alt="Avatar"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <button className="btn-primary text-xs px-4 py-2 mb-2 block">Upload Photo</button>
-                                        <p className="text-[10px] text-slate-500">Recommended: 400×400px. JPG, PNG, GIF.</p>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    <div className="space-y-2">
-                                        <label htmlFor="display-name" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Display Name</label>
-                                        <input
-                                            id="display-name"
-                                            type="text"
-                                            value={profile.displayName}
-                                            onChange={e => setProfile(p => ({ ...p, displayName: e.target.value }))}
-                                            placeholder="Your display name"
-                                            className="input-field"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label htmlFor="location" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Location</label>
-                                        <input
-                                            id="location"
-                                            type="text"
-                                            value={profile.location}
-                                            onChange={e => setProfile(p => ({ ...p, location: e.target.value }))}
-                                            placeholder="City, Country"
-                                            className="input-field"
-                                        />
-                                    </div>
-                                    <div className="space-y-2 col-span-2">
-                                        <label htmlFor="bio" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Bio</label>
-                                        <textarea
-                                            id="bio"
-                                            value={profile.bio}
-                                            onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))}
-                                            rows={3}
-                                            placeholder="Tell viewers about yourself..."
-                                            className="input-field resize-none"
-                                        />
-                                    </div>
-                                    <div className="space-y-2 col-span-2">
-                                        <label htmlFor="website" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Website</label>
-                                        <div className="relative">
-                                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
-                                            <input
-                                                id="website"
-                                                type="url"
-                                                value={profile.website}
-                                                onChange={e => setProfile(p => ({ ...p, website: e.target.value }))}
-                                                placeholder="https://example.com"
-                                                className="input-field pl-10"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 pt-2 border-t border-white/5">
-                                    <button
-                                        onClick={handleSave}
-                                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all ${saved
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-violet-600 text-white hover:bg-violet-500'
-                                            }`}
-                                    >
-                                        {saved ? <CheckCircle2 size={16} /> : <Save size={16} />}
-                                        {saved ? 'Saved!' : 'Save Changes'}
-                                    </button>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Security Tab */}
-                        {activeTab === 'security' && (
-                            <>
-                                <div>
-                                    <h2 className="text-lg font-bold mb-1">Security & Access</h2>
-                                    <p className="text-sm text-slate-400">Manage your password, tokens, and 2FA.</p>
-                                </div>
-
-                                <div className="space-y-5">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Current Password</label>
-                                        <input type="password" placeholder="••••••••" className="input-field" />
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">New Password</label>
-                                            <input type="password" placeholder="••••••••" className="input-field" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Confirm Password</label>
-                                            <input type="password" placeholder="••••••••" className="input-field" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 border-t border-white/5">
-                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/8">
-                                        <div className="flex items-center gap-3">
-                                            <Shield size={18} className="text-violet-400" />
-                                            <div>
-                                                <p className="text-sm font-semibold text-white">Two-Factor Auth</p>
-                                                <p className="text-xs text-slate-400">Extra layer of security for your account.</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-green-400 font-bold">Enabled</span>
-                                            <div className="w-10 h-5 bg-green-600 rounded-full relative cursor-pointer">
-                                                <div className="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5 shadow" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="pt-2 border-t border-white/5">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div>
-                                            <p className="text-sm font-semibold text-white flex items-center gap-2">
-                                                <Key size={14} className="text-amber-400" /> Stream Key
-                                            </p>
-                                            <p className="text-xs text-slate-400">Use this in OBS or any streaming software.</p>
-                                        </div>
-                                        <button
-                                            onClick={() => setShowKey(!showKey)}
-                                            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
-                                        >
-                                            {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
-                                            {showKey ? 'Hide' : 'Reveal'}
-                                        </button>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <input
-                                            id="stream-key"
-                                            type={showKey ? 'text' : 'password'}
-                                            value="sk-swany3-live-abc123def456xyz789"
-                                            readOnly
-                                            title="Stream key"
-                                            placeholder="Stream key hidden"
-                                            aria-label="Stream key"
-                                            className="input-field font-mono text-xs flex-1"
-                                        />
-                                        <button className="btn-ghost px-4 text-xs py-0">Copy</button>
-                                        <button className="btn-danger px-4 text-xs py-0">Reset</button>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-3 pt-2 border-t border-white/5">
-                                    <button onClick={handleSave} className="btn-primary">
-                                        {saved ? 'Saved!' : 'Update Password'}
-                                    </button>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Notifications Tab */}
-                        {activeTab === 'notifications' && (
-                            <>
-                                <div>
-                                    <h2 className="text-lg font-bold mb-1">Notification Preferences</h2>
-                                    <p className="text-sm text-slate-400">Choose what events trigger real-time alerts.</p>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {(Object.entries(notifications) as [keyof typeof notifications, boolean][]).map(([key, value]) => (
-                                        <div key={key} className="flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-colors">
-                                            <div>
-                                                <p className="text-sm font-semibold text-white capitalize">
-                                                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                                                </p>
-                                                <p className="text-xs text-slate-500 mt-0.5">
-                                                    {key === 'tips' && 'Get notified when viewers send you tips.'}
-                                                    {key === 'subscriptions' && 'Alert on new subscriber events.'}
-                                                    {key === 'nftSales' && 'NFT marketplace sale confirmations.'}
-                                                    {key === 'mentions' && 'When another creator mentions you.'}
-                                                    {key === 'broadcasts' && 'Your scheduled broadcast reminders.'}
-                                                    {key === 'analytics' && 'Weekly analytics digest emails.'}
-                                                </p>
-                                            </div>
-                                            <button
-                                                onClick={() => setNotifications(n => ({ ...n, [key]: !value }))}
-                                                aria-label={`Toggle ${key} notifications`}
-                                                className={`w-11 h-6 rounded-full relative transition-all duration-300 ${value ? 'bg-violet-600' : 'bg-slate-700'}`}
-                                            >
-                                                <div className={`toggle-knob ${value ? 'right-0.5' : 'left-0.5'}`} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="flex gap-3 pt-2 border-t border-white/5">
-                                    <button onClick={handleSave} className="btn-primary">
-                                        {saved ? 'Saved!' : 'Save Preferences'}
-                                    </button>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Integrations Tab */}
-                        {activeTab === 'integrations' && (
-                            <>
-                                <div>
-                                    <h2 className="text-lg font-bold mb-1">Platform Integrations</h2>
-                                    <p className="text-sm text-slate-400">Connect external services to power your stream.</p>
-                                </div>
-                                <div className="space-y-4">
-                                    {[
-                                        { name: 'Stripe Connect', desc: 'Payment processing & payouts', status: 'Connected', color: 'text-green-400', icon: CreditCard },
-                                        { name: 'OpenRouter AI', desc: 'LLM-powered transcript & highlights', status: 'Active', color: 'text-cyan-400', icon: Sliders },
-                                        { name: 'Polygon NFT', desc: 'On-chain NFT minting contract', status: 'Deployed', color: 'text-violet-400', icon: Globe },
-                                    ].map(item => (
-                                        <div key={item.name} className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/7 hover:bg-white/5 transition-colors">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`p-2.5 rounded-xl bg-white/5 ${item.color}`}>
-                                                    <item.icon size={18} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-white">{item.name}</p>
-                                                    <p className="text-xs text-slate-400">{item.desc}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <span className={`text-[10px] font-bold ${item.color}`}>{item.status}</span>
-                                                <button className="btn-ghost px-3 py-1.5 text-xs">Manage</button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {/* Appearance Tab */}
-                        {activeTab === 'appearance' && (
-                            <>
-                                <div>
-                                    <h2 className="text-lg font-bold mb-1">Appearance</h2>
-                                    <p className="text-sm text-slate-400">Customize how the platform looks for you.</p>
-                                </div>
-
-                                <div className="space-y-5">
-                                    <div>
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Color Theme</p>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {[
-                                                { name: 'Cosmic (Default)', from: 'from-violet-600', to: 'to-cyan-500', active: true },
-                                                { name: 'Neon Ember', from: 'from-orange-500', to: 'to-pink-600', active: false },
-                                                { name: 'Emerald Tech', from: 'from-emerald-500', to: 'to-cyan-600', active: false },
-                                            ].map(theme => (
-                                                <button
-                                                    key={theme.name}
-                                                    className={`p-4 rounded-2xl border text-left transition-all ${theme.active
-                                                        ? 'border-violet-500/50 bg-violet-500/10'
-                                                        : 'border-white/8 glass-panel hover:border-white/20'
-                                                        }`}
-                                                >
-                                                    <div className={`w-full h-8 rounded-lg bg-gradient-to-r ${theme.from} ${theme.to} mb-2`} />
-                                                    <p className="text-xs font-semibold text-white">{theme.name}</p>
-                                                    {theme.active && <p className="text-[10px] text-violet-400 mt-0.5">Active</p>}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/8">
-                                        <div className="flex items-center gap-3">
-                                            <Moon size={18} className="text-violet-400" />
-                                            <div>
-                                                <p className="text-sm font-semibold text-white">Dark Mode</p>
-                                                <p className="text-xs text-slate-400">Always-on dark interface.</p>
-                                            </div>
-                                        </div>
-                                        <div className={`w-10 h-5 bg-violet-600 rounded-full relative`}>
-                                            <div className="w-[18px] h-[18px] bg-white rounded-full absolute right-0.5 top-0.5 shadow" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 border-t border-white/5">
-                                    <div className="p-4 rounded-2xl border border-red-500/20 bg-red-500/5">
-                                        <div className="flex items-center gap-3">
-                                            <Trash2 size={16} className="text-red-400" />
-                                            <div className="flex-1">
-                                                <p className="text-sm font-semibold text-red-400">Delete Account</p>
-                                                <p className="text-xs text-slate-500">This action is permanent and cannot be undone.</p>
-                                            </div>
-                                            <button className="btn-danger px-4 py-2 text-xs">Delete</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </motion.div>
-                </div>
-            </div>
+  return (
+    <div className="flex flex-col lg:flex-row gap-8 animate-fade-in max-w-6xl mx-auto h-full pb-20">
+      {/* ── Sidebar Nav ──────────────────────────────────────────── */}
+      <aside className="lg:w-64 flex flex-col gap-2 shrink-0">
+        <h2 className="f-dot-stat text-2xl text-white tracking-widest uppercase mb-6 px-4">
+          Workspace
+        </h2>
+        <nav className="space-y-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                activeTab === tab.id
+                  ? "bg-accent text-white shadow-lg shadow-accent/20"
+                  : "text-slate-500 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <tab.icon size={16} />
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        <div className="mt-auto px-4 pt-8">
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 text-slate-500 hover:text-color-red transition-all text-[11px] font-black uppercase tracking-widest"
+          >
+            <LogOut size={16} /> Terminate Session
+          </button>
         </div>
-    );
+      </aside>
+
+      {/* ── Content Area ─────────────────────────────────────────── */}
+      <main className="flex-1 glass-panel p-8 min-h-[600px] border-white/10 bg-surface-dark/40 overflow-y-auto no-scrollbar">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* ── Profile View ───────────────────────────────── */}
+            {activeTab === "profile" && (
+              <div className="space-y-8">
+                <section className="flex flex-col md:flex-row gap-8 items-start">
+                  <div className="relative group">
+                    <div className="w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-violet-500 to-cyan-500 p-1">
+                      <div className="w-full h-full bg-slate-900 rounded-[2.3rem] overflow-hidden">
+                        <img
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || "Felix"}`}
+                          className="w-full h-full object-cover"
+                          alt="Avatar"
+                        />
+                      </div>
+                    </div>
+                    <button className="absolute bottom-0 right-0 w-10 h-10 bg-accent text-white rounded-2xl flex items-center justify-center border-4 border-surface-dark group-hover:scale-110 transition-transform shadow-xl">
+                      <Camera size={18} />
+                    </button>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-2xl font-black text-white tracking-tight">
+                        {user?.display_name || "Cyber Streamer"}
+                      </h3>
+                      <span className="px-3 py-1 rounded-full bg-color-gold text-black text-[9px] font-black uppercase tracking-widest flex items-center gap-1 shadow-[0_0_12px_rgba(251,191,36,0.5)]">
+                        <Crown size={10} /> {user?.tier || "Pro"}
+                      </span>
+                    </div>
+                    <p className="dim-dm-mono text-sm">
+                      @{user?.username || "cyber_streamer"}
+                    </p>
+                    <div className="flex gap-4 pt-2">
+                      <div>
+                        <p className="text-white font-bold text-sm">1.2K</p>
+                        <p className="text-[9px] text-slate-500 uppercase font-black uppercase tracking-widest">
+                          Followers
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold text-sm">482</p>
+                        <p className="text-[9px] text-slate-500 uppercase font-black uppercase tracking-widest">
+                          Streams
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold text-sm">$4.2K</p>
+                        <p className="text-[9px] text-slate-500 uppercase font-black uppercase tracking-widest">
+                          Monthly Vol
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                      Universal Identity Name
+                    </label>
+                    <input
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:border-accent outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                      Public Transmission Bio
+                    </label>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="Tell the world about your digital presence..."
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:border-accent outline-none min-h-[120px] resize-none"
+                    />
+                  </div>
+                  <button className="bg-accent px-10 py-4 rounded-2xl text-[11px] font-black text-white uppercase tracking-[0.2em] shadow-xl shadow-accent/20 hover:scale-[1.02] transition-all">
+                    Save Manifest
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── Payouts View ───────────────────────────────── */}
+            {activeTab === "payouts" && (
+              <div className="space-y-8">
+                <section className="p-8 rounded-[2rem] bg-gradient-to-br from-color-green/10 to-transparent border border-color-green/10 flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-2xl bg-color-green/20 flex items-center justify-center text-color-green">
+                    <CreditCard size={32} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-black text-white uppercase tracking-widest mb-1">
+                      Creator Payout Schema
+                    </h3>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      90% Net Payout • 48-Hour Processing • $20.00 Minimum
+                      Threshold
+                      <br />
+                      Funds are directly routed via Stripe Connect or
+                      CyberVault.
+                    </p>
+                  </div>
+                </section>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="glass-panel p-6 bg-white/5 border-white/5">
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">
+                      Linked Payment Gateways
+                    </h4>
+                    <div className="space-y-3">
+                      {["CashApp", "Venmo", "PayPal", "Stripe"].map((app) => (
+                        <button
+                          key={app}
+                          className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-accent transition-all group"
+                        >
+                          <span className="text-sm font-bold text-white transition-colors group-hover:text-accent">
+                            {app}
+                          </span>
+                          <ChevronRight size={16} className="text-slate-600" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="glass-panel p-6 bg-gradient-to-br from-accent/10 to-transparent border-accent/10 flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+                        Liquid Balance
+                      </h4>
+                      <p className="vbas-noya text-5xl text-white tracking-widest">
+                        $1,240<span className="text-lg opacity-40">.42</span>
+                      </p>
+                    </div>
+                    <button className="w-full py-4 rounded-2xl bg-color-green text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-color-green/20 mt-8">
+                      Request Quick Draw
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Subscription View ────────────────────────────── */}
+            {activeTab === "subscription" && (
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      id: "standard",
+                      name: "Identity",
+                      price: "0",
+                      color: "bg-slate-500",
+                      perks: [
+                        "720p Streaming",
+                        "1 Guest Panel",
+                        "Basic Analytics",
+                      ],
+                    },
+                    {
+                      id: "pro",
+                      name: "Executive",
+                      price: "29",
+                      color: "bg-accent",
+                      perks: [
+                        "4K Streaming",
+                        "3 Guest Panels",
+                        "Aura Co-host Access",
+                        "Custom Vaults",
+                      ],
+                    },
+                    {
+                      id: "elite",
+                      name: "Overlord",
+                      price: "99",
+                      color: "bg-color-gold",
+                      perks: [
+                        "8K Spatial Sync",
+                        "9 Guest Panels",
+                        "AI Model Training",
+                        "Zero-Fee Marketplace",
+                      ],
+                    },
+                  ].map((tier) => (
+                    <div
+                      key={tier.id}
+                      className={`glass-panel p-6 border-white/5 flex flex-col h-full relative overflow-hidden group hover:scale-[1.02] transition-all ${tier.id === "pro" ? "border-accent shadow-2xl bg-accent/5" : ""}`}
+                    >
+                      {tier.id === "pro" && (
+                        <div className="absolute top-4 right-4 bg-accent text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded">
+                          Popular
+                        </div>
+                      )}
+                      <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-1">
+                        {tier.name} Plan
+                      </h3>
+                      <p className="vbas-noya text-4xl text-white tracking-widest mb-6">
+                        ${tier.price}
+                        <span className="text-sm opacity-50">/MO</span>
+                      </p>
+                      <ul className="space-y-3 flex-1">
+                        {tier.perks.map((p) => (
+                          <li
+                            key={p}
+                            className="flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-tighter"
+                          >
+                            <Check size={12} className="text-color-green" /> {p}
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest mt-8 transition-all ${
+                          tier.id === "pro"
+                            ? "bg-accent text-white"
+                            : "bg-white/5 text-slate-400 hover:text-white hover:bg-white/10"
+                        }`}
+                      >
+                        {tier.id === (user?.tier?.toLowerCase() || "standard")
+                          ? "Current Active"
+                          : "Initiate Shift"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Notifications View ──────────────────────────── */}
+            {activeTab === "notifications" && (
+              <div className="space-y-2">
+                <ToggleRow
+                  title="New Stream Propagation"
+                  subtitle="Notify me when creators I follow go live in the grid."
+                  active={notifs.newStream}
+                  onToggle={() =>
+                    setNotifs({ ...notifs, newStream: !notifs.newStream })
+                  }
+                />
+                <ToggleRow
+                  title="Direct Transmissions"
+                  subtitle="Push alerts for new DMs and encrypted messages."
+                  active={true}
+                  onToggle={() => {}}
+                />
+                <ToggleRow
+                  title="Tip & Transaction Sync"
+                  subtitle="Real-time alerts for donations, NFT sales, and vault shifts."
+                  active={notifs.tips}
+                  onToggle={() => setNotifs({ ...notifs, tips: !notifs.tips })}
+                />
+                <ToggleRow
+                  title="Weekly Performance Digest"
+                  subtitle="Summarized AI analytics delivered via electronic mail."
+                  active={notifs.email}
+                  onToggle={() =>
+                    setNotifs({ ...notifs, email: !notifs.email })
+                  }
+                />
+              </div>
+            )}
+
+            {/* ── Privacy View ─────────────────────────────────── */}
+            {activeTab === "privacy" && (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <ToggleRow
+                    title="Public Presence Profile"
+                    subtitle="Allow others to discover your profile in search."
+                    active={true}
+                    onToggle={() => {}}
+                  />
+                  <ToggleRow
+                    title="Manifest Earnings Display"
+                    subtitle="Show your total platform revenue on your public profile."
+                    active={false}
+                    onToggle={() => {}}
+                  />
+                  <ToggleRow
+                    title="Direct Transmission Gateway"
+                    subtitle="Enable incoming DM requests from any identity."
+                    active={true}
+                    onToggle={() => {}}
+                  />
+                </div>
+                <div className="pt-8 border-t border-white/5 space-y-6">
+                  <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">
+                    Crucial Zone
+                  </p>
+                  <button className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all text-xs font-bold w-full md:w-auto">
+                    Purge Identity Manifest (Delete Account)
+                  </button>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+    </div>
+  );
 };
 
 export default Settings;
