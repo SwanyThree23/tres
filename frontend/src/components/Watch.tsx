@@ -263,7 +263,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
                     {/* Floating Hearts Container */}
                     <div className="absolute inset-0 pointer-events-none overflow-hidden">
                         <AnimatePresence>
-                            {hearts.map(h => (
+                            {hearts.map((h: HeartItem) => (
                                 <motion.div
                                     key={h.id}
                                     initial={{ opacity: 0, y: 0, x: h.x, scale: 0.5 }}
@@ -374,7 +374,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
 
                 {/* Info Panels Section */}
                 <div className="grid grid-cols-2 gap-4">
-                    {infoPanels.map(panel => (
+                    {infoPanels.map((panel: InfoPanel) => (
                         <motion.div
                             key={panel.id}
                             initial={{ opacity: 0, y: 10 }}
