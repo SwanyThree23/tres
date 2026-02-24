@@ -59,7 +59,16 @@ export const streamService = {
         api.post('/streams', data),
     endStream: (streamId: string) =>
         api.patch(`/streams/${streamId}`, { status: 'ended' }),
-    getStream: (streamId: string) => api.get(`/streams/${streamId}`),
+    async getStream(streamId: string) { return api.get(`/streams/${streamId}`); },
+    updateStreamSync: (streamId: string, data: { is_party_active?: boolean; party_url?: string; party_sync_status?: any }) =>
+        api.patch(`/streams/${streamId}`, data),
+    
+    // Destinations
+    getDestinations: (streamId: string) => api.get(`/streams/${streamId}/destinations`),
+    addDestination: (streamId: string, data: { platform: string; rtmp_url: string; stream_key: string }) =>
+        api.post(`/streams/${streamId}/destinations`, data),
+    removeDestination: (streamId: string, destId: string) =>
+        api.delete(`/streams/${streamId}/destinations/${destId}`),
 };
 
 // ── Payment Service ────────────────────────────────────────────────────────
@@ -89,6 +98,12 @@ export const nftService = {
     }) => api.post('/ai/mint-highlight', data),
 };
 
+export const aiService = {
+    moderate: (text: string) => api.post('/ai/moderate', { text }),
+    getDirectorSuggestions: (streamId: string, context?: string) => 
+        api.get('/ai/director-suggestions', { params: { stream_id: streamId, context } }),
+};
+
 // ── Notifications Service ──────────────────────────────────────────────────
 export const notificationsService = {
     list: (unreadOnly?: boolean) =>
@@ -106,6 +121,14 @@ export const userService = {
     updateMe: (data: { display_name?: string; bio?: string; avatar_url?: string }) =>
         api.patch('/users/me', data),
     list: () => api.get('/users'),
+
+    // Panels
+    getMyPanels: () => api.get('/users/me/panels'),
+    createPanel: (data: { title: string; content: string; order?: number }) =>
+        api.post('/users/me/panels', data),
+    updatePanel: (panelId: string, data: { title?: string; content?: string; order?: number; is_active?: boolean }) =>
+        api.patch(`/users/me/panels/${panelId}`, data),
+    deletePanel: (panelId: string) => api.delete(`/users/me/panels/${panelId}`),
 };
 
 // ── WebSocket helper ───────────────────────────────────────────────────────
