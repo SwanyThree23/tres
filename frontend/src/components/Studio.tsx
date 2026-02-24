@@ -3,6 +3,7 @@ import { Play, Square, Radio, Users, Zap, DollarSign, BarChart3, Loader2, Mic, M
 import { motion } from 'framer-motion';
 import { useStream } from '../hooks/useStream';
 import Destinations from './Destinations';
+import ChatPanel from './ChatPanel';
 
 interface StudioProps {
     isLive: boolean;
@@ -262,6 +263,11 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
 
                 {/* Guest Streaming Destinations */}
                 <Destinations streamId={streamId || undefined} />
+
+                {/* Live Chat Integration */}
+                <div className="flex-1 min-h-[400px]">
+                    <ChatPanel streamId={streamId || undefined} onAction={onAction} isCreator={true} />
+                </div>
 
                 {/* Revenue Snapshot */}
                 <div className="glass-panel p-6 bg-gradient-to-br from-violet-600/8 to-transparent flex-1">
