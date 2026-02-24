@@ -22,7 +22,7 @@ $ErrorActionPreference = "Stop"
 # Configuration — Edit these variables for your specific Hostinger VPS
 # =====================================================================
 $SERVER_USER = "root"
-$SERVER_IP = "76.13.31.91" # e.g., 193.22.x.x
+$SERVER_IP = "72.60.165.129" # seewhylive.com production IP
 $SERVER_DIR = "/var/www/swanythree"
 $PM2_APP_NAME = "swanythree-api"
 $ARCHIVE_NAME = "swanythree_release.tar.gz"
