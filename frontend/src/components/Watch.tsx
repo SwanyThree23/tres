@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft, Settings2, Shield, Lock, ExternalLink, Plus } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft, Settings2, Shield, Lock, ExternalLink, Plus, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { streamService, userService, aiService, createWebSocket } from '../services/api';
 import PermissionModal from './PermissionModal';
@@ -10,6 +10,7 @@ interface ChatMsg {
     text: string;
     avatar: string;
     isHighlight: boolean;
+    translation?: string;
 }
 
 interface InfoPanel {
@@ -36,6 +37,8 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
     const [showTipModal, setShowTipModal] = useState(false);
     const [stream, setStream] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isUniversal, setIsUniversal] = useState(false);
+    const wsRef = useRef<WebSocket | null>(null);
 
     useEffect(() => {
         if (streamId) {
@@ -60,6 +63,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
 
         // WS Setup for sync
         const ws = createWebSocket();
+        wsRef.current = ws;
         ws.onopen = () => {
             if (streamId) {
                 ws.send(JSON.stringify({ type: 'subscribe', room: `stream_${streamId}` }));
@@ -70,11 +74,22 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
             if (data.type === 'party_sync') {
                 setIsPartyActive(data.is_active);
                 setPartyUrl(data.url);
-                // In a real app, we'd sync player time here
+            } else if (data.type === 'chat') {
+                const msg: ChatMsg = {
+                    id: Date.now(),
+                    user: data.user_name,
+                    text: data.text,
+                    avatar: data.avatar,
+                    isHighlight: data.is_highlight,
+                    translation: data.translation
+                };
+                setChatMessages(prev => [...prev.slice(-50), msg]);
+            } else if (data.type === 'error') {
+                onAction?.('Chat Error', data.body);
             }
         };
         return () => ws.close();
-    }, [streamId]);
+    }, [streamId, onAction]);
     const [chatMessages, setChatMessages] = useState<ChatMsg[]>([
         { id: 1, user: 'NeonVibes', text: 'LETS GOOOO 🔥', avatar: 'A1', isHighlight: false },
         { id: 2, user: 'CyberPunker', text: 'This AI director is insane!', avatar: 'B2', isHighlight: true },
@@ -95,15 +110,17 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
 
     const handleSendChat = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!chatInput.trim()) return;
-        const newMsg = {
-            id: Date.now(),
-            user: 'Swany_Dev',
+        if (!chatInput.trim() || !wsRef.current || !streamId) return;
+        
+        wsRef.current.send(JSON.stringify({
+            type: 'chat',
+            room: `stream_${streamId}`,
             text: chatInput,
+            user_name: 'Swany_Dev',
             avatar: 'Felix',
-            isHighlight: false,
-        };
-        setChatMessages(prev => [...prev.slice(-50), newMsg]);
+            universal: isUniversal
+        }));
+        
         setChatInput('');
     };
 
@@ -517,6 +534,13 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
                                         <span className="ml-1 text-[8px] font-black text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-full align-middle">VIP</span>
                                     )}
                                     <p className="text-xs text-slate-300 leading-relaxed mt-0.5">{msg.text}</p>
+                                    {msg.translation && (
+                                        <div className="mt-1.5 p-2 bg-violet-600/10 rounded-lg border border-violet-500/20">
+                                            <p className="text-[10px] text-violet-300 italic flex items-center gap-1.5">
+                                                <Globe size={10} /> {msg.translation}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         ))}
@@ -525,18 +549,28 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
 
                 {/* Chat Input */}
                 <div className="px-4 py-4 border-t border-white/5 shrink-0">
-                    <form onSubmit={handleSendChat} className="flex gap-2">
+                    <form onSubmit={handleSendChat} className="p-4 bg-black/20 border-t border-white/5 flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setIsUniversal(!isUniversal)}
+                            title={isUniversal ? "Universal Chat On" : "Universal Chat Off"}
+                            aria-label={isUniversal ? "Toggle universal chat off" : "Toggle universal chat on"} // a9b64e83-765d-4378-bc0e-6916750f233f
+                            className={`p-2 rounded-xl transition-all ${isUniversal ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30' : 'bg-white/5 text-slate-500 hover:bg-white/10'}`}
+                        >
+                            <Globe size={14} />
+                        </button>
                         <input
                             type="text"
                             value={chatInput}
                             onChange={e => setChatInput(e.target.value)}
-                            placeholder="Send a message..."
+                            placeholder={isUniversal ? "Translate & send..." : "Send a message..."}
                             maxLength={200}
                             className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 transition-colors"
                         />
                         <button
                             type="submit"
-                            aria-label="Send chat message"
+                            title="Send Message"
+                            aria-label="Send chat message" // 9c581a0f-f1ec-4164-8d7f-fd9b8517c8c2
                             className="px-3 py-2 bg-violet-600 rounded-xl hover:bg-violet-500 transition-colors"
                         >
                             <Zap size={14} className="text-white" />
