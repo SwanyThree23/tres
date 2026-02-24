@@ -30,6 +30,7 @@ import Login from './components/Login';
 
 // Hooks
 import { useWebSocket, type WebSocketMessage } from './hooks/useWebSocket';
+import { useAuth } from './hooks/useAuth';
 
 type Tab = 'home' | 'browse' | 'studio' | 'analytics' | 'payouts' | 'nfts' | 'watch' | 'settings';
 
@@ -40,11 +41,11 @@ interface Notification {
 }
 
 const App: React.FC = () => {
+    const { user, isAuthenticated, isLoading, logout } = useAuth();
     const [activeTab, setActiveTab] = useState<Tab>('home');
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLive, setIsLive] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
     const [showNotifPanel, setShowNotifPanel] = useState(false);
 
     const addNotification = useCallback((title: string, body: string) => {
@@ -74,13 +75,16 @@ const App: React.FC = () => {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        setIsAuthenticated(false);
-    };
+    if (isLoading) {
+        return (
+            <div className="h-screen bg-deep-dark flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-violet-500/20 border-t-violet-500 rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     if (!isAuthenticated) {
-        return <Login onLogin={() => setIsAuthenticated(true)} />;
+        return <Login />;
     }
 
     const navItems: { id: Tab; icon: React.ElementType; label: string }[] = [
@@ -160,7 +164,7 @@ const App: React.FC = () => {
                     </button>
                     <button
                         id="nav-signout"
-                        onClick={handleLogout}
+                        onClick={logout}
                         title="Sign Out"
                         aria-label="Sign Out"
                         className="w-full p-3.5 rounded-2xl text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all flex flex-col items-center gap-1.5"
@@ -277,12 +281,12 @@ const App: React.FC = () => {
                             title="Profile Settings"
                         >
                             <div className="text-right hidden md:block">
-                                <p className="text-xs font-bold text-white leading-tight">Swany_Dev</p>
-                                <p className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">Master Affiliate</p>
+                                <p className="text-xs font-bold text-white leading-tight">{user?.display_name || user?.username || 'Guest'}</p>
+                                <p className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">{user?.role || 'Viewer'}</p>
                             </div>
                             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5 shrink-0">
                                 <img
-                                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'Guest'}`}
                                     className="rounded-xl bg-slate-900 h-full w-full object-cover"
                                     alt="User Avatar"
                                 />
