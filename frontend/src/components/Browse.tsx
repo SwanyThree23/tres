@@ -1,17 +1,27 @@
-import React from 'react';
-import { Search, Radio, Users, Play, Heart, Star, Sparkles } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Search, Radio, Users, Play, Heart, Star, Sparkles, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { streamService } from '../services/api';
+
+interface Stream {
+    id: string;
+    title: string;
+    viewer_count: number;
+    category: string;
+    user_id: string;
+}
 
 const Browse: React.FC = () => {
     const categories = ['Gaming', 'Music', 'Chatting', 'Creative', 'Tech', 'Events'];
-    const streams = [
-        { user: 'NeonVibe', title: 'Cyberpunk 2077 Night City Blast', viewers: '1.2K', category: 'Gaming', img: 'https://api.dicebear.com/7.x/shapes/svg?seed=stream1' },
-        { user: 'SynthWaveMaster', title: 'Live Modular Synth Chill Session', viewers: '840', category: 'Music', img: 'https://api.dicebear.com/7.x/shapes/svg?seed=stream2' },
-        { user: 'CodeWizard', title: 'Building a Web3 AI Orchestrator', viewers: '3.1K', category: 'Tech', img: 'https://api.dicebear.com/7.x/shapes/svg?seed=stream3' },
-        { user: 'PixelArtiste', title: 'Commission Work: Legendary NFT Collection', viewers: '420', category: 'Creative', img: 'https://api.dicebear.com/7.x/shapes/svg?seed=stream4' },
-        { user: 'Starlight', title: 'Community AMA - Q&A Night', viewers: '2.5K', category: 'Chatting', img: 'https://api.dicebear.com/7.x/shapes/svg?seed=stream5' },
-        { user: 'IronGamer', title: 'Ranked Ladder Push - Top 100', viewers: '5.6K', category: 'Gaming', img: 'https://api.dicebear.com/7.x/shapes/svg?seed=stream6' },
-    ];
+    const [streams, setStreams] = useState<Stream[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        streamService.getStreams('live')
+            .then((res) => setStreams(res.data))
+            .catch((err) => console.error("Failed to fetch streams", err))
+            .finally(() => setLoading(false));
+    }, []);
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -51,29 +61,37 @@ const Browse: React.FC = () => {
 
             {/* Streams Grid */}
             <div className="grid grid-cols-3 gap-8">
-                {streams.map((stream, i) => (
+                {loading ? (
+                    <div className="col-span-3 flex justify-center py-20">
+                        <Loader2 className="animate-spin text-violet-500" size={48} />
+                    </div>
+                ) : streams.length === 0 ? (
+                    <div className="col-span-3 text-center py-20 text-slate-400">
+                        No creators are currently live. Check back soon!
+                    </div>
+                ) : streams.map((stream, i) => (
                     <motion.div
-                        key={i}
+                        key={stream.id}
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
                         className="group cursor-pointer"
                     >
                         <div className="aspect-video relative rounded-3xl overflow-hidden glass-panel mb-4">
-                            <img src={stream.img} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" alt={stream.title} />
+                            <img src={`https://api.dicebear.com/7.x/shapes/svg?seed=${stream.id}`} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" alt={stream.title} />
 
                             <div className="absolute top-4 left-4 bg-red-600 text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                                 Live
                             </div>
                             <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold text-white flex items-center gap-2">
-                                <Users size={12} /> {stream.viewers}
+                                <Users size={12} /> {stream.viewer_count}
                             </div>
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                                 <button
                                     className="w-12 h-12 rounded-full bg-violet-600 flex items-center justify-center shadow-xl shadow-violet-500/40"
-                                    aria-label={`Watch ${stream.user}`}
+                                    aria-label={`Watch ${stream.id}`}
                                     title="Watch Now"
                                 >
                                     <Play fill="white" size={20} className="ml-1" />
@@ -83,15 +101,15 @@ const Browse: React.FC = () => {
 
                         <div className="flex items-start gap-4">
                             <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/10 p-0.5 shrink-0">
-                                <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${stream.user}`} className="rounded-full" alt={stream.user} />
+                                <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${stream.user_id}`} className="rounded-full" alt="Creator Avatar" />
                             </div>
                             <div className="flex-1">
                                 <h4 className="font-bold text-white group-hover:text-violet-400 transition-colors line-clamp-1">{stream.title}</h4>
-                                <p className="text-xs text-slate-500 mt-1 font-medium">{stream.user} • {stream.category}</p>
+                                <p className="text-xs text-slate-500 mt-1 font-medium">{stream.category}</p>
                             </div>
                             <button
                                 className="p-2 text-slate-500 hover:text-red-500 transition-colors"
-                                aria-label={`Follow ${stream.user}`}
+                                aria-label="Follow Creator"
                                 title="Follow Creator"
                             >
                                 <Heart size={18} />
