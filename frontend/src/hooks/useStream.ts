@@ -32,11 +32,11 @@ export function useStream(onAction?: (title: string, body: string) => void): Use
         title = 'My SwanyThree Stream',
         description = 'Powered by SwanyThree AI'
     ) => {
-        setState(s => ({ ...s, isStarting: true, error: null }));
+        setState((s: StreamState) => ({ ...s, isStarting: true, error: null }));
         try {
             const res = await streamService.createStream({ title, description });
             const streamId = res.data?.id ?? 'demo-stream';
-            setState(s => ({
+            setState((s: StreamState) => ({
                 ...s,
                 isLive: true,
                 isStarting: false,
@@ -46,7 +46,7 @@ export function useStream(onAction?: (title: string, body: string) => void): Use
             onAction?.('Broadcast Started', 'Your stream is now live reaching thousands of viewers.');
         } catch {
             // Graceful fallback for demo mode
-            setState(s => ({
+            setState((s: StreamState) => ({
                 ...s,
                 isLive: true,
                 isStarting: false,
@@ -58,7 +58,7 @@ export function useStream(onAction?: (title: string, body: string) => void): Use
     }, [onAction]);
 
     const stopStream = useCallback(async () => {
-        setState(s => ({ ...s, isStopping: true }));
+        setState((s: StreamState) => ({ ...s, isStopping: true }));
         try {
             await new Promise(r => setTimeout(r, 800));
             setState(s => ({
@@ -71,12 +71,12 @@ export function useStream(onAction?: (title: string, body: string) => void): Use
             }));
             onAction?.('Stream Ended', 'Your broadcast has ended. Highlights are being processed.');
         } catch {
-            setState(s => ({ ...s, isStopping: false, error: 'Failed to end stream cleanly.' }));
+            setState((s: StreamState) => ({ ...s, isStopping: false, error: 'Failed to end stream cleanly.' }));
         }
     }, [onAction]);
 
     const clearError = useCallback(() => {
-        setState(s => ({ ...s, error: null }));
+        setState((s: StreamState) => ({ ...s, error: null }));
     }, []);
 
     return { ...state, startStream, stopStream, clearError };
