@@ -61,7 +61,7 @@ export function useStream(onAction?: (title: string, body: string) => void): Use
         setState((s: StreamState) => ({ ...s, isStopping: true }));
         try {
             await new Promise(r => setTimeout(r, 800));
-            setState(s => ({
+            setState((s: StreamState) => ({
                 ...s,
                 isLive: false,
                 isStopping: false,
