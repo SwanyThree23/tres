@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Tv2, Users, Globe, Lock, Shield, Sparkles } from 'lucide-react';
+import { X, Tv2, Users, Globe, Lock, Shield, Sparkles, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface WatchPartyModalProps {
