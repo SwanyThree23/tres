@@ -246,25 +246,32 @@ const App: React.FC = () => {
             </aside>
 
             {/* ── Mobile Bottom Navigation ──────────────────────────── */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface-dark/95 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-2 z-[100]">
-                {navItems.slice(0, 5).map(item => (
-                    <button
-                        key={item.id}
-                        onClick={() => setActiveTab(item.id)}
-                        className={`p-2 flex flex-col items-center gap-1 rounded-xl transition-all ${activeTab === item.id ? 'text-violet-400' : 'text-slate-500'}`}
-                        aria-label={item.label}
-                    >
-                        <item.icon size={20} />
-                        <span className="text-[8px] font-bold uppercase tracking-tighter">{item.label}</span>
-                    </button>
-                ))}
-            </nav>
+            <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[100]">
+                <nav className="h-16 bg-surface-dark/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] flex items-center justify-around px-4 shadow-2xl shadow-black/50">
+                    {navItems.slice(0, 5).map(item => (
+                        <button
+                            key={item.id}
+                            onClick={() => setActiveTab(item.id)}
+                            className={`relative p-2 flex flex-col items-center gap-1 transition-all ${activeTab === item.id ? 'text-violet-400 scale-110' : 'text-slate-500 hover:text-slate-300'}`}
+                            aria-label={item.label}
+                        >
+                            <item.icon size={22} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+                            {activeTab === item.id && (
+                                <motion.div 
+                                    layoutId="mobile-nav-dot"
+                                    className="absolute -bottom-1 w-1 h-1 bg-violet-400 rounded-full"
+                                />
+                            )}
+                        </button>
+                    ))}
+                </nav>
+            </div>
 
             {/* ── Main Content Area ─────────────────────────────────── */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
                 {/* Top Header */}
-                <header className="h-[68px] px-4 md:px-8 flex items-center justify-between border-b border-white/5 bg-surface-dark/60 backdrop-blur-xl shrink-0">
+                <header className="h-[60px] md:h-[68px] px-4 md:px-8 flex items-center justify-between border-b border-white/5 bg-surface-dark/60 backdrop-blur-xl shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="md:hidden w-8 h-8 bg-gradient-to-br from-violet-600 to-cyan-400 rounded-lg flex items-center justify-center">
                             <Zap className="text-white fill-white" size={16} />
@@ -358,41 +365,27 @@ const App: React.FC = () => {
                         <button
                             id="profile-btn"
                             className="flex items-center gap-3 hover:bg-white/5 pl-1 pr-3 py-1 rounded-2xl transition-colors"
-                            onClick={() => setActiveTab('settings')}
-                            title="Profile Settings"
+                            id="user-profile-btn"
+                            className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5 shrink-0 hover:scale-105 transition-transform"
+                            aria-label="User profile"
                         >
-                            <div className="text-right hidden md:block">
-                                <p className="text-xs font-bold text-white leading-tight">{user?.display_name || user?.username || 'Guest'}</p>
-                                <p className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">{user?.role || 'Viewer'}</p>
-                            </div>
-                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5 shrink-0">
-                                <img
-                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'Guest'}`}
-                                    className="rounded-xl bg-slate-900 h-full w-full object-cover"
-                                    alt="User Avatar"
-                                />
-                            </div>
+                            <img
+                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'Felix'}`}
+                                className="w-full h-full rounded-[10px] bg-slate-900 object-cover"
+                                alt="Profile"
+                            />
                         </button>
                     </div>
                 </header>
 
-                {/* Page Content */}
-                <main
-                    id="main-content"
-                    className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 custom-scrollbar"
-                >
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={activeTab}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.18 }}
-                            className="h-full"
-                        >
-                            {renderContent()}
-                        </motion.div>
-                    </AnimatePresence>
+                {/* ── Main Viewport ─────────────────────────────────────── */}
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar pb-32 md:pb-8">
+                    {activeTab === 'home' && <Dashboard />}
+                    {activeTab === 'browse' && <Browse onWatchChannel={(id) => { setStreamId(id); setActiveTab('watch'); }} />}
+                    {activeTab === 'studio' && <Studio onAction={addNotification} />}
+                    {activeTab === 'watch' && <Watch streamId={streamId || undefined} onAction={addNotification} />}
+                    {activeTab === 'analytics' && <Analytics />}
+                    {activeTab === 'settings' && <Settings />}
                 </main>
             </div>
 
