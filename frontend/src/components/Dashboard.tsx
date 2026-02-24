@@ -118,22 +118,111 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="relative z-10 flex items-center gap-3 mt-6">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                <div className="relative z-10 flex flex-wrap items-center gap-3 mt-8">
+                    <button 
+                         onClick={() => window.location.hash = '#watch'}
+                         className="flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-2xl text-sm font-bold shadow-lg shadow-violet-600/30 transition-all hover:scale-105 active:scale-95"
+                    >
+                         <Eye size={16} /> Join Watch Party
+                    </button>
+                    <button 
+                         onClick={() => window.location.hash = '#watch'}
+                         className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-sm font-bold backdrop-blur-md transition-all border border-white/5"
+                    >
+                         <Zap size={16} className="text-cyan-400" /> Create Info Panel
+                    </button>
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl">
                         <span className="w-2 h-2 bg-red-500 rounded-full live-pulse" />
-                        <span className="text-red-400 text-xs font-bold uppercase tracking-widest">Platform Status</span>
-                        <span className="text-white text-xs font-mono">Running</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-violet-500/10 border border-violet-500/20 rounded-2xl">
-                        <Globe size={12} className="text-violet-400" />
-                        <span className="text-violet-400 text-xs font-bold">Master Affiliate</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl">
-                        <Radio size={12} className="text-cyan-400" />
-                        <span className="text-cyan-400 text-xs font-bold">4K Stream Active</span>
+                        <span className="text-red-400 text-[10px] font-black uppercase tracking-[0.2em]">Platform Status</span>
                     </div>
                 </div>
             </motion.section>
+
+            {/* ── Main Focus: Watch Parties & Panels ────────────────────── */}
+            <div className="grid grid-cols-12 gap-6">
+                
+                {/* Watch Parties Highlights */}
+                <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="col-span-8 glass-panel p-8 bg-gradient-to-br from-violet-600/10 via-transparent to-transparent border-violet-500/20"
+                >
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
+                                <Users className="text-violet-400" size={24} /> 
+                                Active Watch Parties
+                            </h2>
+                            <p className="text-slate-500 text-sm">Join the community in shared experiences and live commentary.</p>
+                        </div>
+                        <span className="text-xs font-black text-violet-400 bg-violet-500/10 px-3 py-1.5 rounded-full uppercase tracking-widest">
+                            12 Active Now
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        {[
+                            { title: 'Cyberpunk Night City Tour', host: 'NeonVibe', viewers: '2.4K', color: 'border-cyan-500/30' },
+                            { title: 'Global Tech Keynote 2026', host: 'CodeWizard', viewers: '8.1K', color: 'border-white/10' },
+                        ].map((party, i) => (
+                            <div key={i} className={`p-4 rounded-3xl border ${party.color} bg-black/40 hover:bg-black/60 transition-all cursor-pointer group`}>
+                                <div className="aspect-video bg-slate-900 rounded-2xl mb-4 relative overflow-hidden">
+                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                                     <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                                          <div className="w-6 h-6 rounded-full bg-violet-500 p-0.5">
+                                               <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${party.host}`} className="rounded-full" alt="" />
+                                          </div>
+                                          <span className="text-[10px] font-bold text-white">{party.host}</span>
+                                     </div>
+                                </div>
+                                <h3 className="font-bold text-white text-sm group-hover:text-violet-400 transition-colors mb-2">{party.title}</h3>
+                                <div className="flex items-center justify-between">
+                                     <div className="flex items-center gap-2 text-slate-500 text-[10px]">
+                                          <Eye size={12} /> {party.viewers} watching
+                                     </div>
+                                     <ArrowUpRight size={14} className="text-slate-600 group-hover:text-white transition-colors" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Info Panels Portal */}
+                <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="col-span-4 glass-panel p-8 flex flex-col justify-between border-cyan-500/20"
+                >
+                    <div>
+                        <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-6">
+                            <Zap size={24} />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-4">Panels & Portals</h2>
+                        <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                            Customize your creator profile with deep-info panels. Add schedules, social nodes, and community goal trackers.
+                        </p>
+                        
+                        <div className="space-y-3 mb-8">
+                             {['Live Schedule 2026', 'Hardware Specs', 'Social Hub V4'].map(tag => (
+                                 <div key={tag} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-slate-400">
+                                      {tag}
+                                      <span className="text-cyan-400 uppercase tracking-tighter">Active</span>
+                                 </div>
+                             ))}
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={() => window.location.hash = '#watch'}
+                        className="w-full py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-cyan-600/20 transition-all hover:scale-105"
+                    >
+                        Configure Panels
+                    </button>
+                </motion.div>
+            </div>
 
             {/* Stat Cards */}
             <div className="grid grid-cols-4 gap-5">
