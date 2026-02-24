@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Square, Radio, Users, Zap, DollarSign, BarChart3, Loader2, Mic, MicOff, Camera, CameraOff, Settings2 } from 'lucide-react';
+import { Play, Square, Radio, Users, Zap, DollarSign, BarChart3, Loader2, Mic, MicOff, Camera, CameraOff, Settings2, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useStream } from '../hooks/useStream';
+import Destinations from './Destinations';
 
 interface StudioProps {
     isLive: boolean;
@@ -256,23 +257,10 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
             </div>
 
             {/* ── Right Column: Status + Revenue ─────────────────────── */}
-            <div className="col-span-4 flex flex-col gap-5">
+            <div className="col-span-4 flex flex-col gap-5 overflow-y-auto no-scrollbar pb-10">
 
-                {/* Engine Integrations */}
-                <div className="glass-panel p-6">
-                    <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-5">Engine Integrations</h3>
-                    <div className="space-y-4">
-                        {integrations.map(item => (
-                            <div key={item.name} className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className={`w-1.5 h-1.5 rounded-full ${item.dot}`} />
-                                    <span className="text-xs text-slate-300 font-medium">{item.name}</span>
-                                </div>
-                                <span className={`text-[10px] font-bold ${item.color}`}>{item.status}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                {/* Guest Streaming Destinations */}
+                <Destinations />
 
                 {/* Revenue Snapshot */}
                 <div className="glass-panel p-6 bg-gradient-to-br from-violet-600/8 to-transparent flex-1">
