@@ -95,6 +95,11 @@ class AIService:
                 return json.loads(match.group())
             return []
         except:
-            return [{"title": "Dynamic Reaction", "description": "Auto-switch to face-cam for high-action moment."}]
+    async def translate_text(self, text: str, target_lang: str = "English") -> str:
+        """Translate text to the target language."""
+        if not text.strip(): return text
+        prompt = f"Translate the following text to {target_lang}. Return ONLY the translated text without quotes or explanations: '{text}'"
+        res = await self.generate_chat_response(prompt)
+        return res.strip() if res else text
 
 ai_service = AIService()
