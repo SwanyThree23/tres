@@ -69,7 +69,7 @@ async def register(request: RegisterRequest, db: AsyncSession = Depends(get_db))
         id=str(uuid.uuid4()),
         username=request.username,
         email=request.email,
-        hashed_password=hash_password(request.password),
+        password_hash=hash_password(request.password),
         display_name=request.display_name or request.username,
         role="creator",
         is_active=True,
@@ -78,7 +78,7 @@ async def register(request: RegisterRequest, db: AsyncSession = Depends(get_db))
     await db.commit()
     await db.refresh(new_user)
 
-    access_token = create_access_token(str(new_user.id), new_user.role)
+    access_token = create_access_token(str(new_user.id), str(new_user.role))
     refresh_token = create_refresh_token(str(new_user.id))
 
     return AuthResponse(
@@ -86,7 +86,7 @@ async def register(request: RegisterRequest, db: AsyncSession = Depends(get_db))
         refresh_token=refresh_token,
         user_id=str(new_user.id),
         username=new_user.username,
-        role=new_user.role,
+        role=str(new_user.role),
     )
 
 
@@ -97,7 +97,7 @@ async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == request.email))
     user = result.scalars().first()
 
-    if not user or not verify_password(request.password, user.hashed_password):
+    if not user or not verify_password(request.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password.",
