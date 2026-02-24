@@ -83,7 +83,7 @@ const App: React.FC = () => {
             case 'analytics': return <Analytics />;
             case 'payouts': return <Payouts />;
             case 'nfts': return <NFTs />;
-            case 'watch': return <Watch streamId={activeStreamId} onClose={() => { setActiveTab('browse'); setActiveStreamId(undefined); }} />;
+            case 'watch': return <Watch streamId={activeStreamId} onAction={addNotification} onClose={() => { setActiveTab('browse'); setActiveStreamId(undefined); }} />;
             case 'settings': return <Settings />;
             default: return <Dashboard />;
         }
