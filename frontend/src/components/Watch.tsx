@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft, Settings2 } from 'lucide-react';
+import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft, Settings2, Shield, Lock, ExternalLink, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { streamService } from '../services/api';
+import PermissionModal from './PermissionModal';
 
 interface WatchProps {
     streamId?: string;
@@ -94,8 +94,34 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
         }]);
     };
 
+    const [showPermissions, setShowPermissions] = useState(false);
+    const [isPartyActive, setIsPartyActive] = useState(false);
+    const [partyUrl, setPartyUrl] = useState('');
+    const [editingPanel, setEditingPanel] = useState<number | null>(null);
+
+    const startParty = (url: string) => {
+        if (!url) return;
+        setPartyUrl(url);
+        setIsPartyActive(true);
+        addNotification('Party Started', 'Your watch party is now live and syncing.');
+    };
+
+    const savePanel = (id: number, title: string, content: string) => {
+        setInfoPanels(prev => prev.map(p => p.id === id ? { ...p, title, content } : p));
+        setEditingPanel(null);
+        addNotification('Panel Updated', 'Your changes have been saved to the stream.');
+    };
+
     return (
-        <div className="grid grid-cols-12 gap-5 h-full animate-fade-in">
+        <div className="grid grid-cols-12 gap-5 h-full animate-fade-in relative">
+            
+            {/* Permission Settings Overlay */}
+            <PermissionModal 
+                isOpen={showPermissions} 
+                onClose={() => setShowPermissions(false)}
+                onSave={(s) => addNotification('Settings Saved', `Visibility set to ${s.visibility}.`)}
+                title="Watch Party Permissions"
+            />
 
             {/* ── Left Column: Live Panel (Bigo Style) ──────────────── */}
             <div className="col-span-2 glass-panel flex flex-col items-center py-5 gap-4 overflow-y-auto no-scrollbar shrink-0">
@@ -286,13 +312,35 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                             animate={{ opacity: 1, y: 0 }}
                             className="glass-panel p-6 border-white/5 group relative"
                         >
-                            <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-[0.2em] mb-4">{panel.title}</h3>
-                            <p className="text-sm text-slate-400 leading-relaxed">
-                                {panel.content}
-                            </p>
-                            <button className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/5 rounded-lg text-slate-500">
-                                <Settings2 size={12} />
-                            </button>
+                            {editingPanel === panel.id ? (
+                                <div className="space-y-4">
+                                    <input 
+                                        autoFocus
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-bold text-white focus:border-violet-500 outline-none"
+                                        defaultValue={panel.title}
+                                        onBlur={(e) => savePanel(panel.id, e.target.value, panel.content)}
+                                        onKeyDown={(e) => e.key === 'Enter' && savePanel(panel.id, e.currentTarget.value, panel.content)}
+                                    />
+                                    <textarea 
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-400 focus:border-violet-500 outline-none h-24 resize-none"
+                                        defaultValue={panel.content}
+                                        onBlur={(e) => savePanel(panel.id, panel.title, e.target.value)}
+                                    />
+                                </div>
+                            ) : (
+                                <>
+                                    <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-[0.2em] mb-4">{panel.title}</h3>
+                                    <p className="text-sm text-slate-400 leading-relaxed">
+                                        {panel.content}
+                                    </p>
+                                    <button 
+                                        onClick={() => setEditingPanel(panel.id)}
+                                        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/5 rounded-lg text-slate-500"
+                                    >
+                                        <Settings2 size={12} />
+                                    </button>
+                                </>
+                            )}
                         </motion.div>
                     ))}
                     
