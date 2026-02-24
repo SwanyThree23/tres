@@ -38,7 +38,10 @@ const GreenRoom: React.FC<GreenRoomProps> = ({ onEnter }) => {
 
                 // Simple audio level simulation/track monitor
                 if (micOn && s.getAudioTracks().length > 0) {
-                    const audioContext = new AudioContext();
+                    const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+                    if (!AudioContextClass) return;
+                    
+                    const audioContext = new AudioContextClass();
                     const source = audioContext.createMediaStreamSource(s);
                     const analyser = audioContext.createAnalyser();
                     source.connect(analyser);
