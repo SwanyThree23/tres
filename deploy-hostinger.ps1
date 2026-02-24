@@ -34,6 +34,8 @@ Write-Host "=====================================================" -ForegroundCo
 # 1. Build the Frontend
 Write-Host "`n[1/5] Building Frontend (Vite/React)..." -ForegroundColor Yellow
 Set-Location -Path ".\frontend"
+npm install    # <-- ensures all devDependencies required for Vite/TS are present
+if ($LASTEXITCODE -ne 0) { throw "Frontend npm install failed!" }
 npm run build
 if ($LASTEXITCODE -ne 0) { throw "Frontend build failed!" }
 Set-Location -Path ".."

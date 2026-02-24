@@ -68,9 +68,6 @@ body {
 .no-scrollbar {
     -ms-overflow-style: none;
 }
-.no-scrollbar {
-    -ms-overflow-style: none;
-}
 
 /* ─── Glass UI ───────────────────────────────────────────────────────────── */
 .glass-panel {
