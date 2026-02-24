@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     Zap,
     Bell,
@@ -9,71 +9,68 @@ import {
     Compass,
     Search,
     Settings as SettingsIcon,
-    LogOut
+    LogOut,
+    Tv2,
+    Home,
+    Wifi,
+    WifiOff,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Components
+import Dashboard from './components/Dashboard';
 import Studio from './components/Studio';
 import Analytics from './components/Analytics';
 import Payouts from './components/Payouts';
 import NFTs from './components/NFTs';
 import Browse from './components/Browse';
+import Watch from './components/Watch';
+import Settings from './components/Settings';
 import Login from './components/Login';
 
+// Hooks
+import { useWebSocket } from './hooks/useWebSocket';
+
+type Tab = 'home' | 'browse' | 'studio' | 'analytics' | 'payouts' | 'nfts' | 'watch' | 'settings';
+
+interface Notification {
+    id: number;
+    title: string;
+    body: string;
+}
+
 const App: React.FC = () => {
-    const [activeTab, setActiveTab] = useState('studio');
-    const [notifications, setNotifications] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<Tab>('home');
+    const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLive, setIsLive] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+    const [showNotifPanel, setShowNotifPanel] = useState(false);
 
-    // WebSocket Integration
-    useEffect(() => {
-        const token = localStorage.getItem('token') || 'demo-user-id';
-        const wsUrl = `ws://${window.location.host}/api/ws?token=${token}`;
-
-        // In local development without the full backend running, we silenty fail or use a heartbeat 
-        // to avoid console noise if the server isn't ready.
-        let socket: WebSocket;
-        try {
-            socket = new WebSocket(wsUrl);
-            socket.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    addNotification(data.title || 'New Alert', data.body || 'You received a notification.');
-                } catch (e) {
-                    console.error('WS Data Parse Err:', e);
-                }
-            };
-
-            socket.onerror = () => {
-                // Fallback for demonstration when developer isn't running the backend service
-                console.log('Connecting to SwanyThree Brain...');
-            };
-        } catch (e) {
-            console.log('WS Setup Error');
-        }
-
-        return () => socket?.close();
-    }, []);
-
-    const addNotification = (title: string, body: string) => {
+    const addNotification = useCallback((title: string, body: string) => {
         const id = Date.now();
-        setNotifications(prev => [{ id, title, body }, ...prev]);
+        setNotifications(prev => [{ id, title, body }, ...prev.slice(0, 9)]);
         setTimeout(() => {
             setNotifications(prev => prev.filter(n => n.id !== id));
         }, 6000);
-    };
+    }, []);
+
+    // WebSocket with auto-reconnect
+    const { isConnected } = useWebSocket(useCallback((msg) => {
+        addNotification(msg.title || 'New Alert', msg.body || 'You received a notification.');
+    }, [addNotification]));
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'studio': return <Studio isLive={isLive} setIsLive={setIsLive} onAction={addNotification} />;
+            case 'home': return <Dashboard />;
             case 'browse': return <Browse />;
+            case 'studio': return <Studio isLive={isLive} setIsLive={setIsLive} onAction={addNotification} />;
             case 'analytics': return <Analytics />;
             case 'payouts': return <Payouts />;
             case 'nfts': return <NFTs />;
-            default: return <Studio isLive={isLive} setIsLive={setIsLive} onAction={addNotification} />;
+            case 'watch': return <Watch />;
+            case 'settings': return <Settings />;
+            default: return <Dashboard />;
         }
     };
 
@@ -86,125 +83,253 @@ const App: React.FC = () => {
         return <Login onLogin={() => setIsAuthenticated(true)} />;
     }
 
-    const navItems = [
+    const navItems: { id: Tab; icon: React.ElementType; label: string }[] = [
+        { id: 'home', icon: Home, label: 'Home' },
         { id: 'browse', icon: Compass, label: 'Explore' },
         { id: 'studio', icon: LayoutDashboard, label: 'Studio' },
+        { id: 'watch', icon: Tv2, label: 'Watch' },
         { id: 'analytics', icon: BarChart3, label: 'Insights' },
         { id: 'payouts', icon: Wallet, label: 'Finance' },
         { id: 'nfts', icon: Clapperboard, label: 'Vault' },
     ];
 
+    const pageTitle: Record<Tab, string> = {
+        home: 'Overview',
+        browse: 'Explore Streams',
+        studio: 'Creator Studio',
+        analytics: 'Analytics & Insights',
+        payouts: 'Finance & Payouts',
+        nfts: 'NFT Vault',
+        watch: 'Watch Now',
+        settings: 'Settings',
+    };
+
     return (
         <div className="flex h-screen bg-deep-dark overflow-hidden text-slate-200">
 
-            {/* Sidebar Navigation */}
-            <aside className="w-24 flex flex-col items-center py-8 border-r border-white/5 bg-surface-dark z-50">
-                <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/20 mb-12">
+            {/* ── Sidebar Navigation ────────────────────────────────── */}
+            <aside className="w-24 flex flex-col items-center py-8 border-r border-white/5 bg-surface-dark z-50 shrink-0">
+                {/* Logo */}
+                <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/25 mb-10 animate-glow-pulse shrink-0">
                     <Zap className="text-white fill-white" size={24} />
                 </div>
 
-                <nav className="flex-1 space-y-4">
+                {/* Nav Items */}
+                <nav className="flex-1 flex flex-col items-center gap-2 w-full px-3">
                     {navItems.map(item => (
                         <button
                             key={item.id}
+                            id={`nav-${item.id}`}
                             onClick={() => setActiveTab(item.id)}
                             aria-label={item.label}
                             title={item.label}
-                            className={`p-4 rounded-2xl transition-all duration-300 relative group ${activeTab === item.id
-                                ? 'bg-violet-600 text-white shadow-2xl shadow-violet-500/40'
-                                : 'text-slate-500 hover:text-white hover:bg-white/5'
+                            className={`relative w-full p-3.5 rounded-2xl transition-all duration-200 flex flex-col items-center gap-1.5 group ${activeTab === item.id
+                                    ? 'nav-active text-white'
+                                    : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
                                 }`}
                         >
-                            <item.icon size={22} />
+                            <item.icon size={20} />
+                            <span className="text-[9px] font-bold uppercase tracking-wider leading-none">
+                                {item.label}
+                            </span>
                             {activeTab === item.id && (
-                                <motion.div layoutId="nav-glow" className="absolute inset-0 bg-violet-400/20 blur-xl rounded-full z-[-1]" />
+                                <motion.div
+                                    layoutId="nav-glow"
+                                    className="absolute inset-0 rounded-2xl pointer-events-none"
+                                    style={{ boxShadow: '0 0 28px rgba(124,58,237,0.35)' }}
+                                />
                             )}
                         </button>
                     ))}
                 </nav>
 
-                <div className="pt-8 border-t border-white/5 space-y-4">
-                    <button className="p-4 text-slate-500 hover:text-white transition-colors" title="Settings">
-                        <SettingsIcon size={22} />
+                {/* Bottom actions */}
+                <div className="flex flex-col items-center gap-2 mt-4 w-full px-3 pt-4 border-t border-white/5">
+                    <button
+                        id="nav-settings"
+                        onClick={() => setActiveTab('settings')}
+                        aria-label="Settings"
+                        title="Settings"
+                        className={`w-full p-3.5 rounded-2xl transition-all flex flex-col items-center gap-1.5 ${activeTab === 'settings'
+                                ? 'nav-active text-white'
+                                : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
+                            }`}
+                    >
+                        <SettingsIcon size={20} />
+                        <span className="text-[9px] font-bold uppercase tracking-wider">Settings</span>
                     </button>
                     <button
+                        id="nav-signout"
                         onClick={handleLogout}
-                        className="p-4 text-slate-500 hover:text-red-400 transition-colors"
                         title="Sign Out"
+                        aria-label="Sign Out"
+                        className="w-full p-3.5 rounded-2xl text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all flex flex-col items-center gap-1.5"
                     >
-                        <LogOut size={22} />
+                        <LogOut size={20} />
+                        <span className="text-[9px] font-bold uppercase tracking-wider">Exit</span>
                     </button>
                 </div>
             </aside>
 
-            {/* Main Layout Area */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            {/* ── Main Content Area ─────────────────────────────────── */}
+            <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
                 {/* Top Header */}
-                <header className="h-20 px-10 flex items-center justify-between border-b border-white/5 bg-surface-dark/50 backdrop-blur-xl shrink-0">
-                    <div className="relative w-96">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search streams, clips, or creators..."
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all font-medium"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                        <button
-                            className="p-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors relative"
-                            aria-label="Notifications"
-                            title="Notifications"
-                        >
-                            <Bell size={20} className="text-slate-400" />
-                            {notifications.length > 0 && (
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse border-2 border-[#030303]" />
-                            )}
-                        </button>
-                        <div className="h-10 w-px bg-white/5 mx-2" />
-                        <div className="flex items-center gap-3 pr-2">
-                            <div className="text-right hidden md:block">
-                                <p className="text-sm font-bold text-white">Swany_Dev</p>
-                                <p className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Master Affiliate</p>
-                            </div>
-                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5 shadow-xl shadow-violet-500/10">
-                                <img
-                                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
-                                    className="rounded-2xl bg-slate-900 h-full w-full object-cover"
-                                    alt="User Avatar"
-                                />
+                <header className="h-[68px] px-8 flex items-center justify-between border-b border-white/5 bg-surface-dark/60 backdrop-blur-xl shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div>
+                            <h2 className="text-base font-bold text-white">{pageTitle[activeTab]}</h2>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                                {isConnected ? (
+                                    <Wifi size={9} className="text-emerald-400" />
+                                ) : (
+                                    <WifiOff size={9} className="text-slate-600" />
+                                )}
+                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isConnected ? 'text-emerald-400' : 'text-slate-600'}`}>
+                                    {isConnected ? 'Connected' : 'Demo Mode'}
+                                </span>
+                                {isLive && (
+                                    <>
+                                        <span className="text-slate-700 mx-1">·</span>
+                                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full live-pulse" />
+                                        <span className="text-[9px] font-bold text-red-400 uppercase tracking-widest">Live</span>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
+
+                    <div className="flex-1 max-w-sm mx-6">
+                        <div className="relative">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
+                            <input
+                                id="global-search"
+                                type="text"
+                                placeholder="Search streams, creators, clips..."
+                                className="w-full bg-white/5 border border-white/8 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-violet-500/50 focus:bg-white/8 transition-all"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {/* Notification Bell */}
+                        <div className="relative">
+                            <button
+                                id="notifications-btn"
+                                onClick={() => setShowNotifPanel(p => !p)}
+                                aria-label="Notifications"
+                                title="Notifications"
+                                className="p-2.5 bg-white/5 border border-white/8 rounded-xl hover:bg-white/10 transition-colors relative"
+                            >
+                                <Bell size={18} className="text-slate-400" />
+                                {notifications.length > 0 && (
+                                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse border-2 border-[hsl(240,20%,3%)]" />
+                                )}
+                            </button>
+
+                            <AnimatePresence>
+                                {showNotifPanel && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                                        className="absolute right-0 top-full mt-2 w-80 glass-panel shadow-2xl z-50 overflow-hidden"
+                                    >
+                                        <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+                                            <span className="text-sm font-bold text-white">Notifications</span>
+                                            {notifications.length > 0 && (
+                                                <button
+                                                    onClick={() => setNotifications([])}
+                                                    className="text-[10px] text-slate-500 hover:text-red-400 font-bold transition-colors"
+                                                >
+                                                    Clear all
+                                                </button>
+                                            )}
+                                        </div>
+                                        {notifications.length === 0 ? (
+                                            <div className="px-5 py-8 text-center text-slate-500 text-xs">
+                                                No notifications yet
+                                            </div>
+                                        ) : (
+                                            <div className="max-h-72 overflow-y-auto custom-scrollbar">
+                                                {notifications.map(n => (
+                                                    <div key={n.id} className="px-5 py-3 border-b border-white/5 hover:bg-white/5 transition-colors">
+                                                        <p className="text-xs font-bold text-white">{n.title}</p>
+                                                        <p className="text-[11px] text-slate-400 mt-0.5">{n.body}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        <div className="h-8 w-px bg-white/8" />
+
+                        {/* User profile */}
+                        <button
+                            id="profile-btn"
+                            className="flex items-center gap-3 hover:bg-white/5 pl-1 pr-3 py-1 rounded-2xl transition-colors"
+                            onClick={() => setActiveTab('settings')}
+                            title="Profile Settings"
+                        >
+                            <div className="text-right hidden md:block">
+                                <p className="text-xs font-bold text-white leading-tight">Swany_Dev</p>
+                                <p className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">Master Affiliate</p>
+                            </div>
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 p-0.5 shrink-0">
+                                <img
+                                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                                    className="rounded-xl bg-slate-900 h-full w-full object-cover"
+                                    alt="User Avatar"
+                                />
+                            </div>
+                        </button>
+                    </div>
                 </header>
 
-                {/* View Scrolling Content */}
-                <main className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-                    {renderContent()}
+                {/* Page Content */}
+                <main
+                    id="main-content"
+                    className="flex-1 overflow-y-auto p-8 custom-scrollbar"
+                >
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.18 }}
+                            className="h-full"
+                        >
+                            {renderContent()}
+                        </motion.div>
+                    </AnimatePresence>
                 </main>
             </div>
 
-            {/* Floating Notification Popovers */}
-            <div className="fixed bottom-10 right-10 z-[100] flex flex-col gap-4 pointer-events-none">
+            {/* ── Floating Toast Notifications ─────────────────────── */}
+            <div className="fixed bottom-8 right-8 z-[100] flex flex-col gap-3 pointer-events-none max-w-xs w-full">
                 <AnimatePresence>
-                    {notifications.map(n => (
+                    {notifications.slice(0, 3).map(n => (
                         <motion.div
                             key={n.id}
-                            initial={{ opacity: 0, x: 50, scale: 0.8 }}
+                            initial={{ opacity: 0, x: 60, scale: 0.85 }}
                             animate={{ opacity: 1, x: 0, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.5 }}
-                            className="glass-panel p-5 w-80 pointer-events-auto shadow-2xl border-l-4 border-l-violet-500 bg-surface-dark"
+                            exit={{ opacity: 0, x: 60, scale: 0.85 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                            className="glass-panel p-4 pointer-events-auto shadow-2xl border-l-[3px] border-l-violet-500 bg-surface-dark"
                         >
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
-                                    <Bell className="text-violet-400" size={18} />
+                            <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
+                                    <Bell className="text-violet-400" size={14} />
                                 </div>
-                                <div>
-                                    <h4 className="text-sm font-bold text-white leading-tight">{n.title}</h4>
-                                    <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">{n.body}</p>
+                                <div className="min-w-0">
+                                    <h4 className="text-xs font-bold text-white leading-tight truncate">{n.title}</h4>
+                                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed line-clamp-2">{n.body}</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -212,6 +337,10 @@ const App: React.FC = () => {
                 </AnimatePresence>
             </div>
 
+            {/* Click-away for notif panel */}
+            {showNotifPanel && (
+                <div className="fixed inset-0 z-40" onClick={() => setShowNotifPanel(false)} />
+            )}
         </div>
     );
 };
