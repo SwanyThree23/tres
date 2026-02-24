@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from api.database import get_db
 from api.middleware.auth import get_current_user
-from models.entities import User, Stream, StreamStatus
+from models.entities import User, Stream, StreamStatus, StreamDestination, DestinationPlatform
 
 router = APIRouter()
 
@@ -29,6 +29,27 @@ class StreamPatch(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[str] = None   # "live" | "ended" | "scheduled"
+    
+    # Watch Party Sync
+    is_party_active: Optional[bool] = None
+    party_url: Optional[str] = None
+    party_sync_status: Optional[dict] = None # {time: 0, state: 'playing'}
+
+
+class DestinationCreate(BaseModel):
+    platform: str # youtube, twitch, facebook, custom_rtmp
+    rtmp_url: str
+    stream_key: str
+
+
+class DestinationRead(BaseModel):
+    id: str
+    platform: str
+    rtmp_url: str
+    is_active: bool
+
+    class Config:
+        from_attributes = True
 
 
 class StreamRead(BaseModel):
@@ -37,10 +58,13 @@ class StreamRead(BaseModel):
     title: str
     description: Optional[str]
     status: str
-    viewer_count: int
-    peak_viewers: int
     category: Optional[str]
     stream_key: Optional[str] = None   # only returned to stream owner
+    
+    # Watch Party
+    is_party_active: bool
+    party_url: Optional[str]
+    party_sync_status: Optional[dict]
 
     class Config:
         from_attributes = True
@@ -58,6 +82,9 @@ def _stream_to_dict(stream: Stream, include_key: bool = False) -> dict:
         "viewer_count": stream.viewer_count,
         "peak_viewers": stream.peak_viewers,
         "category": stream.category,
+        "is_party_active": stream.is_party_active,
+        "party_url": stream.party_url,
+        "party_sync_status": stream.party_sync_status,
         **({"stream_key": stream.stream_key} if include_key else {}),
     }
 
@@ -148,9 +175,78 @@ async def update_stream(
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Invalid status '{data.status}'.")
 
+    # Sync Party attributes
+    if data.is_party_active is not None:
+        stream.is_party_active = data.is_party_active
+    if data.party_url is not None:
+        stream.party_url = data.party_url
+    if data.party_sync_status is not None:
+        stream.party_sync_status = data.party_sync_status
+
     await db.commit()
     await db.refresh(stream)
+    
+    # If party state changed, we should ideally notify via WS
+    # For now, just return
     return _stream_to_dict(stream, include_key=True)
+
+
+# ── Destinations Management ───────────────────────────────────────────────────
+
+@router.get("/{stream_id}/destinations", response_model=List[DestinationRead])
+async def list_destinations(
+    stream_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """List all broadcast destinations for a stream."""
+    q = select(StreamDestination).where(StreamDestination.stream_id == stream_id)
+    result = await db.execute(q)
+    return result.scalars().all()
+
+
+@router.post("/{stream_id}/destinations", response_model=DestinationRead)
+async def add_destination(
+    stream_id: str,
+    data: DestinationCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Add a new broadcast destination (YouTube, Twitch, etc)."""
+    # Verify ownership
+    res = await db.execute(select(Stream).where(Stream.id == stream_id))
+    stream = res.scalars().first()
+    if not stream or str(stream.user_id) != str(current_user.id):
+        raise HTTPException(status_code=403, detail="Not your stream.")
+
+    new_dest = StreamDestination(
+        stream_id=stream_id,
+        platform=DestinationPlatform(data.platform),
+        rtmp_url=data.rtmp_url,
+        stream_key_encrypted=data.stream_key, # In prod, encrypt this!
+        is_active=True
+    )
+    db.add(new_dest)
+    await db.commit()
+    await db.refresh(new_dest)
+    return new_dest
+
+
+@router.delete("/{stream_id}/destinations/{dest_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_destination(
+    stream_id: str,
+    dest_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Remove a broadcast destination."""
+    res = await db.execute(select(StreamDestination).where(StreamDestination.id == dest_id))
+    dest = res.scalars().first()
+    if not dest or str(dest.stream_id) != stream_id:
+        raise HTTPException(status_code=404, detail="Destination not found.")
+    
+    await db.delete(dest)
+    await db.commit()
 
 
 @router.delete("/{stream_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# ── Connection Registry ────────────────────────────────────────────────────────
 # user_id -> set of active WebSocket connections (supports multiple tabs)
 _connections: Dict[str, Set[WebSocket]] = {}
+# room_id -> set of active WebSocket connections
+_rooms: Dict[str, Set[WebSocket]] = {}
 
 
 class ConnectionManager:
@@ -55,6 +56,32 @@ class ConnectionManager:
                     await ws.send_text(json.dumps(payload))
                 except Exception:
                     self.disconnect(uid, ws)
+
+    async def subscribe(self, room_id: str, ws: WebSocket) -> None:
+        """Add a connection to a specific room."""
+        if room_id not in _rooms:
+            _rooms[room_id] = set()
+        _rooms[room_id].add(ws)
+        logger.debug("WS subscribed to room: %s", room_id)
+
+    async def unsubscribe(self, room_id: str, ws: WebSocket) -> None:
+        """Remove a connection from a specific room."""
+        if room_id in _rooms:
+            _rooms[room_id].discard(ws)
+            if not _rooms[room_id]:
+                _rooms.pop(room_id)
+
+    async def send_to_room(self, room_id: str, payload: dict) -> None:
+        """Send a message to everyone in a room."""
+        stale: list[WebSocket] = []
+        for ws in list(_rooms.get(room_id, [])):
+            try:
+                await ws.send_text(json.dumps(payload))
+            except Exception:
+                stale.append(ws)
+        for ws in stale:
+            for rid, rsockets in list(_rooms.items()):
+                rsockets.discard(ws)
 
 
 manager = ConnectionManager()
@@ -102,8 +129,16 @@ async def websocket_endpoint(
             raw = await ws.receive_text()
             try:
                 msg = json.loads(raw)
-                if msg.get("type") == "ping":
+                mtype = msg.get("type")
+                
+                if mtype == "ping":
                     await ws.send_text(json.dumps({"type": "pong"}))
+                elif mtype == "subscribe":
+                    room = msg.get("room")
+                    if room: await manager.subscribe(room, ws)
+                elif mtype == "unsubscribe":
+                    room = msg.get("room")
+                    if room: await manager.unsubscribe(room, ws)
                 else:
                     logger.debug("WS msg from %s: %s", user_id, msg)
             except json.JSONDecodeError:
