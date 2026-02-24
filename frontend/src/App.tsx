@@ -154,7 +154,6 @@ const App: React.FC = () => {
                             <p className="text-slate-400 text-base md:text-lg mb-12 max-w-sm mx-auto leading-relaxed">
                                 Grant access to interact in real-time.
                             </p>
-
                             <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
                                 <button
                                     onClick={() => requestMedia('watch')}
@@ -172,7 +171,7 @@ const App: React.FC = () => {
                             
                             <button 
                                 onClick={() => setHasInteracted(true)}
-                                className="mt-12 text-slate-600 hover:text-slate-400 text-[9px] font-bold uppercase tracking-[0.3em] transition-colors"
+                                className="mt-12 text-slate-500 hover:text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors"
                             >
                                 Skip interactive setup
                             </button>
