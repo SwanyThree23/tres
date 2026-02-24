@@ -27,7 +27,6 @@ api.interceptors.response.use(
                     const res = await axios.post('/api/auth/refresh', { refresh_token: refreshToken });
                     localStorage.setItem('token', res.data.access_token);
                     localStorage.setItem('refresh_token', res.data.refresh_token);
-                    // Retry the original request
                     if (error.config) {
                         error.config.headers['Authorization'] = `Bearer ${res.data.access_token}`;
                         return api(error.config);
@@ -55,23 +54,27 @@ export const authService = {
 
 // ── Stream Service ─────────────────────────────────────────────────────────
 export const streamService = {
-    getStreams: () => api.get('/streams'),
-    createStream: (data: { title: string; description?: string }) =>
+    getStreams: (status?: string) => api.get('/streams', { params: status ? { status } : {} }),
+    createStream: (data: { title: string; description?: string; category?: string }) =>
         api.post('/streams', data),
     endStream: (streamId: string) =>
         api.patch(`/streams/${streamId}`, { status: 'ended' }),
+    getStream: (streamId: string) => api.get(`/streams/${streamId}`),
 };
 
 // ── Payment Service ────────────────────────────────────────────────────────
 export const paymentService = {
     setupConnect: () => api.post('/payments/setup-connect'),
+    getConnectLink: () => api.get('/payments/connect-link'),
     sendTip: (recipientId: string, amountCents: number, message?: string) =>
         api.post('/payments/tip', { recipient_id: recipientId, amount_cents: amountCents, message }),
 };
 
 // ── Analytics Service ──────────────────────────────────────────────────────
 export const analyticsService = {
-    getSummary: (streamId: string) => api.get(`/analytics/${streamId}/summary`),
+    // GET /api/analytics/stream/{id}
+    getStreamAnalytics: (streamId: string) => api.get(`/analytics/stream/${streamId}`),
+    // GET /api/analytics/global
     getGlobal: () => api.get('/analytics/global'),
 };
 
@@ -85,10 +88,29 @@ export const nftService = {
     }) => api.post('/ai/mint-highlight', data),
 };
 
-// ── User Service ───────────────────────────────────────────────────────────
+// ── Notifications Service ──────────────────────────────────────────────────
+export const notificationsService = {
+    list: (unreadOnly?: boolean) =>
+        api.get('/notifications', { params: unreadOnly ? { unread_only: true } : {} }),
+    markRead: (notifId: string) =>
+        api.post(`/notifications/${notifId}/read`),
+    markAllRead: () => api.post('/notifications/read-all'),
+    delete: (notifId: string) =>
+        api.delete(`/notifications/${notifId}`),
+};
+
+// ── User / Profile Service ─────────────────────────────────────────────────
 export const userService = {
     getMe: () => api.get('/users/me'),
     list: () => api.get('/users'),
+};
+
+// ── WebSocket helper ───────────────────────────────────────────────────────
+export const createWebSocket = (): WebSocket => {
+    const token = localStorage.getItem('token') ?? '';
+    const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const host = window.location.host;
+    return new WebSocket(`${proto}://${host}/api/ws?token=${encodeURIComponent(token)}`);
 };
 
 export default api;
