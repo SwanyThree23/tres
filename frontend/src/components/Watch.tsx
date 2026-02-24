@@ -158,25 +158,73 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
             {/* ── Middle Column: Video Player ───────────────────────── */}
             <div className="col-span-6 flex flex-col gap-4 overflow-y-auto no-scrollbar pb-10">
                 <div className="relative bg-black rounded-3xl overflow-hidden aspect-video group shrink-0 border border-white/5 shadow-2xl">
-                    {/* Simulated video feed */}
+                    {/* Top-right Interaction menu */}
+                    <div className="absolute top-5 right-5 flex items-center gap-2 z-20">
+                         <button 
+                            onClick={() => setShowPermissions(true)}
+                            className="bg-black/50 backdrop-blur-md p-2 rounded-xl text-slate-300 hover:text-white transition-all hover:bg-white/10 border border-white/5"
+                            title="Access Permissions & Feature Settings"
+                            aria-label="Manage watch party permissions"
+                         >
+                            <Shield size={16} />
+                         </button>
+                    </div>
+
+                    {/* Simulated video feed or Party Sync */}
                     <div className="absolute inset-0 bg-gradient-to-br from-violet-900/30 via-slate-900 to-cyan-900/30 flex items-center justify-center">
-                        <div className="text-center relative z-10 p-6 backdrop-blur-md rounded-3xl bg-black/20">
-                            {onClose && (
-                                <button
-                                    onClick={onClose}
-                                    aria-label="Back"
-                                    title="Go Back"
-                                    className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-slate-800/80 border border-white/10 flex items-center justify-center text-white hover:bg-slate-700 transition-colors z-50 text-[10px]"
+                        {isPartyActive ? (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-black/80 backdrop-blur-3xl p-10">
+                                <motion.div 
+                                    animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+                                    transition={{ repeat: Infinity, duration: 4 }}
+                                    className="w-20 h-20 rounded-full bg-violet-600/20 flex items-center justify-center mb-8 border border-violet-500/30"
                                 >
-                                    <ArrowLeft size={16} />
+                                    <Zap className="text-violet-400" size={32} />
+                                </motion.div>
+                                <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-widest">Party Sync Active</h2>
+                                <p className="text-slate-500 text-[10px] font-bold mb-8 uppercase tracking-widest text-center max-w-xs leading-relaxed">
+                                    Sharing media via <br/> <span className="text-cyan-400 font-mono">{partyUrl.substring(0, 40)}...</span>
+                                </p>
+                                <button 
+                                    onClick={() => setIsPartyActive(false)}
+                                    title="Disconnect from Watch Party"
+                                    className="px-8 py-3 bg-red-600 hover:bg-red-500 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-2xl shadow-red-500/30 transition-all hover:scale-105"
+                                >
+                                    Terminate Sync
                                 </button>
-                            )}
-                            <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-4 mx-auto animate-pulse">
-                                <Radio className="text-red-500" size={48} />
                             </div>
-                            <p className="text-xl font-bold text-white">{stream?.title || 'Building a Web3 AI Orchestrator'}</p>
-                            <p className="text-slate-400 text-sm mt-1">{stream?.user_id || 'CodeWizard'} • LIVE</p>
-                        </div>
+                        ) : (
+                            <div className="text-center relative z-10 p-10 max-w-lg w-full">
+                                <div className="mb-10 text-center">
+                                    <div className="w-16 h-16 rounded-2xl bg-violet-600/10 flex items-center justify-center mb-6 mx-auto border border-white/5">
+                                        <Play className="text-violet-500 fill-violet-500 ml-1" size={24} />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-white mb-2">Theater Mode</h2>
+                                    <p className="text-slate-500 text-xs">Enter a video link to initialize a community watch party.</p>
+                                </div>
+                                
+                                <div className="relative group/input">
+                                    <input 
+                                        type="text"
+                                        placeholder="Paste source URL (YT/Twitch)..."
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:border-violet-500 outline-none transition-all placeholder:text-slate-600 group-hover/input:bg-white/10"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') startParty(e.currentTarget.value);
+                                        }}
+                                    />
+                                    <button 
+                                        onClick={(e) => {
+                                            const input = e.currentTarget.previousSibling as HTMLInputElement;
+                                            startParty(input.value);
+                                        }}
+                                        title="Initialize Stream"
+                                        className="absolute right-2 top-2 bottom-2 px-4 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all"
+                                    >
+                                        Start
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Overlays */}
