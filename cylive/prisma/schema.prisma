@@ -1,0 +1,410 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// CYLive — Prisma Schema
+// Production-grade live streaming platform
+// PostgreSQL + Prisma ORM
+// ──────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  VIEWER
+  CREATOR
+  ADMIN
+}
+
+enum CreatorTier {
+  FREE
+  CREATOR
+  PRO
+  STUDIO
+}
+
+enum StreamStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+}
+
+enum StreamGenre {
+  TALK_SHOW
+  MUSIC
+  GAMING
+  LIFESTYLE
+  EDUCATION
+  SPORTS
+  NEWS
+  COMEDY
+  ART
+  TECHNOLOGY
+  OTHER
+}
+
+enum PanelRole {
+  HOST
+  GUEST
+}
+
+enum PaymentType {
+  TIP
+  SUBSCRIPTION
+  PAYWALL
+  GIFT
+  PAYOUT
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum SubscriptionTier {
+  FAN
+  SUPPORTER
+  RIDE_OR_DIE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+}
+
+enum AuraMode {
+  SASSY
+  HYPE
+  CALM
+  KIND
+}
+
+enum AudioRoomStatus {
+  ACTIVE
+  ENDED
+}
+
+enum NotificationType {
+  STREAM_STARTING
+  NEW_FOLLOWER
+  TIP_RECEIVED
+  SUBSCRIPTION
+  SYSTEM
+  SCHEDULED_REMINDER
+}
+
+// ── Users ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                    String    @id @default(uuid())
+  email                 String    @unique
+  username              String    @unique
+  displayName           String    @map("display_name")
+  passwordHash          String?   @map("password_hash")
+  avatarUrl             String?   @map("avatar_url")
+  avatarEmoji           String?   @map("avatar_emoji")
+  bio                   String?
+  role                  Role      @default(VIEWER)
+  tier                  CreatorTier @default(FREE)
+  verified              Boolean   @default(false)
+  stripeCustomerId      String?   @unique @map("stripe_customer_id")
+  stripeConnectedAcctId String?   @unique @map("stripe_connected_account_id")
+  followerCount         Int       @default(0) @map("follower_count")
+  totalEarnings         Decimal   @default(0) @map("total_earnings") @db.Decimal(12, 2)
+  preferredLanguage     String    @default("en") @map("preferred_language")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  deletedAt             DateTime? @map("deleted_at")
+
+  // Relations
+  streams           Stream[]
+  streamPanels      StreamPanel[]
+  messages          Message[]
+  paymentsSent      Payment[]       @relation("PaymentSender")
+  paymentsReceived  Payment[]       @relation("PaymentReceiver")
+  subscriptionsOut  Subscription[]  @relation("Subscriber")
+  subscriptionsIn   Subscription[]  @relation("SubscribedCreator")
+  followers         Follow[]        @relation("Following")
+  following         Follow[]        @relation("Follower")
+  videoPosts        VideoPost[]
+  audioRoomsHosted  AudioRoom[]
+  notifications     Notification[]
+  scheduledStreams   ScheduledStream[]
+  accounts          Account[]
+  sessions          Session[]
+
+  @@index([email])
+  @@index([username])
+  @@map("users")
+}
+
+// ── NextAuth Models ─────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  deviceInfo   String?  @map("device_info")
+  lastActiveAt DateTime @default(now()) @map("last_active_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ── Follows ─────────────────────────────────────────────────────────────────
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+// ── Streams ─────────────────────────────────────────────────────────────────
+
+model Stream {
+  id              String       @id @default(uuid())
+  userId          String       @map("user_id")
+  title           String
+  description     String?
+  genre           StreamGenre  @default(OTHER)
+  status          StreamStatus @default(SCHEDULED)
+  minTier         CreatorTier  @default(FREE) @map("min_tier")
+  panelCount      Int          @default(1) @map("panel_count")
+  isPaywalled     Boolean      @default(false) @map("is_paywalled")
+  paywallAmount   Int?         @map("paywall_amount_cents")
+  thumbnailUrl    String?      @map("thumbnail_url")
+  streamKey       String?      @map("stream_key")
+  ingestUrl       String?      @map("ingest_url")
+  playbackUrl     String?      @map("playback_url")
+  totalViewers    Int          @default(0) @map("total_viewers")
+  peakViewers     Int          @default(0) @map("peak_viewers")
+  totalEarnings   Decimal      @default(0) @map("total_earnings") @db.Decimal(12, 2)
+  auraMode        AuraMode?    @map("aura_mode")
+  startedAt       DateTime?    @map("started_at")
+  endedAt         DateTime?    @map("ended_at")
+  scheduledAt     DateTime?    @map("scheduled_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  panels   StreamPanel[]
+  messages Message[]
+  payments Payment[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("streams")
+}
+
+model StreamPanel {
+  id        String    @id @default(uuid())
+  streamId  String    @map("stream_id")
+  userId    String    @map("user_id")
+  position  Int       // 0-8
+  role      PanelRole @default(GUEST)
+  joinedAt  DateTime  @default(now()) @map("joined_at")
+  leftAt    DateTime? @map("left_at")
+
+  stream Stream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("stream_panels")
+}
+
+// ── Messages ────────────────────────────────────────────────────────────────
+
+model Message {
+  id                String   @id @default(uuid())
+  streamId          String   @map("stream_id")
+  userId            String   @map("user_id")
+  content           String
+  originalLang      String?  @map("original_lang")
+  translatedContent Json?    @map("translated_content") @db.JsonB
+  isSuperChat       Boolean  @default(false) @map("is_super_chat")
+  isGift            Boolean  @default(false) @map("is_gift")
+  isAura            Boolean  @default(false) @map("is_aura")
+  superAmount       Int?     @map("super_amount_cents")
+  giftType          String?  @map("gift_type")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  stream Stream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([streamId, createdAt])
+  @@map("messages")
+}
+
+// ── Payments ────────────────────────────────────────────────────────────────
+
+model Payment {
+  id               String        @id @default(uuid())
+  fromUserId       String?       @map("from_user_id")
+  toUserId         String        @map("to_user_id")
+  streamId         String?       @map("stream_id")
+  type             PaymentType
+  amountCents      Int           @map("amount_cents")
+  platformFeeCents Int           @default(0) @map("platform_fee_cents")
+  stripeTransferId String?       @map("stripe_transfer_id")
+  note             String?
+  status           PaymentStatus @default(PENDING)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  fromUser User?   @relation("PaymentSender", fields: [fromUserId], references: [id])
+  toUser   User    @relation("PaymentReceiver", fields: [toUserId], references: [id])
+  stream   Stream? @relation(fields: [streamId], references: [id])
+
+  @@index([toUserId])
+  @@index([fromUserId])
+  @@index([streamId])
+  @@map("payments")
+}
+
+// ── Subscriptions ───────────────────────────────────────────────────────────
+
+model Subscription {
+  id                 String             @id @default(uuid())
+  subscriberId       String             @map("subscriber_id")
+  creatorId          String             @map("creator_id")
+  tier               SubscriptionTier
+  amountCents        Int                @map("amount_cents")
+  stripeSubscriptionId String?          @unique @map("stripe_subscription_id")
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodEnd   DateTime?          @map("current_period_end")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  subscriber User @relation("Subscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+  creator    User @relation("SubscribedCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, creatorId])
+  @@map("subscriptions")
+}
+
+// ── Video Posts ──────────────────────────────────────────────────────────────
+
+model VideoPost {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  title         String
+  description   String?
+  videoUrl      String   @map("video_url")
+  cdnUrl        String?  @map("cdn_url")
+  thumbnailUrl  String?  @map("thumbnail_url")
+  duration      Int?     // seconds
+  isPaywalled   Boolean  @default(false) @map("is_paywalled")
+  paywallAmount Int?     @map("paywall_amount_cents")
+  viewCount     Int      @default(0) @map("view_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("video_posts")
+}
+
+// ── Audio Rooms ─────────────────────────────────────────────────────────────
+
+model AudioRoom {
+  id          String          @id @default(uuid())
+  hostId      String          @map("host_id")
+  title       String
+  description String?
+  status      AudioRoomStatus @default(ACTIVE)
+  maxSpeakers Int             @default(10) @map("max_speakers")
+  listenerCount Int           @default(0) @map("listener_count")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  endedAt     DateTime?       @map("ended_at")
+
+  host User @relation(fields: [hostId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("audio_rooms")
+}
+
+// ── Scheduled Streams ───────────────────────────────────────────────────────
+
+model ScheduledStream {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  title         String
+  description   String?
+  scheduledAt   DateTime @map("scheduled_at")
+  panelCount    Int      @default(1) @map("panel_count")
+  genre         StreamGenre @default(OTHER)
+  notifyFollowers Boolean @default(true) @map("notify_followers")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([scheduledAt])
+  @@map("scheduled_streams")
+}
+
+// ── Notifications ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?            @db.JsonB
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
+}
