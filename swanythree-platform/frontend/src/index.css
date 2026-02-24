@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #800020 #1a1118;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #1a1118;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #800020;
+    border-radius: 3px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #D4AF37;
+  }
+
+  body {
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply bg-st3-panel border border-st3-burgundy/30 text-st3-cream rounded-lg px-3 py-2
+      focus:outline-none focus:ring-2 focus:ring-st3-gold/50 focus:border-st3-gold/50
+      placeholder:text-st3-cream/40 transition-colors;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-st3-gold text-st3-dark font-semibold px-4 py-2 rounded-lg
+      hover:bg-st3-gold-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-st3-burgundy text-st3-cream font-semibold px-4 py-2 rounded-lg
+      hover:bg-st3-burgundy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-st3-cream/70 font-medium px-4 py-2 rounded-lg
+      hover:bg-st3-panel hover:text-st3-cream transition-colors;
+  }
+
+  .card {
+    @apply bg-st3-panel rounded-xl border border-st3-burgundy/20 p-4;
+  }
+
+  .badge-common {
+    @apply border-gray-400;
+  }
+  .badge-uncommon {
+    @apply border-green-400;
+  }
+  .badge-rare {
+    @apply border-blue-400;
+  }
+  .badge-epic {
+    @apply border-purple-400;
+  }
+  .badge-legendary {
+    @apply border-st3-gold;
+  }
+}
