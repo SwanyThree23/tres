@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, Square, Radio, Users, Zap, DollarSign, BarChart3, Loader2, Mic, MicOff, Camera, CameraOff, Settings2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useStream } from '../hooks/useStream';
@@ -22,6 +22,50 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
     const [micOn, setMicOn] = useState(true);
     const [camOn, setCamOn] = useState(true);
     const [uptime, setUptime] = useState(0);
+
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+
+    // Request camera and mic permissions
+    useEffect(() => {
+        let stream: MediaStream | null = null;
+        const initMedia = async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                setMediaStream(stream);
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                }
+            } catch (err) {
+                console.error('Failed to get media devices:', err);
+                onAction('Media Error', 'Could not access camera or microphone.');
+            }
+        };
+        initMedia();
+
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [onAction]);
+
+    // Toggle tracks based on micOn/camOn
+    useEffect(() => {
+        if (mediaStream) {
+            mediaStream.getAudioTracks().forEach(track => {
+                track.enabled = micOn;
+            });
+        }
+    }, [micOn, mediaStream]);
+
+    useEffect(() => {
+        if (mediaStream) {
+            mediaStream.getVideoTracks().forEach(track => {
+                track.enabled = camOn;
+            });
+        }
+    }, [camOn, mediaStream]);
 
     // Sync parent state
     useEffect(() => { setIsLive(isLive); }, [isLive, setIsLive]);
@@ -67,11 +111,19 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
 
                 {/* Video Preview */}
                 <section className="relative rounded-3xl overflow-hidden bg-slate-950 aspect-video group border border-white/5">
+                    
+                    <video 
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${camOn ? 'opacity-100' : 'opacity-0'}`}
+                    />
 
                     {/* Feed / Offline state */}
                     <div className="absolute inset-0 flex items-center justify-center">
                         {isLive ? (
-                            <div className="text-center">
+                            <div className={`text-center transition-opacity duration-500 ${camOn ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                                 <motion.div
                                     animate={{ scale: [1, 1.08, 1] }}
                                     transition={{ repeat: Infinity, duration: 2.2 }}
