@@ -66,3 +66,13 @@ async def mint_highlight(
         "nft_id": str(new_nft.id),
         "mint_details": nft_result
     }
+@router.post("/moderate")
+async def moderate_chat(text: str, current_user: User = Depends(get_current_user)):
+    """Analyze chat content for violations."""
+    return await ai_service.moderate_content(text)
+
+
+@router.get("/director-suggestions")
+async def get_suggestions(stream_id: str, context: Optional[str] = "", current_user: User = Depends(get_current_user)):
+    """Get AI-powered scene suggestions for a live stream."""
+    return await ai_service.suggest_director_scenes(f"Stream ID: {stream_id}. Context: {context}")

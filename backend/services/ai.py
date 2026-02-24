@@ -51,6 +51,7 @@ class AIService:
                     "https://openrouter.ai/api/v1/chat/completions",
                     headers={
                         "Authorization": f"Bearer {self.openrouter_key}",
+                        "X-Provider": "SwanyThree",
                         "X-Title": "SwanyThree Platform"
                     },
                     json={
@@ -63,5 +64,37 @@ class AIService:
         except Exception as e:
             logger.error(f"OpenRouter completion failed: {e}")
             return None
+
+    async def moderate_content(self, text: str) -> Dict[str, Any]:
+        """Check if content is toxic or violative."""
+        prompt = f"Analyze this chat message for toxicity, spam, or community violations. Message: '{text}'. Return JSON ONLY: {{'is_flagged': bool, 'reason': string, 'confidence': float}}"
+        res = await self.generate_chat_response(prompt)
+        if not res: return {"is_flagged": False, "reason": "No response"}
+        
+        try:
+            import json
+            import re
+            match = re.search(r'\{.*\}', res, re.DOTALL)
+            if match:
+                return json.loads(match.group())
+            return {"is_flagged": "flagged" in res.lower(), "reason": "Text analysis"}
+        except:
+            return {"is_flagged": "flagged" in res.lower(), "reason": "Text analysis"}
+
+    async def suggest_director_scenes(self, context: str) -> List[Dict[str, str]]:
+        """Suggest scene changes for a stream based on chat/meta context."""
+        prompt = f"You are an AI Stream Director. Based on this context: '{context}', suggest 3 variations of stream scenes. Return JSON list ONLY: [{{'title': str, 'description': str}}]"
+        res = await self.generate_chat_response(prompt)
+        if not res: return []
+        
+        try:
+            import json
+            import re
+            match = re.search(r'\[.*\]', res, re.DOTALL)
+            if match:
+                return json.loads(match.group())
+            return []
+        except:
+            return [{"title": "Dynamic Reaction", "description": "Auto-switch to face-cam for high-action moment."}]
 
 ai_service = AIService()
