@@ -4,6 +4,8 @@ import {
     Radio, ArrowUpRight, Crown, Sparkles, Globe, Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { analyticsService } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 
 interface StatCardProps {
     label: string;
@@ -54,18 +56,26 @@ const recentActivity = [
 ];
 
 const Dashboard: React.FC = () => {
+    const { user } = useAuth();
     const [time, setTime] = useState(new Date());
+    const [analyticsData, setAnalyticsData] = useState<any>(null);
 
     useEffect(() => {
         const t = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(t);
     }, []);
 
+    useEffect(() => {
+        analyticsService.getGlobal()
+            .then(res => setAnalyticsData(res.data))
+            .catch(err => console.error('Failed to fetch analytics', err));
+    }, []);
+
     const stats = [
-        { label: 'Total Revenue', value: '$12,480', subValue: 'This month', trend: '+24%', icon: DollarSign, color: 'text-violet-400', glowClass: 'stat-glow-violet' },
-        { label: 'Total Viewers', value: '42.8K', subValue: 'Lifetime', trend: '+12%', icon: Users, color: 'text-cyan-400', glowClass: 'stat-glow-cyan' },
-        { label: 'Live Viewers', value: '1,248', subValue: 'Right now', trend: '+8%', icon: Eye, color: 'text-emerald-400', glowClass: 'stat-glow-emerald' },
-        { label: 'Growth Rate', value: '8.4%', subValue: '30-day avg', trend: '+2%', icon: TrendingUp, color: 'text-amber-400', glowClass: 'stat-glow-amber' },
+        { label: 'Total Revenue', value: analyticsData ? `$${analyticsData.revenue.total.toLocaleString()}` : '...', subValue: 'Lifetime sum', trend: '+12%', icon: DollarSign, color: 'text-violet-400', glowClass: 'stat-glow-violet' },
+        { label: 'Total Viewers', value: analyticsData ? analyticsData.viewers.total.toLocaleString() : '...', subValue: 'Lifetime total', trend: '+8%', icon: Users, color: 'text-cyan-400', glowClass: 'stat-glow-cyan' },
+        { label: 'Peak Viewers', value: analyticsData ? analyticsData.viewers.peak_ever.toLocaleString() : '...', subValue: 'All-time high', trend: '~', icon: Eye, color: 'text-emerald-400', glowClass: 'stat-glow-emerald' },
+        { label: 'Streams', value: analyticsData ? analyticsData.streams_total : '...', subValue: 'Total broadcasts', trend: '+1', icon: Radio, color: 'text-amber-400', glowClass: 'stat-glow-amber' },
     ];
 
     return (
@@ -88,7 +98,7 @@ const Dashboard: React.FC = () => {
                             SwanyThree Platform
                         </div>
                         <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
-                            Welcome back, <span className="gradient-text">Swany_Dev</span>
+                            Welcome back, <span className="gradient-text">{user?.display_name || user?.username || 'Creator'}</span>
                         </h1>
                         <p className="text-slate-400 text-sm">
                             Your platform is running at peak performance. Here's your real-time overview.
@@ -111,8 +121,8 @@ const Dashboard: React.FC = () => {
                 <div className="relative z-10 flex items-center gap-3 mt-6">
                     <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-2xl">
                         <span className="w-2 h-2 bg-red-500 rounded-full live-pulse" />
-                        <span className="text-red-400 text-xs font-bold uppercase tracking-widest">Live Now</span>
-                        <span className="text-white text-xs font-mono">1,248 watching</span>
+                        <span className="text-red-400 text-xs font-bold uppercase tracking-widest">Platform Status</span>
+                        <span className="text-white text-xs font-mono">Running</span>
                     </div>
                     <div className="flex items-center gap-2 px-4 py-2 bg-violet-500/10 border border-violet-500/20 rounded-2xl">
                         <Globe size={12} className="text-violet-400" />
@@ -235,7 +245,7 @@ const Dashboard: React.FC = () => {
                                 <p className="text-xs font-bold text-violet-400">AI Director Tip</p>
                             </div>
                             <p className="text-[11px] text-slate-400 leading-relaxed">
-                                Engagement peaks detected between 8PM–11PM EST. Your next broadcast window is optimal for NFT minting.
+                                {analyticsData?.ai_suggestion || "Engagement peaks detected between 8PM–11PM EST. Your next broadcast window is optimal for NFT minting."}
                             </p>
                         </div>
                     </div>
