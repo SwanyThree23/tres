@@ -54,6 +54,12 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        userService.getMyPanels()
+            .then(res => setInfoPanels(res.data))
+            .catch(err => console.error("Failed to fetch panels", err));
+    }, []);
+
     const quickTips = [5, 10, 25, 50, 100];
 
     const [hearts, setHearts] = useState<HeartItem[]>([]);
