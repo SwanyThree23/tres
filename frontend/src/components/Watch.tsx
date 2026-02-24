@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X } from 'lucide-react';
+import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { streamService } from '../services/api';
 
 interface WatchProps {
     streamId?: string;
@@ -12,6 +13,19 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
     const [isLiked, setIsLiked] = useState(false);
     const [tipAmount, setTipAmount] = useState('');
     const [showTipModal, setShowTipModal] = useState(false);
+    const [stream, setStream] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (streamId) {
+            streamService.getStream(streamId)
+                .then(res => setStream(res.data))
+                .catch(err => console.error("Failed to fetch stream", err))
+                .finally(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
+    }, [streamId]);
     const [chatMessages, setChatMessages] = useState([
         { id: 1, user: 'NeonVibes', text: 'LETS GOOOO 🔥', avatar: 'A1', isHighlight: false },
         { id: 2, user: 'CyberPunker', text: 'This AI director is insane!', avatar: 'B2', isHighlight: true },
@@ -54,12 +68,20 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                 <div className="relative bg-black rounded-3xl overflow-hidden aspect-video group">
                     {/* Simulated video feed */}
                     <div className="absolute inset-0 bg-gradient-to-br from-violet-900/30 via-slate-900 to-cyan-900/30 flex items-center justify-center">
-                        <div className="text-center">
+                        <div className="text-center relative z-10 p-6 backdrop-blur-md rounded-3xl bg-black/20">
+                            {onClose && (
+                                <button
+                                    onClick={onClose}
+                                    className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-slate-800/80 border border-white/10 flex items-center justify-center text-white hover:bg-slate-700 transition-colors z-50 text-[10px]"
+                                >
+                                    <ArrowLeft size={16} />
+                                </button>
+                            )}
                             <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-4 mx-auto animate-pulse">
                                 <Radio className="text-red-500" size={48} />
                             </div>
-                            <p className="text-xl font-bold text-white">Building a Web3 AI Orchestrator</p>
-                            <p className="text-slate-400 text-sm mt-1">CodeWizard • LIVE</p>
+                            <p className="text-xl font-bold text-white">{stream?.title || 'Building a Web3 AI Orchestrator'}</p>
+                            <p className="text-slate-400 text-sm mt-1">{stream?.user_id || 'CodeWizard'} • LIVE</p>
                         </div>
                     </div>
 
@@ -106,12 +128,12 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                     <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-4">
                             <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-white/10 p-0.5 shrink-0">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ace" className="rounded-xl" alt="CodeWizard" />
+                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${stream?.user_id || 'CodeWizard'}`} className="rounded-xl" alt="Creator Avatar" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-white">Building a Web3 AI Orchestrator</h2>
+                                <h2 className="text-lg font-bold text-white">{stream?.title || 'Building a Web3 AI Orchestrator'}</h2>
                                 <p className="text-sm text-slate-400 mt-0.5">
-                                    <span className="text-violet-400 font-bold">CodeWizard</span> · Tech · 3.1K watching
+                                    <span className="text-violet-400 font-bold">{stream?.user_id || 'CodeWizard'}</span> · {stream?.category || 'Tech'} · {viewerCount.toLocaleString()} watching
                                 </p>
                                 <div className="flex items-center gap-2 mt-3">
                                     <span className="px-2.5 py-0.5 bg-violet-500/10 border border-violet-500/20 rounded-full text-[10px] font-bold text-violet-400">Tech</span>
