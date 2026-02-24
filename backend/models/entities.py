@@ -1,17 +1,16 @@
 """
 SwanyThree Platform — SQLAlchemy 2.0 ORM models.
 
-All 30 tables are defined here using ``Mapped[]`` annotations and
-``mapped_column()``.  UUID primary keys default to ``uuid_generate_v4()``
-on the server side (requires the ``uuid-ossp`` PostgreSQL extension).
+All tables use dialect-agnostic types so they work with both SQLite (dev)
+and PostgreSQL (production).  UUID PKs are generated Python-side with uuid4().
 """
 
 from __future__ import annotations
 
 import enum
-from datetime import date, datetime
+import uuid
+from datetime import date, datetime, timezone
 from typing import Any, List, Optional
-from uuid import UUID
 
 from sqlalchemy import (
     Boolean,
@@ -22,14 +21,20 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    JSON,
     String,
     Text,
-    text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from api.database import Base
+
+# Helper: Python-side UTC now
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
+
+def _uuid() -> str:
+    return str(uuid.uuid4())
 
 # ---------------------------------------------------------------------------
 # Enum types
@@ -164,32 +169,30 @@ class VaultItemType(str, enum.Enum):
     custom = "custom"
 
 
+
 # ---------------------------------------------------------------------------
-# Helper column shortcuts
+# Helper column shortcuts  (dialect-agnostic — works with SQLite + PostgreSQL)
 # ---------------------------------------------------------------------------
 
-def _uuid_pk() -> Mapped[UUID]:
-    return mapped_column(
-        PG_UUID(as_uuid=True),
-        primary_key=True,
-        server_default=text("uuid_generate_v4()"),
-    )
+def _uuid_pk() -> Mapped[str]:
+    return mapped_column(String(36), primary_key=True, default=_uuid)
+
+
+def _fk_uuid(target: str, **kw) -> Mapped[str]:
+    return mapped_column(String(36), ForeignKey(target, **kw), nullable=False)
+
+
+def _fk_uuid_nullable(target: str, **kw) -> Mapped[Optional[str]]:
+    return mapped_column(String(36), ForeignKey(target, **kw), nullable=True)
 
 
 def _created_at() -> Mapped[datetime]:
-    return mapped_column(
-        DateTime(timezone=True),
-        server_default=text("now()"),
-        nullable=False,
-    )
+    return mapped_column(DateTime(timezone=True), default=_now, nullable=False)
 
 
 def _updated_at() -> Mapped[datetime]:
     return mapped_column(
-        DateTime(timezone=True),
-        server_default=text("now()"),
-        onupdate=text("now()"),
-        nullable=False,
+        DateTime(timezone=True), default=_now, onupdate=_now, nullable=False
     )
 
 
