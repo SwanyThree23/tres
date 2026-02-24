@@ -204,7 +204,7 @@ def _updated_at() -> Mapped[datetime]:
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[UUID] = _uuid_pk()
+    id: Mapped[str] = _uuid_pk()
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
@@ -261,8 +261,8 @@ class User(Base):
 class UserSession(Base):
     __tablename__ = "user_sessions"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -290,8 +290,8 @@ class UserSession(Base):
 class UserOAuth(Base):
     __tablename__ = "user_oauth"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -318,8 +318,8 @@ class UserOAuth(Base):
 class UserSettings(Base):
     __tablename__ = "user_settings"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
@@ -346,8 +346,8 @@ class UserSettings(Base):
 class Stream(Base):
     __tablename__ = "streams"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -395,13 +395,13 @@ class Stream(Base):
 class StreamGuest(Base):
     __tablename__ = "stream_guests"
 
-    id: Mapped[UUID] = _uuid_pk()
-    stream_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    stream_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -431,8 +431,8 @@ class StreamGuest(Base):
 class StreamDestination(Base):
     __tablename__ = "stream_destinations"
 
-    id: Mapped[UUID] = _uuid_pk()
-    stream_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    stream_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
@@ -461,8 +461,8 @@ class StreamDestination(Base):
 class Recording(Base):
     __tablename__ = "recordings"
 
-    id: Mapped[UUID] = _uuid_pk()
-    stream_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    stream_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
@@ -495,13 +495,13 @@ class Recording(Base):
 class Transaction(Base):
     __tablename__ = "transactions"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    recipient_id: Mapped[Optional[UUID]] = mapped_column(
+    recipient_id: Mapped[Optional[str]] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
@@ -541,8 +541,8 @@ class Transaction(Base):
 class Payout(Base):
     __tablename__ = "payouts"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -573,8 +573,8 @@ class Payout(Base):
 class Subscription(Base):
     __tablename__ = "subscriptions"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
@@ -608,8 +608,8 @@ class Subscription(Base):
 class UserGamification(Base):
     __tablename__ = "user_gamification"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
@@ -635,8 +635,8 @@ class UserGamification(Base):
 class XPHistory(Base):
     __tablename__ = "xp_history"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -666,7 +666,7 @@ class XPHistory(Base):
 class Badge(Base):
     __tablename__ = "badges"
 
-    id: Mapped[UUID] = _uuid_pk()
+    id: Mapped[str] = _uuid_pk()
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     slug: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -691,13 +691,13 @@ class Badge(Base):
 class UserBadge(Base):
     __tablename__ = "user_badges"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    badge_id: Mapped[UUID] = mapped_column(
+    badge_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("badges.id", ondelete="CASCADE"),
         nullable=False,
@@ -720,7 +720,7 @@ class UserBadge(Base):
 class WeeklyChallenge(Base):
     __tablename__ = "weekly_challenges"
 
-    id: Mapped[UUID] = _uuid_pk()
+    id: Mapped[str] = _uuid_pk()
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     xp_reward: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -750,13 +750,13 @@ class WeeklyChallenge(Base):
 class UserChallengeProgress(Base):
     __tablename__ = "user_challenge_progress"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    challenge_id: Mapped[UUID] = mapped_column(
+    challenge_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("weekly_challenges.id", ondelete="CASCADE"),
         nullable=False,
@@ -782,13 +782,13 @@ class UserChallengeProgress(Base):
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
-    id: Mapped[UUID] = _uuid_pk()
-    stream_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    stream_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -816,18 +816,18 @@ class ChatMessage(Base):
 class ChatBan(Base):
     __tablename__ = "chat_bans"
 
-    id: Mapped[UUID] = _uuid_pk()
-    stream_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    stream_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
     )
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    banned_by: Mapped[UUID] = mapped_column(
+    banned_by: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -854,13 +854,13 @@ class ChatBan(Base):
 class Follower(Base):
     __tablename__ = "followers"
 
-    id: Mapped[UUID] = _uuid_pk()
-    follower_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    follower_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    following_id: Mapped[UUID] = mapped_column(
+    following_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -884,8 +884,8 @@ class Follower(Base):
 class Notification(Base):
     __tablename__ = "notifications"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -917,8 +917,8 @@ class Notification(Base):
 class Post(Base):
     __tablename__ = "posts"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -949,13 +949,13 @@ class Post(Base):
 class PostLike(Base):
     __tablename__ = "post_likes"
 
-    id: Mapped[UUID] = _uuid_pk()
-    post_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    post_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("posts.id", ondelete="CASCADE"),
         nullable=False,
     )
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -978,19 +978,19 @@ class PostLike(Base):
 class PostComment(Base):
     __tablename__ = "post_comments"
 
-    id: Mapped[UUID] = _uuid_pk()
-    post_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    post_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("posts.id", ondelete="CASCADE"),
         nullable=False,
     )
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    parent_id: Mapped[Optional[UUID]] = mapped_column(
+    parent_id: Mapped[Optional[str]] = mapped_column(
         String(36),
         ForeignKey("post_comments.id", ondelete="CASCADE"),
         nullable=True,
@@ -1015,13 +1015,13 @@ class PostComment(Base):
 class AITask(Base):
     __tablename__ = "ai_tasks"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    stream_id: Mapped[Optional[UUID]] = mapped_column(
+    stream_id: Mapped[Optional[str]] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="SET NULL"),
         nullable=True,
@@ -1061,8 +1061,8 @@ class AITask(Base):
 class StreamTranscript(Base):
     __tablename__ = "stream_transcripts"
 
-    id: Mapped[UUID] = _uuid_pk()
-    stream_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    stream_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
@@ -1091,8 +1091,8 @@ class StreamTranscript(Base):
 class StreamAnalytics(Base):
     __tablename__ = "stream_analytics"
 
-    id: Mapped[UUID] = _uuid_pk()
-    stream_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    stream_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         unique=True,
@@ -1121,7 +1121,7 @@ class StreamAnalytics(Base):
 class PlatformMetrics(Base):
     __tablename__ = "platform_metrics"
 
-    id: Mapped[UUID] = _uuid_pk()
+    id: Mapped[str] = _uuid_pk()
     date: Mapped[date] = mapped_column(Date, unique=True, nullable=False)
     active_users: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     total_streams: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -1145,8 +1145,8 @@ class PlatformMetrics(Base):
 class VaultItem(Base):
     __tablename__ = "vault_items"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -1179,8 +1179,8 @@ class VaultItem(Base):
 class EmbedConfig(Base):
     __tablename__ = "embed_configs"
 
-    id: Mapped[UUID] = _uuid_pk()
-    stream_id: Mapped[UUID] = mapped_column(
+    id: Mapped[str] = _uuid_pk()
+    stream_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("streams.id", ondelete="CASCADE"),
         nullable=False,
@@ -1214,9 +1214,9 @@ class NFT(Base):
     """
     __tablename__ = "nfts"
 
-    id: Mapped[UUID] = _uuid_pk()
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
-    stream_id: Mapped[UUID] = mapped_column(ForeignKey("streams.id"), nullable=True)
+    id: Mapped[str] = _uuid_pk()
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+    stream_id: Mapped[str] = mapped_column(ForeignKey("streams.id"), nullable=True)
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
