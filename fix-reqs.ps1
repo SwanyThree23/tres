@@ -5,6 +5,14 @@ $REMOTE_SCRIPT = @"
     echo '[Server] Re-installing Backend dependencies...'
     cd /var/www/swanythree/backend
     
+    # Ensure venv tools are installed
+    apt-get update && apt-get install -y python3-venv python3-pip
+    
+    # Check if venv is missing
+    if [ ! -d ".venv" ]; then
+        python3 -m venv .venv
+    fi
+    
     # Activate venv and strictly install requirements
     source .venv/bin/activate
     pip install --upgrade pip
