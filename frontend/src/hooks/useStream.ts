@@ -60,7 +60,11 @@ export function useStream(onAction?: (title: string, body: string) => void): Use
     const stopStream = useCallback(async () => {
         setState((s: StreamState) => ({ ...s, isStopping: true }));
         try {
-            await new Promise(r => setTimeout(r, 800));
+            if (state.streamId && state.streamId !== 'demo-stream') {
+                await streamService.endStream(state.streamId);
+            } else {
+                await new Promise(r => setTimeout(r, 800));
+            }
             setState((s: StreamState) => ({
                 ...s,
                 isLive: false,
@@ -73,7 +77,7 @@ export function useStream(onAction?: (title: string, body: string) => void): Use
         } catch {
             setState((s: StreamState) => ({ ...s, isStopping: false, error: 'Failed to end stream cleanly.' }));
         }
-    }, [onAction]);
+    }, [onAction, state.streamId]);
 
     const clearError = useCallback(() => {
         setState((s: StreamState) => ({ ...s, error: null }));
