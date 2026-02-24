@@ -78,7 +78,11 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                     {/* Controls (visible on hover) */}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="flex items-center gap-4">
-                            <button className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <button
+                                className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                                title="Play / Pause"
+                                aria-label="Play or pause stream"
+                            >
                                 <Play fill="white" size={18} />
                             </button>
                             <button
@@ -122,8 +126,8 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                                 aria-label="Like stream"
                                 title="Like"
                                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${isLiked
-                                        ? 'bg-red-500/20 border border-red-500/30 text-red-400'
-                                        : 'glass-panel text-slate-400 hover:text-red-400'
+                                    ? 'bg-red-500/20 border border-red-500/30 text-red-400'
+                                    : 'glass-panel text-slate-400 hover:text-red-400'
                                     }`}
                             >
                                 <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
@@ -249,8 +253,8 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                                         key={amount}
                                         onClick={() => setTipAmount(String(amount))}
                                         className={`py-2.5 rounded-xl text-sm font-bold transition-all ${tipAmount === String(amount)
-                                                ? 'bg-violet-600 text-white'
-                                                : 'glass-panel text-slate-300 hover:text-white hover:border-violet-500/40'
+                                            ? 'bg-violet-600 text-white'
+                                            : 'glass-panel text-slate-300 hover:text-white hover:border-violet-500/40'
                                             }`}
                                     >
                                         ${amount}
