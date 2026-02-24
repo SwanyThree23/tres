@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Share2, Plus, Twitch, Youtube, Facebook, Globe, Trash2, Zap, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { streamService } from '../services/api';
+
+interface DestinationsProps {
+    streamId?: string;
+}
 
 interface Destination {
     id: string;
@@ -10,29 +15,50 @@ interface Destination {
     isActive: boolean;
 }
 
-const Destinations: React.FC = () => {
-    const [destinations, setDestinations] = useState<Destination[]>([
-        { id: '1', platform: 'Twitch', name: 'Twitch Sync', url: 'rtmp://live.twitch.tv/app/', isActive: true },
-        { id: '2', platform: 'YouTube', name: 'YT Main Hub', url: 'rtmp://a.rtmp.youtube.com/live2', isActive: false },
-    ]);
+const Destinations: React.FC<DestinationsProps> = ({ streamId }) => {
+    const [destinations, setDestinations] = useState<Destination[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    const toggleDestination = (id: string) => {
+    React.useEffect(() => {
+        if (streamId) {
+            setLoading(true);
+            streamService.getDestinations(streamId)
+                .then(res => setDestinations(res.data))
+                .catch(err => console.error("Failed to load destinations", err))
+                .finally(() => setLoading(false));
+        }
+    }, [streamId]);
+
+    const toggleDestination = async (id: string) => {
+        // Toggle logic (simulate for now as backend endpoint is simpler)
         setDestinations(prev => prev.map(d => d.id === id ? { ...d, isActive: !d.isActive } : d));
     };
 
-    const addDestination = () => {
-        const id = Date.now().toString();
-        setDestinations([...destinations, {
-            id,
-            platform: 'Custom',
-            name: 'New Destination',
-            url: 'rtmp://',
-            isActive: true
-        }]);
+    const addDestination = async () => {
+        if (!streamId) {
+            alert("Start your stream first to add destinations!");
+            return;
+        }
+        try {
+            const res = await streamService.addDestination(streamId, {
+                platform: 'custom_rtmp',
+                rtmp_url: 'rtmp://',
+                stream_key: '••••••••'
+            });
+            setDestinations([...destinations, res.data]);
+        } catch (err) {
+            console.error("Failed to add destination", err);
+        }
     };
 
-    const removeDestination = (id: string) => {
-        setDestinations(prev => prev.filter(d => d.id !== id));
+    const removeDestination = async (id: string) => {
+        if (!streamId) return;
+        try {
+            await streamService.removeDestination(streamId, id);
+            setDestinations(prev => prev.filter(d => d.id !== id));
+        } catch (err) {
+            console.error("Failed to remove", err);
+        }
     };
 
     const getIcon = (platform: string) => {
