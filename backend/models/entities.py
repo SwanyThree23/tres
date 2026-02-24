@@ -213,11 +213,11 @@ class User(Base):
     bio: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, name="user_role", create_constraint=True),
-        default=''viewer'',
+        default='viewer',
         nullable=False,
     )
-    is_verified: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default='true', nullable=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     stripe_customer_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     stripe_connect_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     stream_key: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
@@ -270,7 +270,7 @@ class UserSession(Base):
     refresh_token: Mapped[str] = mapped_column(Text, nullable=False)
     user_agent: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     ip_address: Mapped[Optional[str]] = mapped_column(String(45), nullable=True)
-    is_revoked: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
+    is_revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = _created_at()
 
@@ -325,13 +325,13 @@ class UserSettings(Base):
         unique=True,
         nullable=False,
     )
-    theme: Mapped[str] = mapped_column(String(20), default=''dark'', nullable=False)
-    language: Mapped[str] = mapped_column(String(10), default=''en'', nullable=False)
-    email_notifications: Mapped[bool] = mapped_column(Boolean, default='true', nullable=False)
-    push_notifications: Mapped[bool] = mapped_column(Boolean, default='true', nullable=False)
-    auto_record: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
-    default_stream_quality: Mapped[str] = mapped_column(String(20), default=''720p'', nullable=False)
-    ai_features_enabled: Mapped[bool] = mapped_column(Boolean, default='true', nullable=False)
+    theme: Mapped[str] = mapped_column(String(20), default='dark', nullable=False)
+    language: Mapped[str] = mapped_column(String(10), default='en', nullable=False)
+    email_notifications: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    push_notifications: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    auto_record: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    default_stream_quality: Mapped[str] = mapped_column(String(20), default='720p', nullable=False)
+    ai_features_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     custom_preferences: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     updated_at: Mapped[datetime] = _updated_at()
 
@@ -357,12 +357,12 @@ class Stream(Base):
     thumbnail_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     status: Mapped[StreamStatus] = mapped_column(
         Enum(StreamStatus, name="stream_status", create_constraint=True),
-        default=''scheduled'',
+        default='scheduled',
         nullable=False,
     )
-    is_private: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
-    viewer_count: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    peak_viewers: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
+    is_private: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    viewer_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    peak_viewers: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     category: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     tags: Mapped[Optional[list[Any]]] = mapped_column(JSON, nullable=True)
     scheduled_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -408,7 +408,7 @@ class StreamGuest(Base):
     )
     role: Mapped[GuestRole] = mapped_column(
         Enum(GuestRole, name="guest_role", create_constraint=True),
-        default=''guest'',
+        default='guest',
         nullable=False,
     )
     joined_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -443,7 +443,7 @@ class StreamDestination(Base):
     )
     rtmp_url: Mapped[str] = mapped_column(Text, nullable=False)
     stream_key_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default='true', nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = _created_at()
 
     stream: Mapped["Stream"] = relationship(back_populates="destinations")
@@ -470,10 +470,10 @@ class Recording(Base):
     file_url: Mapped[str] = mapped_column(Text, nullable=False)
     file_size_bytes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     duration_seconds: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    format: Mapped[str] = mapped_column(String(20), default=''mp4'', nullable=False)
+    format: Mapped[str] = mapped_column(String(20), default='mp4', nullable=False)
     status: Mapped[RecordingStatus] = mapped_column(
         Enum(RecordingStatus, name="recording_status", create_constraint=True),
-        default=''recording'',
+        default='recording',
         nullable=False,
     )
     thumbnail_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -512,12 +512,12 @@ class Transaction(Base):
     )
     status: Mapped[TransactionStatus] = mapped_column(
         Enum(TransactionStatus, name="transaction_status", create_constraint=True),
-        default=''pending'',
+        default='pending',
         nullable=False,
     )
     amount: Mapped[float] = mapped_column(Float, nullable=False)
-    currency: Mapped[str] = mapped_column(String(3), default=''USD'', nullable=False)
-    platform_fee: Mapped[float] = mapped_column(Float, default='0.0', nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), default='USD', nullable=False)
+    platform_fee: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
@@ -548,10 +548,10 @@ class Payout(Base):
         nullable=False,
     )
     amount: Mapped[float] = mapped_column(Float, nullable=False)
-    currency: Mapped[str] = mapped_column(String(3), default=''USD'', nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), default='USD', nullable=False)
     status: Mapped[PayoutStatus] = mapped_column(
         Enum(PayoutStatus, name="payout_status", create_constraint=True),
-        default=''pending'',
+        default='pending',
         nullable=False,
     )
     stripe_payout_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
@@ -582,12 +582,12 @@ class Subscription(Base):
     )
     tier: Mapped[SubscriptionTier] = mapped_column(
         Enum(SubscriptionTier, name="subscription_tier", create_constraint=True),
-        default=''free'',
+        default='free',
         nullable=False,
     )
     status: Mapped[SubscriptionStatus] = mapped_column(
         Enum(SubscriptionStatus, name="subscription_status", create_constraint=True),
-        default=''active'',
+        default='active',
         nullable=False,
     )
     stripe_subscription_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
@@ -615,13 +615,13 @@ class UserGamification(Base):
         unique=True,
         nullable=False,
     )
-    xp_total: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    level: Mapped[int] = mapped_column(Integer, default='1', nullable=False)
-    current_streak_days: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    longest_streak_days: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
+    xp_total: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    level: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    current_streak_days: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    longest_streak_days: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_active_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    streams_count: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    total_stream_minutes: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
+    streams_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_stream_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     updated_at: Mapped[datetime] = _updated_at()
 
     user: Mapped["User"] = relationship(back_populates="gamification")
@@ -646,7 +646,7 @@ class XPHistory(Base):
         nullable=False,
     )
     xp_amount: Mapped[int] = mapped_column(Integer, nullable=False)
-    multiplier: Mapped[float] = mapped_column(Float, default='1.0', nullable=False)
+    multiplier: Mapped[float] = mapped_column(Float, default=1.0, nullable=False)
     metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
@@ -673,10 +673,10 @@ class Badge(Base):
     icon_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     tier: Mapped[BadgeTier] = mapped_column(
         Enum(BadgeTier, name="badge_tier", create_constraint=True),
-        default=''bronze'',
+        default='bronze',
         nullable=False,
     )
-    xp_reward: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
+    xp_reward: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     criteria: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
@@ -725,10 +725,10 @@ class WeeklyChallenge(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     xp_reward: Mapped[int] = mapped_column(Integer, nullable=False)
     criteria: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
-    goal_value: Mapped[int] = mapped_column(Integer, default='1', nullable=False)
+    goal_value: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     status: Mapped[ChallengeStatus] = mapped_column(
         Enum(ChallengeStatus, name="challenge_status", create_constraint=True),
-        default=''active'',
+        default='active',
         nullable=False,
     )
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
@@ -761,8 +761,8 @@ class UserChallengeProgress(Base):
         ForeignKey("weekly_challenges.id", ondelete="CASCADE"),
         nullable=False,
     )
-    current_value: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    is_completed: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
+    current_value: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    is_completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     updated_at: Mapped[datetime] = _updated_at()
 
@@ -794,8 +794,8 @@ class ChatMessage(Base):
         nullable=False,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
-    is_pinned: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_pinned: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
@@ -834,7 +834,7 @@ class ChatBan(Base):
     )
     reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    is_permanent: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
+    is_permanent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = _created_at()
 
     stream: Mapped["Stream"] = relationship()
@@ -896,7 +896,7 @@ class Notification(Base):
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     body: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    is_read: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     action_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
@@ -925,9 +925,9 @@ class Post(Base):
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     media_urls: Mapped[Optional[list[Any]]] = mapped_column(JSON, nullable=True)
-    like_count: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    comment_count: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    is_pinned: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
+    like_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    comment_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    is_pinned: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = _created_at()
     updated_at: Mapped[datetime] = _updated_at()
 
@@ -1032,7 +1032,7 @@ class AITask(Base):
     )
     status: Mapped[AITaskStatus] = mapped_column(
         Enum(AITaskStatus, name="ai_task_status", create_constraint=True),
-        default=''queued'',
+        default='queued',
         nullable=False,
     )
     input_data: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
@@ -1098,12 +1098,12 @@ class StreamAnalytics(Base):
         unique=True,
         nullable=False,
     )
-    total_viewers: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    peak_concurrent: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    avg_watch_time_seconds: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    chat_message_count: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    new_followers: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    revenue: Mapped[float] = mapped_column(Float, default='0.0', nullable=False)
+    total_viewers: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    peak_concurrent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    avg_watch_time_seconds: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    chat_message_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    new_followers: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    revenue: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     viewer_timeline: Mapped[Optional[list[Any]]] = mapped_column(JSON, nullable=True)
     geo_distribution: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     device_breakdown: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
@@ -1123,12 +1123,12 @@ class PlatformMetrics(Base):
 
     id: Mapped[UUID] = _uuid_pk()
     date: Mapped[date] = mapped_column(Date, unique=True, nullable=False)
-    active_users: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    total_streams: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    total_stream_minutes: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    total_revenue: Mapped[float] = mapped_column(Float, default='0.0', nullable=False)
-    new_signups: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
-    ai_tasks_processed: Mapped[int] = mapped_column(Integer, default='0', nullable=False)
+    active_users: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_streams: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_stream_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_revenue: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    new_signups: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    ai_tasks_processed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     extra_metrics: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = _created_at()
 
@@ -1186,13 +1186,13 @@ class EmbedConfig(Base):
         nullable=False,
     )
     allowed_domains: Mapped[Optional[list[Any]]] = mapped_column(JSON, nullable=True)
-    theme: Mapped[str] = mapped_column(String(20), default=''dark'', nullable=False)
-    chat_enabled: Mapped[bool] = mapped_column(Boolean, default='true', nullable=False)
-    autoplay: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
+    theme: Mapped[str] = mapped_column(String(20), default='dark', nullable=False)
+    chat_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    autoplay: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     max_width: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     max_height: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     custom_css: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    branding_hidden: Mapped[bool] = mapped_column(Boolean, default='false', nullable=False)
+    branding_hidden: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = _created_at()
     updated_at: Mapped[datetime] = _updated_at()
 
