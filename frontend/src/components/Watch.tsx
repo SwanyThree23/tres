@@ -1,14 +1,35 @@
+import React, { useState, useEffect } from 'react';
 import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, VolumeX, Maximize, X, ArrowLeft, Settings2, Shield, Lock, ExternalLink, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { streamService } from '../services/api';
 import PermissionModal from './PermissionModal';
 
+interface ChatMsg {
+    id: number;
+    user: string;
+    text: string;
+    avatar: string;
+    isHighlight: boolean;
+}
+
+interface InfoPanel {
+    id: number;
+    title: string;
+    content: string;
+}
+
+interface HeartItem {
+    id: number;
+    x: number;
+}
+
 interface WatchProps {
     streamId?: string;
     onClose?: () => void;
+    onAction?: (title: string, body: string) => void;
 }
 
-const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
+const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
     const [isMuted, setIsMuted] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
     const [tipAmount, setTipAmount] = useState('');
@@ -26,7 +47,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
             setLoading(false);
         }
     }, [streamId]);
-    const [chatMessages, setChatMessages] = useState([
+    const [chatMessages, setChatMessages] = useState<ChatMsg[]>([
         { id: 1, user: 'NeonVibes', text: 'LETS GOOOO 🔥', avatar: 'A1', isHighlight: false },
         { id: 2, user: 'CyberPunker', text: 'This AI director is insane!', avatar: 'B2', isHighlight: true },
         { id: 3, user: 'GhostWalker', text: 'tipped $50! Keep it up!', avatar: 'C3', isHighlight: false },
@@ -60,7 +81,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
 
     const quickTips = [5, 10, 25, 50, 100];
 
-    const [hearts, setHearts] = useState<{ id: number; x: number }[]>([]);
+    const [hearts, setHearts] = useState<HeartItem[]>([]);
 
     const addHeart = () => {
         const id = Date.now();
@@ -80,7 +101,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
         { id: '6', user: 'Starlight', avatar: 'E5', isLive: true },
     ];
 
-    const [infoPanels, setInfoPanels] = useState([
+    const [infoPanels, setInfoPanels] = useState<InfoPanel[]>([
         { id: 1, title: 'About the Streamer', content: 'Building the future of decentralized media. AI researcher by day, creative coder by night.' },
         { id: 2, title: 'Streaming Schedule', content: 'Mon-Fri: 8 PM EST. Weekends: Surprise deep-dive sessions.' },
     ]);
@@ -103,13 +124,13 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
         if (!url) return;
         setPartyUrl(url);
         setIsPartyActive(true);
-        addNotification('Party Started', 'Your watch party is now live and syncing.');
+        onAction?.('Party Started', 'Your watch party is now live and syncing.');
     };
 
     const savePanel = (id: number, title: string, content: string) => {
         setInfoPanels(prev => prev.map(p => p.id === id ? { ...p, title, content } : p));
         setEditingPanel(null);
-        addNotification('Panel Updated', 'Your changes have been saved to the stream.');
+        onAction?.('Panel Updated', 'Your changes have been saved to the stream.');
     };
 
     return (
@@ -119,7 +140,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
             <PermissionModal 
                 isOpen={showPermissions} 
                 onClose={() => setShowPermissions(false)}
-                onSave={(s) => addNotification('Settings Saved', `Visibility set to ${s.visibility}.`)}
+                onSave={(s) => onAction?.('Settings Saved', `Visibility set to ${s.visibility}.`)}
                 title="Watch Party Permissions"
             />
 
