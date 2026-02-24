@@ -123,70 +123,8 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen bg-deep-dark overflow-hidden text-slate-200">
-
-            {/* ── Initial Entry Splash (Media Prompt + Focus) ────────── */}
-            <AnimatePresence>
-                {!hasInteracted && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[200] bg-[hsl(240,20%,2%)] flex items-center justify-center p-6"
-                    >
-                        <div className="absolute inset-0 overflow-hidden">
-                             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/20 blur-[120px] rounded-full animate-pulse" />
-                             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600/20 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-                        </div>
-
-                        <motion.div 
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            className="relative z-10 max-w-2xl w-full text-center"
-                        >
-                            <div className="w-20 h-20 bg-gradient-to-br from-violet-600 to-cyan-400 rounded-3xl flex items-center justify-center shadow-2xl shadow-violet-500/40 mx-auto mb-10">
-                                <Zap className="text-white fill-white" size={40} />
-                            </div>
-
-                            <h1 className="text-5xl font-black text-white tracking-tighter mb-6 leading-tight">
-                                Ready to experience the <br/> <span className="gradient-text">Future of Live Media?</span>
-                            </h1>
-                            <p className="text-slate-400 text-lg mb-12 max-w-sm mx-auto leading-relaxed">
-                                To unlock full interactive potential, please grant camera and microphone access.
-                            </p>
-
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <button
-                                    onClick={() => requestMedia('watch')}
-                                    className="px-10 py-5 bg-violet-600 hover:bg-violet-500 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl shadow-violet-600/40 transition-all hover:scale-105 active:scale-95 group"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Tv2 size={20} /> Join Watch Party
-                                    </div>
-                                </button>
-                                <button
-                                    onClick={() => requestMedia('browse')}
-                                    className="px-10 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-[2rem] font-black uppercase tracking-widest text-sm backdrop-blur-xl transition-all hover:scale-105 active:scale-95"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <LayoutDashboard size={20} className="text-cyan-400" /> Create Your Panel
-                                    </div>
-                                </button>
-                            </div>
-                            
-                            <button 
-                                onClick={() => setHasInteracted(true)}
-                                className="mt-12 text-slate-600 hover:text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] transition-colors"
-                            >
-                                Continue without interactive features
-                            </button>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* ── Sidebar Navigation ────────────────────────────────── */}
-            <aside className="w-24 flex flex-col items-center py-8 border-r border-white/5 bg-surface-dark z-50 shrink-0">
+            {/* ── Sidebar Navigation (Desktop) ────────────────────────── */}
+            <aside className="hidden md:flex w-24 flex-col items-center py-8 border-r border-white/5 bg-surface-dark z-50 shrink-0">
                 {/* Logo */}
                 <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/25 mb-10 animate-glow-pulse shrink-0">
                     <Zap className="text-white fill-white" size={24} />
@@ -249,35 +187,46 @@ const App: React.FC = () => {
                 </div>
             </aside>
 
+            {/* ── Mobile Bottom Navigation ──────────────────────────── */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface-dark/95 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-2 z-[100]">
+                {navItems.slice(0, 5).map(item => (
+                    <button
+                        key={item.id}
+                        onClick={() => setActiveTab(item.id)}
+                        className={`p-2 flex flex-col items-center gap-1 rounded-xl transition-all ${activeTab === item.id ? 'text-violet-400' : 'text-slate-500'}`}
+                        aria-label={item.label}
+                    >
+                        <item.icon size={20} />
+                        <span className="text-[8px] font-bold uppercase tracking-tighter">{item.label}</span>
+                    </button>
+                ))}
+            </nav>
+
             {/* ── Main Content Area ─────────────────────────────────── */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
                 {/* Top Header */}
-                <header className="h-[68px] px-8 flex items-center justify-between border-b border-white/5 bg-surface-dark/60 backdrop-blur-xl shrink-0">
-                    <div className="flex items-center gap-4">
+                <header className="h-[68px] px-4 md:px-8 flex items-center justify-between border-b border-white/5 bg-surface-dark/60 backdrop-blur-xl shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="md:hidden w-8 h-8 bg-gradient-to-br from-violet-600 to-cyan-400 rounded-lg flex items-center justify-center">
+                            <Zap className="text-white fill-white" size={16} />
+                        </div>
                         <div>
-                            <h2 className="text-base font-bold text-white">{pageTitle[activeTab]}</h2>
+                            <h2 className="text-sm md:text-base font-bold text-white truncate max-w-[120px] md:max-w-none">{pageTitle[activeTab]}</h2>
                             <div className="flex items-center gap-1.5 mt-0.5">
                                 {isConnected ? (
                                     <Wifi size={9} className="text-emerald-400" />
                                 ) : (
                                     <WifiOff size={9} className="text-slate-600" />
                                 )}
-                                <span className={`text-[9px] font-bold uppercase tracking-widest ${isConnected ? 'text-emerald-400' : 'text-slate-600'}`}>
-                                    {isConnected ? 'Connected' : 'Demo Mode'}
+                                <span className="hidden sm:inline text-[9px] font-bold uppercase tracking-widest text-slate-600">
+                                    {isConnected ? 'Connected' : 'Demo Online'}
                                 </span>
-                                {isLive && (
-                                    <>
-                                        <span className="text-slate-700 mx-1">·</span>
-                                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full live-pulse" />
-                                        <span className="text-[9px] font-bold text-red-400 uppercase tracking-widest">Live</span>
-                                    </>
-                                )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex-1 max-w-sm mx-6">
+                    <div className="hidden lg:flex flex-1 max-w-sm mx-6">
                         <div className="relative">
                             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
                             <input
@@ -372,7 +321,7 @@ const App: React.FC = () => {
                 {/* Page Content */}
                 <main
                     id="main-content"
-                    className="flex-1 overflow-y-auto p-8 custom-scrollbar"
+                    className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 custom-scrollbar"
                 >
                     <AnimatePresence mode="wait">
                         <motion.div
