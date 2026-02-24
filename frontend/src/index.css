@@ -1,17 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&family=Inter:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 /* ─── Root Design Tokens ─────────────────────────────────────────────────── */
 :root {
     --font-main: 'Outfit', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-stat: 'Bebas Neue', cursive;
+    --font-body: 'Inter', sans-serif;
+    
     --bg-deep: hsl(240, 20%, 3%);
     --bg-surface: hsl(240, 20%, 7%);
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.07);
+    
+    --accent: #7C3AED;
+    --accent-glow: rgba(124, 58, 237, 0.5);
+    
+    --color-cyan: #22D3EE;
+    --color-green: #34D399;
+    --color-purple: #A855F7;
+    --color-gold: #FBBF24;
+    --color-red: #EF4444;
+    
+    --sidebar-width: 320px;
+}
+
+/* ─── Custom Font Utilities ────────────────────────────────────────────── */
+.f-dot-stat { font-family: var(--font-stat); }
+.f-dot-body-bold { font-family: var(--font-body); font-weight: 700; }
+.dim-dm-mono { font-family: var(--font-mono); color: rgba(255, 255, 255, 0.4); }
+.famous-noise { font-family: var(--font-stat); letter-spacing: 0.05em; }
+.bimbas-noyer { font-family: var(--font-stat); }
+.vbas-noya { font-family: var(--font-stat); }
+
+/* ─── Layout Utilities ─────────────────────────────────────────────────── */
+.main-console { flex: 1; }
+.right-sidebar { width: var(--sidebar-width); flex-shrink: 0; }
     --glass-blur: blur(16px);
     --primary: hsl(262, 80%, 60%);
     --accent: hsl(190, 90%, 50%);
