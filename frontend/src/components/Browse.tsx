@@ -11,7 +11,11 @@ interface Stream {
     user_id: string;
 }
 
-const Browse: React.FC = () => {
+interface BrowseProps {
+    onWatch?: (streamId: string) => void;
+}
+
+const Browse: React.FC<BrowseProps> = ({ onWatch }) => {
     const categories = ['Gaming', 'Music', 'Chatting', 'Creative', 'Tech', 'Events'];
     const [streams, setStreams] = useState<Stream[]>([]);
     const [loading, setLoading] = useState(true);
@@ -90,7 +94,8 @@ const Browse: React.FC = () => {
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                                 <button
-                                    className="w-12 h-12 rounded-full bg-violet-600 flex items-center justify-center shadow-xl shadow-violet-500/40"
+                                    onClick={(e) => { e.stopPropagation(); onWatch?.(stream.id); }}
+                                    className="w-12 h-12 rounded-full bg-violet-600 flex items-center justify-center shadow-xl shadow-violet-500/40 hover:scale-105 transition-transform"
                                     aria-label={`Watch ${stream.id}`}
                                     title="Watch Now"
                                 >
