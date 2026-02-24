@@ -6,6 +6,8 @@ import {
 import { motion } from 'framer-motion';
 import { analyticsService } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import WatchPartyModal from './WatchPartyModal';
+import PanelModal from './PanelModal';
 
 interface StatCardProps {
     label: string;
@@ -58,6 +60,17 @@ const recentActivity = [
 const Dashboard: React.FC = () => {
     const { user } = useAuth();
     const [time, setTime] = useState(new Date());
+    const [isWatchPartyModalOpen, setIsWatchPartyModalOpen] = useState(false);
+    const [isPanelModalOpen, setIsPanelModalOpen] = useState(false);
+
+    const [watchParties, setWatchParties] = useState([
+        { title: 'Cyberpunk Night City Tour', host: 'NeonVibe', viewers: '2.4K', color: 'border-cyan-500/30' },
+        { title: 'Global Tech Keynote 2026', host: 'CodeWizard', viewers: '8.1K', color: 'border-white/10' },
+    ]);
+
+    const [infoPanels, setInfoPanels] = useState([
+        'Live Schedule 2026', 'Hardware Specs', 'Social Hub V4'
+    ]);
     const [analyticsData, setAnalyticsData] = useState<any>(null);
 
     useEffect(() => {
@@ -117,13 +130,13 @@ const Dashboard: React.FC = () => {
 
                 <div className="relative z-10 flex flex-wrap items-center gap-3 mt-8">
                     <button 
-                         onClick={() => window.location.hash = '#watch'}
+                         onClick={() => setIsWatchPartyModalOpen(true)}
                          className="flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-2xl text-sm font-bold shadow-lg shadow-violet-600/30 transition-all hover:scale-105 active:scale-95"
                     >
-                         <Eye size={16} /> Join Watch Party
+                         <Eye size={16} /> Create Watch Party
                     </button>
                     <button 
-                         onClick={() => window.location.hash = '#watch'}
+                         onClick={() => setIsPanelModalOpen(true)}
                          className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-sm font-bold backdrop-blur-md transition-all border border-white/5"
                     >
                          <Zap size={16} className="text-cyan-400" /> Create Info Panel
@@ -155,18 +168,19 @@ const Dashboard: React.FC = () => {
                             <p className="text-slate-500 text-sm">Join the community in shared experiences and live commentary.</p>
                         </div>
                         <span className="text-xs font-black text-violet-400 bg-violet-500/10 px-3 py-1.5 rounded-full uppercase tracking-widest">
-                            12 Active Now
+                            {watchParties.length} Active Now
                         </span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {[
-                            { title: 'Cyberpunk Night City Tour', host: 'NeonVibe', viewers: '2.4K', color: 'border-cyan-500/30' },
-                            { title: 'Global Tech Keynote 2026', host: 'CodeWizard', viewers: '8.1K', color: 'border-white/10' },
-                        ].map((party, i) => (
+                        {watchParties.map((party, i) => (
                             <div key={i} className={`p-4 rounded-3xl border ${party.color} bg-black/40 hover:bg-black/60 transition-all cursor-pointer group`}>
                                 <div className="aspect-video bg-slate-900 rounded-2xl mb-4 relative overflow-hidden">
                                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                                     <div className="absolute top-3 left-3 flex gap-2">
+                                          <span className="px-2 py-0.5 bg-violet-600 rounded-full text-[8px] font-black uppercase tracking-widest text-white">Live</span>
+                                          {(party as any).visibility === 'private' && <span className="px-2 py-0.5 bg-red-600/40 rounded-full text-[8px] font-black uppercase tracking-widest text-white border border-red-500/30">Private</span>}
+                                     </div>
                                      <div className="absolute bottom-3 left-3 flex items-center gap-2">
                                           <div className="w-6 h-6 rounded-full bg-violet-500 p-0.5">
                                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${party.host}`} className="rounded-full" alt="" />
@@ -174,7 +188,10 @@ const Dashboard: React.FC = () => {
                                           <span className="text-[10px] font-bold text-white">{party.host}</span>
                                      </div>
                                 </div>
-                                <h3 className="font-bold text-white text-sm group-hover:text-violet-400 transition-colors mb-2">{party.title}</h3>
+                                <div className="flex justify-between items-start mb-2">
+                                     <h3 className="font-bold text-white text-sm group-hover:text-violet-400 transition-colors line-clamp-1">{party.title}</h3>
+                                     <span className="text-[9px] text-slate-500 font-bold uppercase">{(party as any).category || 'Variety'}</span>
+                                </div>
                                 <div className="flex items-center justify-between">
                                      <div className="flex items-center gap-2 text-slate-500 text-[10px]">
                                           <Eye size={12} /> {party.viewers} watching
@@ -203,7 +220,7 @@ const Dashboard: React.FC = () => {
                         </p>
                         
                         <div className="space-y-3 mb-8">
-                             {['Live Schedule 2026', 'Hardware Specs', 'Social Hub V4'].map(tag => (
+                             {infoPanels.map(tag => (
                                  <div key={tag} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-slate-400">
                                       {tag}
                                       <span className="text-cyan-400 uppercase tracking-tighter">Active</span>
@@ -213,7 +230,7 @@ const Dashboard: React.FC = () => {
                     </div>
 
                     <button 
-                        onClick={() => window.location.hash = '#watch'}
+                        onClick={() => setIsPanelModalOpen(true)}
                         className="w-full py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-cyan-600/20 transition-all hover:scale-105"
                     >
                         Configure Panels
@@ -337,6 +354,17 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+            {/* Modals */}
+            <WatchPartyModal 
+                isOpen={isWatchPartyModalOpen} 
+                onClose={() => setIsWatchPartyModalOpen(false)}
+                onCreate={(party) => setWatchParties(prev => [party, ...prev])}
+            />
+            <PanelModal 
+                isOpen={isPanelModalOpen} 
+                onClose={() => setIsPanelModalOpen(false)}
+                onCreate={(panel) => setInfoPanels(prev => [panel, ...prev])}
+            />
         </div>
     );
 };
