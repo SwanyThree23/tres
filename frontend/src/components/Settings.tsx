@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     User, Shield, Bell, Palette, Webhook, Key,
-    Save, Eye, EyeOff, CheckCircle2, Moon, Sun,
+    Save, Eye, EyeOff, CheckCircle2, Moon,
     Sliders, Globe, CreditCard, Trash2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -58,8 +58,8 @@ const Settings: React.FC = () => {
                                 key={t.id}
                                 onClick={() => setActiveTab(t.id)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left ${activeTab === t.id
-                                        ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
-                                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
+                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 <t.icon size={16} />
@@ -105,40 +105,48 @@ const Settings: React.FC = () => {
 
                                 <div className="grid grid-cols-2 gap-5">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Display Name</label>
+                                        <label htmlFor="display-name" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Display Name</label>
                                         <input
+                                            id="display-name"
                                             type="text"
                                             value={profile.displayName}
                                             onChange={e => setProfile(p => ({ ...p, displayName: e.target.value }))}
+                                            placeholder="Your display name"
                                             className="input-field"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Location</label>
+                                        <label htmlFor="location" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Location</label>
                                         <input
+                                            id="location"
                                             type="text"
                                             value={profile.location}
                                             onChange={e => setProfile(p => ({ ...p, location: e.target.value }))}
+                                            placeholder="City, Country"
                                             className="input-field"
                                         />
                                     </div>
                                     <div className="space-y-2 col-span-2">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Bio</label>
+                                        <label htmlFor="bio" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Bio</label>
                                         <textarea
+                                            id="bio"
                                             value={profile.bio}
                                             onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))}
                                             rows={3}
+                                            placeholder="Tell viewers about yourself..."
                                             className="input-field resize-none"
                                         />
                                     </div>
                                     <div className="space-y-2 col-span-2">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Website</label>
+                                        <label htmlFor="website" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Website</label>
                                         <div className="relative">
                                             <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
                                             <input
+                                                id="website"
                                                 type="url"
                                                 value={profile.website}
                                                 onChange={e => setProfile(p => ({ ...p, website: e.target.value }))}
+                                                placeholder="https://example.com"
                                                 className="input-field pl-10"
                                             />
                                         </div>
@@ -149,8 +157,8 @@ const Settings: React.FC = () => {
                                     <button
                                         onClick={handleSave}
                                         className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all ${saved
-                                                ? 'bg-green-600 text-white'
-                                                : 'bg-violet-600 text-white hover:bg-violet-500'
+                                            ? 'bg-green-600 text-white'
+                                            : 'bg-violet-600 text-white hover:bg-violet-500'
                                             }`}
                                     >
                                         {saved ? <CheckCircle2 size={16} /> : <Save size={16} />}
@@ -221,9 +229,13 @@ const Settings: React.FC = () => {
                                     </div>
                                     <div className="flex gap-2">
                                         <input
+                                            id="stream-key"
                                             type={showKey ? 'text' : 'password'}
                                             value="sk-swany3-live-abc123def456xyz789"
                                             readOnly
+                                            title="Stream key"
+                                            placeholder="Stream key hidden"
+                                            aria-label="Stream key"
                                             className="input-field font-mono text-xs flex-1"
                                         />
                                         <button className="btn-ghost px-4 text-xs py-0">Copy</button>
@@ -268,7 +280,7 @@ const Settings: React.FC = () => {
                                                 aria-label={`Toggle ${key} notifications`}
                                                 className={`w-11 h-6 rounded-full relative transition-all duration-300 ${value ? 'bg-violet-600' : 'bg-slate-700'}`}
                                             >
-                                                <div className={`w-4.5 h-4.5 bg-white rounded-full absolute top-0.5 transition-all duration-300 shadow ${value ? 'right-0.5' : 'left-0.5'}`} style={{ width: '18px', height: '18px' }} />
+                                                <div className={`toggle-knob ${value ? 'right-0.5' : 'left-0.5'}`} />
                                             </button>
                                         </div>
                                     ))}
@@ -334,8 +346,8 @@ const Settings: React.FC = () => {
                                                 <button
                                                     key={theme.name}
                                                     className={`p-4 rounded-2xl border text-left transition-all ${theme.active
-                                                            ? 'border-violet-500/50 bg-violet-500/10'
-                                                            : 'border-white/8 glass-panel hover:border-white/20'
+                                                        ? 'border-violet-500/50 bg-violet-500/10'
+                                                        : 'border-white/8 glass-panel hover:border-white/20'
                                                         }`}
                                                 >
                                                     <div className={`w-full h-8 rounded-lg bg-gradient-to-r ${theme.from} ${theme.to} mb-2`} />
