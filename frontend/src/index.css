@@ -57,18 +57,6 @@ body {
     border-radius: 99px;
 }
 
-.custom-scrollbar {
-    /* Webkit browsers (Chrome 121-, Safari) handled by ::-webkit-scrollbar above */
-}
-
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-.no-scrollbar {
-    -ms-overflow-style: none;
-}
-
 /* ─── Glass UI ───────────────────────────────────────────────────────────── */
 .glass-panel {
     background: var(--glass-bg);
