@@ -43,6 +43,7 @@ interface Notification {
 const App: React.FC = () => {
     const { user, isAuthenticated, isLoading, logout } = useAuth();
     const [activeTab, setActiveTab] = useState<Tab>('home');
+    const [activeStreamId, setActiveStreamId] = useState<string | undefined>(undefined);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLive, setIsLive] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -64,12 +65,12 @@ const App: React.FC = () => {
     const renderContent = () => {
         switch (activeTab) {
             case 'home': return <Dashboard />;
-            case 'browse': return <Browse />;
+            case 'browse': return <Browse onWatch={(id) => { setActiveStreamId(id); setActiveTab('watch'); }} />;
             case 'studio': return <Studio isLive={isLive} setIsLive={setIsLive} onAction={addNotification} />;
             case 'analytics': return <Analytics />;
             case 'payouts': return <Payouts />;
             case 'nfts': return <NFTs />;
-            case 'watch': return <Watch />;
+            case 'watch': return <Watch streamId={activeStreamId} onClose={() => { setActiveTab('browse'); setActiveStreamId(undefined); }} />;
             case 'settings': return <Settings />;
             default: return <Dashboard />;
         }
