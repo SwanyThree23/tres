@@ -105,6 +105,8 @@ $REMOTE_SCRIPT = @"
     echo '[Server] Deployment completed successfully.'
 "@
 
+# Fix Windows CRLF line endings for Linux bash
+$REMOTE_SCRIPT = $REMOTE_SCRIPT -replace "`r", ""
 ssh -o StrictHostKeyChecking=accept-new "${SERVER_USER}@${SERVER_IP}" $REMOTE_SCRIPT
 if ($LASTEXITCODE -ne 0) { throw "Remote script execution failed!" }
 
