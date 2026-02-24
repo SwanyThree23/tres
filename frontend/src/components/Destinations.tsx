@@ -85,12 +85,14 @@ const Destinations: React.FC = () => {
                                     <button 
                                         onClick={() => toggleDestination(d.id)}
                                         className={`w-10 h-6 rounded-full relative transition-colors ${d.isActive ? 'bg-green-500' : 'bg-slate-700'}`}
+                                        title={d.isActive ? "Deactivate destination" : "Activate destination"}
                                     >
                                         <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${d.isActive ? 'left-5' : 'left-1'}`} />
                                     </button>
                                     <button 
                                         onClick={() => removeDestination(d.id)}
                                         className="p-1.5 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                                        title="Delete this destination"
                                     >
                                         <Trash2 size={14} />
                                     </button>

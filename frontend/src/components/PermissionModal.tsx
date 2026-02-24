@@ -33,7 +33,7 @@ const PermissionModal: React.FC<PermissionModalProps> = ({ isOpen, onClose, onSa
                         <h2 className="text-xl font-bold text-white">{title}</h2>
                         <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Access & Performance Settings</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl text-slate-400">
+                    <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl text-slate-400" title="Close settings">
                         <X size={20} />
                     </button>
                 </div>
@@ -84,6 +84,7 @@ const PermissionModal: React.FC<PermissionModalProps> = ({ isOpen, onClose, onSa
                                     <button 
                                         onClick={() => setRoles((r: any) => ({ ...r, [item.id]: !r[item.id] }))}
                                         className={`w-12 h-6 rounded-full relative transition-colors ${roles[item.id as keyof typeof roles] ? 'bg-green-500' : 'bg-slate-700'}`}
+                                        title={`Toggle ${item.label}`}
                                     >
                                         <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${roles[item.id as keyof typeof roles] ? 'left-7' : 'left-1'}`} />
                                     </button>
