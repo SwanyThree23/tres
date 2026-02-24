@@ -70,7 +70,7 @@ const Login: React.FC = () => {
 
                     {/* Tab switcher */}
                     <div className="flex bg-white/5 rounded-xl p-1 mb-7">
-                        {(['login', 'register'] as Mode[]).map(m => (
+                        {(['login', 'register'] as const).map(m => (
                             <button
                                 key={m}
                                 onClick={() => { setMode(m); setError(''); }}
