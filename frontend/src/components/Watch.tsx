@@ -92,7 +92,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.05 }}
-                        className={`relative w-12 h-12 rounded-2xl border-2 shrink-0 transition-all ${s.id === streamId ? 'border-violet-500 bg-violet-500/10 scale-110 shadow-lg shadow-violet-500/30' : 'border-white/5 hover:border-white/20'}`}
+                        className={`relative w-12 h-12 rounded-2xl border-2 shrink-0 transition-all group ${s.id === streamId ? 'border-violet-500 bg-violet-500/10 scale-110 shadow-lg shadow-violet-500/30' : 'border-white/5 hover:border-white/20'}`}
                     >
                         <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${s.avatar}`} className="w-full h-full rounded-[0.8rem]" alt={s.user} />
                         {s.isLive && (
@@ -165,9 +165,19 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                     <div className="absolute bottom-5 right-5 flex flex-col gap-3">
                         <button
                             onClick={(e) => { e.stopPropagation(); addHeart(); }}
+                            title="Send Love"
+                            aria-label="Send a heart to the creator"
                             className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/40 hover:scale-110 active:scale-95 transition-all text-white"
                         >
                             <Heart fill="white" size={20} />
+                        </button>
+                        <button
+                            onClick={() => setShowTipModal(true)}
+                            title="Quick Gift"
+                            aria-label="Send a quick gift"
+                            className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-violet-500/40 hover:scale-110 active:scale-95 transition-all text-white"
+                        >
+                            <Gift size={20} />
                         </button>
                     </div>
 
