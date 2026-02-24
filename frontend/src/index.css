@@ -60,13 +60,6 @@ body {
 .custom-scrollbar {
     /* Webkit browsers (Chrome 121-, Safari) handled by ::-webkit-scrollbar above */
 }
-/* Standard scrollbar API — Firefox, Chrome 121+, Edge */
-@supports (scrollbar-width: thin) {
-    .custom-scrollbar {
-        scrollbar-width: thin;
-        scrollbar-color: var(--scrollbar-thumb) transparent;
-    }
-}
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -75,10 +68,8 @@ body {
 .no-scrollbar {
     -ms-overflow-style: none;
 }
-@supports (scrollbar-width: none) {
-    .no-scrollbar {
-        scrollbar-width: none;
-    }
+.no-scrollbar {
+    -ms-overflow-style: none;
 }
 
 /* ─── Glass UI ───────────────────────────────────────────────────────────── */
