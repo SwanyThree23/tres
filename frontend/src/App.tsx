@@ -83,10 +83,9 @@ const App: React.FC = () => {
         );
     }
 
-    // Bypass login for now as requested
-    // if (!isAuthenticated) {
-    //     return <Login />;
-    // }
+    if (!isAuthenticated) {
+        return <Login />;
+    }
 
     const navItems: { id: Tab; icon: React.ElementType; label: string }[] = [
         { id: 'home', icon: Home, label: 'Home' },
