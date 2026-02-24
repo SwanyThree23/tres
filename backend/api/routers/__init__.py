@@ -18,5 +18,7 @@ root_router.include_router(streams_router,       prefix="/streams",       tags=[
 root_router.include_router(payments_router,      prefix="/payments",      tags=["Payments"])
 root_router.include_router(analytics_router,     prefix="/analytics",     tags=["Analytics"])
 root_router.include_router(ai_router,            prefix="/ai",            tags=["AI"])
+# notifications provides REST inbox endpoints at /api/notifications/*
 root_router.include_router(notifications_router,                          tags=["Notifications"])
+# websocket provides ws://host/api/ws
 root_router.include_router(ws_router,                                     tags=["WebSocket"])
