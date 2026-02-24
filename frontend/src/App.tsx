@@ -123,6 +123,7 @@ const App: React.FC = () => {
     };
 
     return (
+        <div className="flex flex-col md:flex-row h-screen bg-deep-dark overflow-hidden text-slate-200">
             {/* ── Sidebar Navigation (Desktop) ────────────────────────── */}
             <aside className="hidden md:flex w-24 flex-col items-center py-8 border-r border-white/5 bg-surface-dark z-50 shrink-0">
                 {/* Logo */}
