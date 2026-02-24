@@ -140,7 +140,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
     };
 
     return (
-        <div className="grid grid-cols-12 gap-5 h-full animate-fade-in relative">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-5 h-full animate-fade-in relative">
             
             {/* Permission Settings Overlay */}
             <PermissionModal 
@@ -150,8 +150,8 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
                 title="Watch Party Permissions"
             />
 
-            {/* ── Left Column: Live Panel (Bigo Style) ──────────────── */}
-            <div className="col-span-2 glass-panel flex flex-col items-center py-5 gap-4 overflow-y-auto no-scrollbar shrink-0">
+            {/* ── Left Column: Live Discovery (Desktop only sidebar) ───── */}
+            <div className="hidden lg:flex lg:col-span-2 glass-panel flex-col items-center py-5 gap-4 overflow-y-auto no-scrollbar shrink-0">
                 <div className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2 px-4 text-center">Live Discovery</div>
                 <div className="w-full px-3 space-y-3">
                     {streamers.map((s, i) => (
@@ -183,7 +183,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
             </div>
 
             {/* ── Middle Column: Video Player ───────────────────────── */}
-            <div className="col-span-6 flex flex-col gap-4 overflow-y-auto no-scrollbar pb-10">
+            <div className="lg:col-span-6 flex flex-col gap-4 overflow-y-auto no-scrollbar pb-10">
                 <div className="relative bg-black rounded-3xl overflow-hidden aspect-video group shrink-0 border border-white/5 shadow-2xl">
                     {/* Top-right Interaction menu */}
                     <div className="absolute top-5 right-5 flex items-center gap-2 z-20">
@@ -368,18 +368,18 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
                             >
                                 <Share2 size={16} /> Share
                             </button>
-                            <button
-                                onClick={() => setShowTipModal(true)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-violet-600 to-cyan-500 text-white hover:scale-105 transition-transform"
-                            >
-                                <Gift size={16} /> Tip Creator
-                            </button>
+                                <button
+                                    onClick={() => setShowTipModal(true)}
+                                    className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl text-xs md:sm font-bold bg-gradient-to-r from-violet-600 to-cyan-500 text-white hover:scale-105 transition-transform"
+                                >
+                                    <Gift size={16} /> <span className="hidden sm:inline">Tip Creator</span>
+                                </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Info Panels Section */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {infoPanels.map((panel: InfoPanel) => (
                         <motion.div
                             key={panel.id}
@@ -436,7 +436,7 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
             </div>
 
             {/* Chat Panel */}
-            <div className="col-span-4 h-full">
+            <div className="lg:col-span-4 h-[500px] lg:h-full pb-20 lg:pb-0">
                 <ChatPanel 
                     streamId={streamId} 
                     onAction={onAction} 
