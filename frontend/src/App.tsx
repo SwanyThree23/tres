@@ -29,7 +29,7 @@ import Settings from './components/Settings';
 import Login from './components/Login';
 
 // Hooks
-import { useWebSocket } from './hooks/useWebSocket';
+import { useWebSocket, type WebSocketMessage } from './hooks/useWebSocket';
 
 type Tab = 'home' | 'browse' | 'studio' | 'analytics' | 'payouts' | 'nfts' | 'watch' | 'settings';
 
@@ -56,7 +56,7 @@ const App: React.FC = () => {
     }, []);
 
     // WebSocket with auto-reconnect
-    const { isConnected } = useWebSocket(useCallback((msg) => {
+    const { isConnected } = useWebSocket(useCallback((msg: WebSocketMessage) => {
         addNotification(msg.title || 'New Alert', msg.body || 'You received a notification.');
     }, [addNotification]));
 
@@ -124,8 +124,8 @@ const App: React.FC = () => {
                             aria-label={item.label}
                             title={item.label}
                             className={`relative w-full p-3.5 rounded-2xl transition-all duration-200 flex flex-col items-center gap-1.5 group ${activeTab === item.id
-                                    ? 'nav-active text-white'
-                                    : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
+                                ? 'nav-active text-white'
+                                : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
                                 }`}
                         >
                             <item.icon size={20} />
@@ -151,8 +151,8 @@ const App: React.FC = () => {
                         aria-label="Settings"
                         title="Settings"
                         className={`w-full p-3.5 rounded-2xl transition-all flex flex-col items-center gap-1.5 ${activeTab === 'settings'
-                                ? 'nav-active text-white'
-                                : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
+                            ? 'nav-active text-white'
+                            : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
                             }`}
                     >
                         <SettingsIcon size={20} />
