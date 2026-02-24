@@ -9,6 +9,7 @@ from jose import JWTError
 
 from api.config import settings
 from api.middleware.auth import decode_token
+from services.ai import ai_service
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +140,34 @@ async def websocket_endpoint(
                 elif mtype == "unsubscribe":
                     room = msg.get("room")
                     if room: await manager.unsubscribe(room, ws)
+                elif mtype == "chat":
+                    room = msg.get("room")
+                    text = msg.get("text")
+                    if room and text:
+                        # 1. Moderate
+                        mod = await ai_service.moderate_content(text)
+                        if mod.get("is_flagged"):
+                            await ws.send_text(json.dumps({
+                                "type": "error",
+                                "body": f"Message blocked: {mod.get('reason')}"
+                            }))
+                            continue
+                        
+                        # 2. Universal Translation (if enabled or requested)
+                        translation = None
+                        if msg.get("universal"):
+                            translation = await ai_service.translate_text(text, "English")
+                        
+                        # 3. Broadcast
+                        await manager.send_to_room(room, {
+                            "type": "chat",
+                            "user_id": user_id,
+                            "user_name": msg.get("user_name", "User"),
+                            "avatar": msg.get("avatar", "Felix"),
+                            "text": text,
+                            "translation": translation,
+                            "is_highlight": False
+                        })
                 else:
                     logger.debug("WS msg from %s: %s", user_id, msg)
             except json.JSONDecodeError:

@@ -95,6 +95,8 @@ class AIService:
                 return json.loads(match.group())
             return []
         except:
+            return [{"title": "Dynamic Reaction", "description": "Auto-switch to face-cam for high-action moment."}]
+
     async def translate_text(self, text: str, target_lang: str = "English") -> str:
         """Translate text to the target language."""
         if not text.strip(): return text
