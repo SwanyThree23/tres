@@ -107,10 +107,10 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
     ];
 
     return (
-        <div className="grid grid-cols-12 gap-6 h-full animate-fade-in">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full animate-fade-in">
 
             {/* ── Left Column: Video + Controls ──────────────────────── */}
-            <div className="col-span-8 flex flex-col gap-5">
+            <div className="lg:col-span-8 flex flex-col gap-5">
 
                 {/* Video Preview */}
                 <section className="relative rounded-3xl overflow-hidden bg-slate-950 aspect-video group border border-white/5">
@@ -217,7 +217,7 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
                 </section>
 
                 {/* Quick Feature Actions */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <button
                         id="quick-payouts-btn"
                         onClick={() => onAction('Stripe Trace', 'Checking payout accounts and queuing transfers...')}
@@ -259,7 +259,7 @@ const Studio: React.FC<StudioProps> = ({ setIsLive, onAction }) => {
             </div>
 
             {/* ── Right Column: Status + Revenue ─────────────────────── */}
-            <div className="col-span-4 flex flex-col gap-5 overflow-y-auto no-scrollbar pb-10">
+            <div className="lg:col-span-4 flex flex-col gap-5 overflow-y-auto no-scrollbar pb-24 lg:pb-10">
 
                 {/* Guest Streaming Destinations */}
                 <Destinations streamId={streamId || undefined} />

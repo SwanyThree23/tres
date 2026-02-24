@@ -78,10 +78,10 @@ const Settings: React.FC = () => {
                 <p className="text-slate-400 text-sm mt-1">Manage your platform preferences and account.</p>
             </div>
 
-            <div className="grid grid-cols-12 gap-6">
-                {/* Sidebar */}
-                <nav className="col-span-3">
-                    <div className="glass-panel p-2 space-y-1">
+            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 pb-20 lg:pb-0">
+                {/* Sidebar / Tabs */}
+                <nav className="lg:col-span-3">
+                    <div className="glass-panel p-2 flex lg:flex-col overflow-x-auto lg:overflow-visible no-scrollbar gap-1">
                         {tabs.map(t => (
                             <button
                                 key={t.id}
@@ -91,15 +91,15 @@ const Settings: React.FC = () => {
                                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
-                                <t.icon size={16} />
-                                {t.label}
+                                <t.icon size={16} className="shrink-0" />
+                                <span className="whitespace-nowrap">{t.label}</span>
                             </button>
                         ))}
                     </div>
                 </nav>
 
                 {/* Content */}
-                <div className="col-span-9">
+                <div className="lg:col-span-9">
                     <motion.div
                         key={activeTab}
                         initial={{ opacity: 0, y: 12 }}
@@ -132,7 +132,7 @@ const Settings: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div className="space-y-2">
                                         <label htmlFor="display-name" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Display Name</label>
                                         <input
@@ -210,7 +210,7 @@ const Settings: React.FC = () => {
                                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Current Password</label>
                                         <input type="password" placeholder="••••••••" className="input-field" />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">New Password</label>
                                             <input type="password" placeholder="••••••••" className="input-field" />

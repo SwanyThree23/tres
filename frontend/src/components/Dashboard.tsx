@@ -91,29 +91,26 @@ const Dashboard: React.FC = () => {
                 <div className="absolute -right-10 -top-10 w-80 h-80 bg-violet-600/10 blur-[80px] rounded-full pointer-events-none" />
                 <div className="absolute -left-10 -bottom-10 w-60 h-60 bg-cyan-400/8 blur-[80px] rounded-full pointer-events-none" />
 
-                <div className="relative z-10 flex items-center justify-between">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs uppercase tracking-[0.2em] mb-3">
                             <Sparkles size={13} />
                             SwanyThree Platform
                         </div>
-                        <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2">
                             Welcome back, <span className="gradient-text">{user?.display_name || user?.username || 'Creator'}</span>
                         </h1>
                         <p className="text-slate-400 text-sm">
-                            Your platform is running at peak performance. Here's your real-time overview.
+                            Your platform is running at peak performance.
                         </p>
                     </div>
-                    <div className="text-right hidden md:block">
-                        <div className="flex items-center gap-2 text-slate-400 text-xs mb-1 justify-end">
+                    <div className="text-left md:text-right">
+                        <div className="flex items-center md:justify-end gap-2 text-slate-400 text-xs mb-1">
                             <Clock size={12} />
                             Local Time
                         </div>
-                        <p className="text-3xl font-bold font-mono text-white">
+                        <p className="text-2xl md:text-3xl font-bold font-mono text-white">
                             {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                        </p>
-                        <p className="text-xs text-slate-500 mt-1">
-                            {time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
                         </p>
                     </div>
                 </div>
@@ -140,14 +137,14 @@ const Dashboard: React.FC = () => {
             </motion.section>
 
             {/* ── Main Focus: Watch Parties & Panels ────────────────────── */}
-            <div className="grid grid-cols-12 gap-6">
+            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6">
                 
                 {/* Watch Parties Highlights */}
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="col-span-8 glass-panel p-8 bg-gradient-to-br from-violet-600/10 via-transparent to-transparent border-violet-500/20"
+                    className="col-span-12 lg:col-span-8 glass-panel p-6 md:p-8 bg-gradient-to-br from-violet-600/10 via-transparent to-transparent border-violet-500/20"
                 >
                     <div className="flex items-center justify-between mb-8">
                         <div>
@@ -162,7 +159,7 @@ const Dashboard: React.FC = () => {
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
                             { title: 'Cyberpunk Night City Tour', host: 'NeonVibe', viewers: '2.4K', color: 'border-cyan-500/30' },
                             { title: 'Global Tech Keynote 2026', host: 'CodeWizard', viewers: '8.1K', color: 'border-white/10' },
@@ -194,7 +191,7 @@ const Dashboard: React.FC = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.15 }}
-                    className="col-span-4 glass-panel p-8 flex flex-col justify-between border-cyan-500/20"
+                    className="col-span-12 lg:col-span-4 glass-panel p-6 md:p-8 flex flex-col justify-between border-cyan-500/20"
                 >
                     <div>
                         <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-6">
@@ -225,15 +222,15 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Stat Cards */}
-            <div className="grid grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {stats.map((s, i) => <StatCard key={s.label} {...s} delay={i * 0.08} />)}
             </div>
 
             {/* Leaderboard + Activity */}
-            <div className="grid grid-cols-12 gap-6">
+            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6">
 
                 {/* Leaderboard */}
-                <div className="col-span-7 glass-panel p-6">
+                <div className="col-span-12 lg:col-span-7 glass-panel p-6">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <Crown className="text-amber-400" size={20} />
@@ -288,7 +285,7 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="col-span-5 glass-panel p-6">
+                <div className="col-span-12 lg:col-span-5 glass-panel p-6">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <Zap className="text-cyan-400" size={18} />

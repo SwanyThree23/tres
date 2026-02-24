@@ -64,7 +64,7 @@ const Browse: React.FC<BrowseProps> = ({ onWatch }) => {
             </div>
 
             {/* Streams Grid */}
-            <div className="grid grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
                 {loading ? (
                     <div className="col-span-3 flex justify-center py-20">
                         <Loader2 className="animate-spin text-violet-500" size={48} />
