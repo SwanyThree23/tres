@@ -1,0 +1,398 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   CYLive — Global Stylesheet
+   Design tokens, base reset, glass UI, animations, and utility classes
+   ────────────────────────────────────────────────────────────────────────── */
+
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Custom Properties (Design Tokens) ──────────────────────────────── */
+:root {
+  /* Palette */
+  --accent: #ff1564;
+  --gold: #ffb800;
+  --cyan: #00f5ff;
+  --green: #00ff88;
+  --purple: #8b5cf6;
+  --red: #ef4444;
+
+  /* Background layers */
+  --bg-deep: #03030a;
+  --bg-surface: #07070f;
+  --bg-card: #0b0b18;
+  --bg-card-high: #11111e;
+
+  /* Borders */
+  --border: #16162a;
+  --border-dim: #0e0e1e;
+
+  /* Text hierarchy */
+  --text-primary: #f0f0ff;
+  --text-muted: #5a5a7a;
+  --text-dim: #2a2a48;
+
+  /* Glass */
+  --glass-bg: rgba(11, 11, 24, 0.6);
+  --glass-border: rgba(22, 22, 42, 0.8);
+  --glass-blur: 16px;
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgba(255, 21, 100, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 21, 100, 0.4);
+
+  /* Fonts */
+  --font-outfit: "Outfit", sans-serif;
+  --font-dm-mono: "DM Mono", monospace;
+  --font-bebas: "Bebas Neue", cursive;
+  --font-inter: "Inter", sans-serif;
+}
+
+/* ── Base Reset ──────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-outfit);
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+}
+
+/* ── Glass UI System ─────────────────────────────────────────────────────── */
+@layer components {
+  .glass-panel {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 1.25rem;
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .glass-panel:hover {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-panel-elevated {
+    background: rgba(17, 17, 30, 0.8);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(22, 22, 42, 0.9);
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ── Typography Utilities ────────────────────────────────────────────────── */
+@layer utilities {
+  .font-stat {
+    font-family: var(--font-bebas);
+  }
+
+  .font-mono-dim {
+    font-family: var(--font-dm-mono);
+    color: var(--text-muted);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-gold {
+    background: linear-gradient(135deg, var(--gold), #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* ── Button System ───────────────────────────────────────────────────────── */
+@layer components {
+  .btn-primary {
+    @apply bg-accent text-white font-bold rounded-2xl px-6 py-3.5 text-sm
+           hover:brightness-110 active:scale-95 transition-all duration-200
+           shadow-lg shadow-accent/20;
+  }
+
+  .btn-ghost {
+    @apply bg-white/5 border border-white/10 text-white font-bold rounded-2xl
+           px-6 py-3.5 text-sm hover:bg-white/10 active:scale-95
+           transition-all duration-200;
+  }
+
+  .btn-gold {
+    @apply bg-gold text-black font-bold rounded-2xl px-6 py-3.5 text-sm
+           hover:brightness-110 active:scale-95 transition-all duration-200
+           shadow-lg shadow-gold/20;
+  }
+
+  .btn-danger {
+    @apply bg-red-600/20 border border-red-500/30 text-red-400 font-bold
+           rounded-2xl px-6 py-3.5 text-sm hover:bg-red-600/30
+           active:scale-95 transition-all duration-200;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-xs rounded-xl;
+  }
+
+  .btn-lg {
+    @apply px-10 py-5 text-base rounded-3xl;
+  }
+}
+
+/* ── Input System ────────────────────────────────────────────────────────── */
+@layer components {
+  .input-field {
+    @apply w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-5
+           text-sm text-white placeholder-text-dim
+           focus:outline-none focus:border-accent/60 focus:bg-white/8
+           transition-all duration-200;
+  }
+
+  .input-label {
+    @apply text-[10px] font-black text-text-muted uppercase tracking-[0.15em] ml-1 mb-2 block;
+  }
+}
+
+/* ── Badge System ────────────────────────────────────────────────────────── */
+@layer components {
+  .badge-live {
+    @apply flex items-center gap-1.5 px-2.5 py-1 bg-accent rounded-full
+           text-[9px] font-bold uppercase tracking-widest text-white
+           animate-live-pulse;
+  }
+
+  .badge-tier {
+    @apply px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest;
+  }
+
+  .badge-gold {
+    @apply badge-tier bg-gold/20 text-gold border border-gold/20;
+  }
+
+  .badge-pro {
+    @apply badge-tier bg-purple/20 text-purple border border-purple/20;
+  }
+}
+
+/* ── Card System ─────────────────────────────────────────────────────────── */
+@layer components {
+  .stat-card {
+    @apply glass-panel p-6 border-l-4;
+  }
+
+  .stat-card-accent {
+    @apply stat-card border-l-accent shadow-glow;
+  }
+
+  .stat-card-gold {
+    @apply stat-card border-l-gold shadow-glow-gold;
+  }
+
+  .stat-card-cyan {
+    @apply stat-card border-l-cyan shadow-glow-cyan;
+  }
+
+  .stat-card-green {
+    @apply stat-card border-l-green shadow-glow-green;
+  }
+}
+
+/* ── Navigation ──────────────────────────────────────────────────────────── */
+@layer components {
+  .nav-active {
+    @apply bg-accent text-white shadow-2xl;
+    box-shadow: 0 8px 32px rgba(255, 21, 100, 0.4);
+  }
+}
+
+/* ── Shimmer Skeleton ────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% auto;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: 0.5rem;
+}
+
+/* ── Golden Wall Glow ────────────────────────────────────────────────────── */
+.golden-wall-glow {
+  box-shadow:
+    0 0 20px rgba(255, 184, 0, 0.15),
+    0 0 60px rgba(255, 184, 0, 0.05),
+    inset 0 0 20px rgba(255, 184, 0, 0.02);
+}
+
+/* ── Neon Border Glows ───────────────────────────────────────────────────── */
+.border-glow-accent {
+  box-shadow:
+    0 0 0 1px rgba(255, 21, 100, 0.4),
+    0 0 20px rgba(255, 21, 100, 0.15);
+}
+
+.border-glow-cyan {
+  box-shadow:
+    0 0 0 1px rgba(0, 245, 255, 0.4),
+    0 0 20px rgba(0, 245, 255, 0.15);
+}
+
+.border-glow-gold {
+  box-shadow:
+    0 0 0 1px rgba(255, 184, 0, 0.4),
+    0 0 20px rgba(255, 184, 0, 0.15);
+}
+
+/* ── Stream Overlay ──────────────────────────────────────────────────────── */
+.video-overlay {
+  @apply absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
+}
+
+/* ── Grid Overlay for Camera ─────────────────────────────────────────────── */
+.camera-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 33.33% 33.33%;
+}
+
+/* ── Toggle Switch ───────────────────────────────────────────────────────── */
+.toggle-track {
+  @apply relative w-11 h-6 rounded-full transition-colors duration-200 cursor-pointer;
+}
+
+.toggle-track[data-active="true"] {
+  @apply bg-accent;
+}
+
+.toggle-track[data-active="false"] {
+  @apply bg-white/10;
+}
+
+.toggle-knob {
+  @apply absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-200
+         shadow-md;
+}
+
+.toggle-knob[data-active="true"] {
+  @apply left-[22px];
+}
+
+.toggle-knob[data-active="false"] {
+  @apply left-0.5;
+}
+
+/* ── Login Background ────────────────────────────────────────────────────── */
+.login-bg {
+  background:
+    radial-gradient(
+      circle at 20% 50%,
+      rgba(255, 21, 100, 0.06),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 50%,
+      rgba(0, 245, 255, 0.04),
+      transparent 50%
+    ),
+    var(--bg-deep);
+}
+
+/* ── Progress Bar ────────────────────────────────────────────────────────── */
+.progress-bar {
+  @apply h-1.5 rounded-full overflow-hidden;
+  background: var(--bg-card);
+}
+
+.progress-fill {
+  @apply h-full rounded-full transition-all duration-700;
+}
+
+/* ── Color Scheme for date/time inputs ───────────────────────────────────── */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────── */
+.tooltip-text {
+  @apply absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1
+         bg-bg-card-high text-white text-[10px] rounded-lg whitespace-nowrap
+         pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50;
+}
+
+/* ── Selection ───────────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(255, 21, 100, 0.3);
+  color: white;
+}
