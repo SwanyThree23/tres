@@ -3,15 +3,7 @@ import { Play, Radio, Users, Zap, Heart, MessageSquare, Share2, Gift, Volume2, V
 import { motion, AnimatePresence } from 'framer-motion';
 import { streamService, userService, aiService, createWebSocket } from '../services/api';
 import PermissionModal from './PermissionModal';
-
-interface ChatMsg {
-    id: number;
-    user: string;
-    text: string;
-    avatar: string;
-    isHighlight: boolean;
-    translation?: string;
-}
+import ChatPanel from './ChatPanel';
 
 interface InfoPanel {
     id: string;
@@ -37,8 +29,6 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
     const [showTipModal, setShowTipModal] = useState(false);
     const [stream, setStream] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [isUniversal, setIsUniversal] = useState(false);
-    const wsRef = useRef<WebSocket | null>(null);
 
     useEffect(() => {
         if (streamId) {
@@ -55,50 +45,6 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
         }
     }, [streamId]);
 
-    useEffect(() => {
-        // Fetch panels for the current user or streamer
-        userService.getMyPanels()
-            .then(res => setInfoPanels(res.data))
-            .catch(err => console.error("Failed to fetch panels", err));
-
-        // WS Setup for sync
-        const ws = createWebSocket();
-        wsRef.current = ws;
-        ws.onopen = () => {
-            if (streamId) {
-                ws.send(JSON.stringify({ type: 'subscribe', room: `stream_${streamId}` }));
-            }
-        };
-        ws.onmessage = (e) => {
-            const data = JSON.parse(e.data);
-            if (data.type === 'party_sync') {
-                setIsPartyActive(data.is_active);
-                setPartyUrl(data.url);
-            } else if (data.type === 'chat') {
-                const msg: ChatMsg = {
-                    id: Date.now(),
-                    user: data.user_name,
-                    text: data.text,
-                    avatar: data.avatar,
-                    isHighlight: data.is_highlight,
-                    translation: data.translation
-                };
-                setChatMessages(prev => [...prev.slice(-50), msg]);
-            } else if (data.type === 'error') {
-                onAction?.('Chat Error', data.body);
-            }
-        };
-        return () => ws.close();
-    }, [streamId, onAction]);
-    const [chatMessages, setChatMessages] = useState<ChatMsg[]>([
-        { id: 1, user: 'NeonVibes', text: 'LETS GOOOO 🔥', avatar: 'A1', isHighlight: false },
-        { id: 2, user: 'CyberPunker', text: 'This AI director is insane!', avatar: 'B2', isHighlight: true },
-        { id: 3, user: 'GhostWalker', text: 'tipped $50! Keep it up!', avatar: 'C3', isHighlight: false },
-        { id: 4, user: 'PixelLord', text: 'Can you do the crazy stunt again?', avatar: 'D4', isHighlight: false },
-        { id: 5, user: 'Starlight99', text: 'First time here, already subscribed 💜', avatar: 'E5', isHighlight: false },
-        { id: 6, user: 'TechnoMage', text: 'The 4K quality is incredible fr', avatar: 'F6', isHighlight: false },
-    ]);
-    const [chatInput, setChatInput] = useState('');
     const [viewerCount, setViewerCount] = useState(1248);
 
     useEffect(() => {
@@ -107,22 +53,6 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
         }, 3000);
         return () => clearInterval(interval);
     }, []);
-
-    const handleSendChat = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!chatInput.trim() || !wsRef.current || !streamId) return;
-        
-        wsRef.current.send(JSON.stringify({
-            type: 'chat',
-            room: `stream_${streamId}`,
-            text: chatInput,
-            user_name: 'Swany_Dev',
-            avatar: 'Felix',
-            universal: isUniversal
-        }));
-        
-        setChatInput('');
-    };
 
     const quickTips = [5, 10, 25, 50, 100];
 
@@ -500,83 +430,11 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose, onAction }) => {
             </div>
 
             {/* Chat Panel */}
-            <div className="col-span-4 glass-panel flex flex-col h-full">
-                {/* Chat Header */}
-                <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-2">
-                        <MessageSquare size={16} className="text-slate-400" />
-                        <span className="font-bold text-sm">Live Chat</span>
-                        <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full live-pulse" />
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-500">{viewerCount.toLocaleString()} online</span>
-                </div>
-
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 custom-scrollbar">
-                    <AnimatePresence initial={false}>
-                        {chatMessages.map((msg: ChatMsg) => (
-                            <motion.div
-                                key={msg.id}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className={`flex gap-2.5 group ${msg.isHighlight ? 'bg-violet-500/5 rounded-xl p-2 -mx-1' : ''}`}
-                            >
-                                <img
-                                    src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${msg.avatar}`}
-                                    className="w-7 h-7 rounded-full border border-white/10 shrink-0 mt-0.5"
-                                    alt={msg.user}
-                                />
-                                <div>
-                                    <span className={`text-[10px] font-bold ${msg.user === 'Swany_Dev' ? 'text-cyan-400' : 'text-violet-400'}`}>
-                                        {msg.user}
-                                    </span>
-                                    {msg.isHighlight && (
-                                        <span className="ml-1 text-[8px] font-black text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-full align-middle">VIP</span>
-                                    )}
-                                    <p className="text-xs text-slate-300 leading-relaxed mt-0.5">{msg.text}</p>
-                                    {msg.translation && (
-                                        <div className="mt-1.5 p-2 bg-violet-600/10 rounded-lg border border-violet-500/20">
-                                            <p className="text-[10px] text-violet-300 italic flex items-center gap-1.5">
-                                                <Globe size={10} /> {msg.translation}
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                </div>
-
-                {/* Chat Input */}
-                <div className="px-4 py-4 border-t border-white/5 shrink-0">
-                    <form onSubmit={handleSendChat} className="p-4 bg-black/20 border-t border-white/5 flex items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setIsUniversal(!isUniversal)}
-                            title={isUniversal ? "Universal Chat On" : "Universal Chat Off"}
-                            aria-label={isUniversal ? "Toggle universal chat off" : "Toggle universal chat on"} // a9b64e83-765d-4378-bc0e-6916750f233f
-                            className={`p-2 rounded-xl transition-all ${isUniversal ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30' : 'bg-white/5 text-slate-500 hover:bg-white/10'}`}
-                        >
-                            <Globe size={14} />
-                        </button>
-                        <input
-                            type="text"
-                            value={chatInput}
-                            onChange={e => setChatInput(e.target.value)}
-                            placeholder={isUniversal ? "Translate & send..." : "Send a message..."}
-                            maxLength={200}
-                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 transition-colors"
-                        />
-                        <button
-                            type="submit"
-                            title="Send Message"
-                            aria-label="Send chat message" // 9c581a0f-f1ec-4164-8d7f-fd9b8517c8c2
-                            className="px-3 py-2 bg-violet-600 rounded-xl hover:bg-violet-500 transition-colors"
-                        >
-                            <Zap size={14} className="text-white" />
-                        </button>
-                    </form>
-                </div>
+            <div className="col-span-4 h-full">
+                <ChatPanel 
+                    streamId={streamId} 
+                    onAction={onAction} 
+                />
             </div>
 
             {/* Tip Modal */}
