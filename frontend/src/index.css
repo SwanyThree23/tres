@@ -73,8 +73,8 @@ body {
 /* ─── Glass UI ───────────────────────────────────────────────────────────── */
 .glass-panel {
     background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     border-radius: 1.25rem;
     transition: border-color 0.2s ease, background 0.2s ease;
@@ -297,4 +297,21 @@ body {
 /* ─── Video overlay ──────────────────────────────────────────────────────── */
 .video-overlay {
     @apply absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
+}
+
+/* ─── Login background radial gradient ───────────────────────────────────── */
+.login-bg {
+    background: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.08), hsl(240, 20%, 3%));
+}
+
+/* ─── Toggle knob (used in Settings / notification toggles) ──────────────── */
+.toggle-knob {
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    transition: left 0.3s, right 0.3s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
