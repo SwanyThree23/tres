@@ -56,9 +56,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     };
 
     return (
-        <div className="min-h-screen bg-deep-dark flex items-center justify-center p-6"
-            style={{ background: 'radial-gradient(circle at 50% 50%, rgba(124,58,237,0.08), hsl(240,20%,3%))' }}
-        >
+        <div className="min-h-screen bg-deep-dark flex items-center justify-center p-6 login-bg">
             <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -93,8 +91,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                                 key={m}
                                 onClick={() => { setMode(m); setError(''); }}
                                 className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all capitalize ${mode === m
-                                        ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
-                                        : 'text-slate-400 hover:text-slate-200'
+                                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
+                                    : 'text-slate-400 hover:text-slate-200'
                                     }`}
                             >
                                 {m === 'login' ? 'Sign In' : 'Sign Up'}
