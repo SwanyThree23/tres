@@ -73,7 +73,7 @@ Remove-Item $STAGING_DIR -Recurse -Force
 
 # 3. Transfer to VPS
 Write-Host "`n[3/5] Transferring archive to VPS via SCP..." -ForegroundColor Yellow
-scp $ARCHIVE_NAME "${SERVER_USER}@${SERVER_IP}:/tmp/$ARCHIVE_NAME"
+scp -o StrictHostKeyChecking=accept-new $ARCHIVE_NAME "${SERVER_USER}@${SERVER_IP}:/tmp/$ARCHIVE_NAME"
 if ($LASTEXITCODE -ne 0) { throw "SCP transfer failed!" }
 
 # 4. Execute Remote Commands
@@ -105,7 +105,7 @@ $REMOTE_SCRIPT = @"
     echo '[Server] Deployment completed successfully.'
 "@
 
-ssh "${SERVER_USER}@${SERVER_IP}" $REMOTE_SCRIPT
+ssh -o StrictHostKeyChecking=accept-new "${SERVER_USER}@${SERVER_IP}" $REMOTE_SCRIPT
 if ($LASTEXITCODE -ne 0) { throw "Remote script execution failed!" }
 
 # 5. Cleanup Local Build Artifacts
