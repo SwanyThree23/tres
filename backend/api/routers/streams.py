@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from api.database import get_db
 from api.middleware.auth import get_current_user
+from api.routers.websocket import notification_manager
 from models.entities import User, Stream, StreamStatus, StreamDestination, DestinationPlatform
 
 router = APIRouter()
@@ -186,8 +187,14 @@ async def update_stream(
     await db.commit()
     await db.refresh(stream)
     
-    # If party state changed, we should ideally notify via WS
-    # For now, just return
+    # Broadcast sync event to the room
+    await notification_manager.send_to_room(f"stream_{stream_id}", {
+        "type": "party_sync",
+        "is_active": stream.is_party_active,
+        "url": stream.party_url,
+        "sync": stream.party_sync_status
+    })
+
     return _stream_to_dict(stream, include_key=True)
 
 
