@@ -48,6 +48,19 @@ const App: React.FC = () => {
     const [isLive, setIsLive] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [showNotifPanel, setShowNotifPanel] = useState(false);
+    const [hasInteracted, setHasInteracted] = useState(false);
+
+    const requestMedia = async (targetTab?: Tab) => {
+        try {
+            await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            addNotification('Access Granted', 'Camera and Microphone are ready for production.');
+        } catch (err) {
+            console.warn('Media access denied or not provided:', err);
+        } finally {
+            setHasInteracted(true);
+            if (targetTab) setActiveTab(targetTab);
+        }
+    };
 
     const addNotification = useCallback((title: string, body: string) => {
         const id = Date.now();
@@ -111,6 +124,66 @@ const App: React.FC = () => {
 
     return (
         <div className="flex h-screen bg-deep-dark overflow-hidden text-slate-200">
+
+            {/* ── Initial Entry Splash (Media Prompt + Focus) ────────── */}
+            <AnimatePresence>
+                {!hasInteracted && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] bg-[hsl(240,20%,2%)] flex items-center justify-center p-6"
+                    >
+                        <div className="absolute inset-0 overflow-hidden">
+                             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/20 blur-[120px] rounded-full animate-pulse" />
+                             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600/20 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                        </div>
+
+                        <motion.div 
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="relative z-10 max-w-2xl w-full text-center"
+                        >
+                            <div className="w-20 h-20 bg-gradient-to-br from-violet-600 to-cyan-400 rounded-3xl flex items-center justify-center shadow-2xl shadow-violet-500/40 mx-auto mb-10">
+                                <Zap className="text-white fill-white" size={40} />
+                            </div>
+
+                            <h1 className="text-5xl font-black text-white tracking-tighter mb-6 leading-tight">
+                                Ready to experience the <br/> <span className="gradient-text">Future of Live Media?</span>
+                            </h1>
+                            <p className="text-slate-400 text-lg mb-12 max-w-sm mx-auto leading-relaxed">
+                                To unlock full interactive potential, please grant camera and microphone access.
+                            </p>
+
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button
+                                    onClick={() => requestMedia('watch')}
+                                    className="px-10 py-5 bg-violet-600 hover:bg-violet-500 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl shadow-violet-600/40 transition-all hover:scale-105 active:scale-95 group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Tv2 size={20} /> Join Watch Party
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={() => requestMedia('browse')}
+                                    className="px-10 py-5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-[2rem] font-black uppercase tracking-widest text-sm backdrop-blur-xl transition-all hover:scale-105 active:scale-95"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <LayoutDashboard size={20} className="text-cyan-400" /> Create Your Panel
+                                    </div>
+                                </button>
+                            </div>
+                            
+                            <button 
+                                onClick={() => setHasInteracted(true)}
+                                className="mt-12 text-slate-600 hover:text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] transition-colors"
+                            >
+                                Continue without interactive features
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* ── Sidebar Navigation ────────────────────────────────── */}
             <aside className="w-24 flex flex-col items-center py-8 border-r border-white/5 bg-surface-dark z-50 shrink-0">
