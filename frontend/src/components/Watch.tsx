@@ -72,6 +72,8 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                             {onClose && (
                                 <button
                                     onClick={onClose}
+                                    aria-label="Back"
+                                    title="Go Back"
                                     className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-slate-800/80 border border-white/10 flex items-center justify-center text-white hover:bg-slate-700 transition-colors z-50 text-[10px]"
                                 >
                                     <ArrowLeft size={16} />
