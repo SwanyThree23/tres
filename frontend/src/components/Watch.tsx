@@ -60,11 +60,55 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
 
     const quickTips = [5, 10, 25, 50, 100];
 
+    const [hearts, setHearts] = useState<{ id: number; x: number }[]>([]);
+
+    const addHeart = () => {
+        const id = Date.now();
+        const x = Math.random() * 100 - 50;
+        setHearts(prev => [...prev, { id, x }]);
+        setTimeout(() => {
+            setHearts(prev => prev.filter(h => h.id !== id));
+        }, 2000);
+    };
+
+    const streamers = [
+        { id: '1', user: 'NeonVibes', avatar: 'A1', isLive: true },
+        { id: '2', user: 'CyberPunker', avatar: 'B2', isLive: true },
+        { id: '3', user: 'GhostWalker', avatar: 'C3', isLive: true },
+        { id: '4', user: 'TechnoMage', avatar: 'F6', isLive: false },
+        { id: '5', user: 'PixelLord', avatar: 'D4', isLive: true },
+        { id: '6', user: 'Starlight', avatar: 'E5', isLive: true },
+    ];
+
     return (
         <div className="grid grid-cols-12 gap-5 h-full animate-fade-in">
 
-            {/* Video Player */}
-            <div className="col-span-8 flex flex-col gap-4">
+            {/* ── Left Column: Live Panel (Bigo Style) ──────────────── */}
+            <div className="col-span-1 glass-panel flex flex-col items-center py-5 gap-4 overflow-y-auto no-scrollbar shrink-0">
+                <div className="text-[8px] font-black uppercase text-slate-500 tracking-tighter mb-2">Live Now</div>
+                {streamers.map((s, i) => (
+                    <motion.button
+                        key={s.id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        className={`relative w-12 h-12 rounded-2xl border-2 shrink-0 transition-all ${s.id === streamId ? 'border-violet-500 bg-violet-500/10 scale-110 shadow-lg shadow-violet-500/30' : 'border-white/5 hover:border-white/20'}`}
+                    >
+                        <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${s.avatar}`} className="w-full h-full rounded-[0.8rem]" alt={s.user} />
+                        {s.isLive && (
+                            <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 border-2 border-deep-dark rounded-full live-pulse" />
+                        )}
+                        <div className="tooltip-text">{s.user}</div>
+                    </motion.button>
+                ))}
+                <div className="flex-1" />
+                <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-500 hover:text-white transition-colors">
+                    <X size={16} />
+                </button>
+            </div>
+
+            {/* ── Middle Column: Video Player ───────────────────────── */}
+            <div className="col-span-7 flex flex-col gap-4">
                 <div className="relative bg-black rounded-3xl overflow-hidden aspect-video group">
                     {/* Simulated video feed */}
                     <div className="absolute inset-0 bg-gradient-to-br from-violet-900/30 via-slate-900 to-cyan-900/30 flex items-center justify-center">
@@ -97,6 +141,34 @@ const Watch: React.FC<WatchProps> = ({ streamId, onClose }) => {
                             <Users size={12} />
                             {viewerCount.toLocaleString()}
                         </div>
+                    </div>
+
+                    {/* Floating Hearts Container */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                        <AnimatePresence>
+                            {hearts.map(h => (
+                                <motion.div
+                                    key={h.id}
+                                    initial={{ opacity: 0, y: 0, x: h.x, scale: 0.5 }}
+                                    animate={{ opacity: 1, y: -200, x: h.x + (Math.sin(h.id) * 30), scale: 1.5 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 1.5, ease: "easeOut" }}
+                                    className="absolute bottom-10 left-1/2 text-red-500"
+                                >
+                                    <Heart fill="currentColor" size={24} />
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Interaction Buttons (Floating) */}
+                    <div className="absolute bottom-5 right-5 flex flex-col gap-3">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); addHeart(); }}
+                            className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/40 hover:scale-110 active:scale-95 transition-all text-white"
+                        >
+                            <Heart fill="white" size={20} />
+                        </button>
                     </div>
 
                     {/* Controls (visible on hover) */}
