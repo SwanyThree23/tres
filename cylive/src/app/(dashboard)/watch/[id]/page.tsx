@@ -1,17 +1,11 @@
 // ──────────────────────────────────────────────────────────────────────────────
-// CYLive — Watch Page (Stream Viewer)
-//
-// Viewer-facing stream consumption page with chat, tips, and reactions
-//
-// TYPOGRAPHY:
-//   Bebas Neue       → viewer count, stream title, stat values
-//   Barlow Condensed → chat messages, buttons, creator name
-//   DM Mono          → timestamps, badges, donate amounts
+// CYLive — Watch Page (Dynamic Stream Viewer)
 // ──────────────────────────────────────────────────────────────────────────────
 
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar } from "@/components/primitives/Avatar";
 import { SignalBars } from "@/components/primitives/SignalBars";
@@ -25,6 +19,7 @@ import {
   MessageCircle,
   Gift,
   X,
+  Loader2,
 } from "lucide-react";
 
 interface ChatMessage {
@@ -37,67 +32,31 @@ interface ChatMessage {
   badge?: "pro" | "mod" | "sub";
 }
 
-const mockChat: ChatMessage[] = [
-  {
-    id: "1",
-    user: "NightOwl",
-    message: "Let's gooo! 🔥",
-    timestamp: new Date(Date.now() - 120000),
-  },
-  {
-    id: "2",
-    user: "WaveRunner",
-    message: "The lighting is amazing tonight",
-    timestamp: new Date(Date.now() - 90000),
-    badge: "pro",
-  },
-  {
-    id: "3",
-    user: "StarGazer",
-    message: "",
-    timestamp: new Date(Date.now() - 60000),
-    isTip: true,
-    tipAmount: 500,
-  },
-  {
-    id: "4",
-    user: "MoonChild",
-    message: "Can you play that song again?",
-    timestamp: new Date(Date.now() - 45000),
-    badge: "sub",
-  },
-  {
-    id: "5",
-    user: "CloudNine",
-    message: "First time here, this is insane!",
-    timestamp: new Date(Date.now() - 30000),
-  },
-  {
-    id: "6",
-    user: "Aura AI",
-    message: "Welcome to the stream, CloudNine! 🎉 Glad to have you here!",
-    timestamp: new Date(Date.now() - 20000),
-    badge: "mod",
-  },
-  {
-    id: "7",
-    user: "PixelKing",
-    message: "How do I get that overlay?",
-    timestamp: new Date(Date.now() - 10000),
-    badge: "pro",
-  },
-];
-
-const reactions = ["❤️", "🔥", "😂", "👏", "🎉", "💯"];
-
-export default function WatchPage() {
-  const [chat, setChat] = useState<ChatMessage[]>(mockChat);
+export default function WatchPage({ params }: { params: { id: string } }) {
+  const { data: session } = useSession();
+  const [stream, setStream] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [chat, setChat] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [showTipModal, setShowTipModal] = useState(false);
   const [tipAmount, setTipAmount] = useState("");
   const [following, setFollowing] = useState(false);
-  const [viewerCount] = useState(1247);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function fetchStream() {
+      try {
+        const res = await fetch(`/api/streams/${params.id}`);
+        const data = await res.json();
+        setStream(data.stream);
+      } catch (err) {
+        console.error("Watch fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStream();
+  }, [params.id]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -105,15 +64,13 @@ export default function WatchPage() {
 
   const sendMessage = () => {
     if (!chatInput.trim()) return;
-    setChat((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        user: "You",
-        message: chatInput,
-        timestamp: new Date(),
-      },
-    ]);
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      user: session?.user?.username || "Guest",
+      message: chatInput,
+      timestamp: new Date(),
+    };
+    setChat((prev) => [...prev, newMessage]);
     setChatInput("");
   };
 
@@ -124,28 +81,43 @@ export default function WatchPage() {
       hour12: true,
     });
 
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="animate-spin text-accent" size={48} />
+      </div>
+    );
+  }
+
+  if (!stream) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-hero-sm text-white">Stream Not Found</h2>
+        <p className="text-text-muted mt-2">
+          The stream you're looking for doesn't exist or has ended.
+        </p>
+      </div>
+    );
+  }
+
+  const creator = stream.user;
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
         {/* ── Video Player ────────────────────────────────────────── */}
         <div className="space-y-4">
           <div
-            className="relative aspect-video rounded-2xl overflow-hidden"
+            className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl"
             style={{
-              background:
-                "linear-gradient(135deg, var(--bg-card-high), var(--bg-card))",
+              background: "linear-gradient(135deg, #0f172a, #020617)",
             }}
           >
             {/* Simulated video feed */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-6xl mb-4 opacity-30">📺</div>
-                <p
-                  className="text-body-sm"
-                  style={{ color: "var(--text-dim)" }}
-                >
-                  Stream video feed
-                </p>
+                <div className="text-6xl mb-4 opacity-30 animate-pulse">📡</div>
+                <p className="text-readout text-accent">WAITING FOR SIGNAL</p>
               </div>
             </div>
 
@@ -154,7 +126,7 @@ export default function WatchPage() {
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(to top, rgba(0,0,0,0.5), transparent 30%, transparent 80%, rgba(0,0,0,0.3))",
+                  "linear-gradient(to top, rgba(0,0,0,0.6), transparent 30%, transparent 80%, rgba(0,0,0,0.4))",
               }}
             />
 
@@ -172,7 +144,7 @@ export default function WatchPage() {
                   }}
                 >
                   <Users size={11} />
-                  {viewerCount.toLocaleString()}
+                  {stream.peakViewers.toLocaleString()}
                 </span>
               </div>
               <SignalBars size="sm" />
@@ -180,53 +152,41 @@ export default function WatchPage() {
 
             {/* Bottom bar */}
             <div className="absolute bottom-4 left-4 flex items-center gap-3">
-              <Avatar size="md" alt="FutureCast" />
+              <Avatar
+                size="md"
+                alt={creator.displayName || creator.username}
+                verified={creator.verified}
+              />
               <div>
                 <p className="text-card-title text-white text-shadow">
-                  FutureCast
+                  {creator.displayName || creator.username}
                 </p>
                 <p className="text-readout-sm text-white/70">
-                  Multi-panel streaming showcase
+                  {stream.panelCount} Panel Setup •{" "}
+                  {stream.genre.replace("_", " ")}
                 </p>
               </div>
-            </div>
-
-            {/* Reaction overlay zone */}
-            <div className="absolute bottom-4 right-4 flex items-center gap-1.5">
-              {reactions.map((r) => (
-                <button
-                  key={r}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-sm hover:scale-125 transition-transform"
-                  style={{
-                    background: "rgba(255,255,255,0.1)",
-                    backdropFilter: "blur(8px)",
-                  }}
-                  aria-label={`React with ${r}`}
-                >
-                  {r}
-                </button>
-              ))}
             </div>
           </div>
 
           {/* Stream Info Bar */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-section-header-lg text-white">
-                Multi-Panel Streaming Showcase — Night Session
+                {stream.title}
               </h1>
               <div className="flex items-center gap-3 mt-1.5">
                 <span
                   className="text-readout-sm"
                   style={{ color: "var(--text-muted)" }}
                 >
-                  🎬 Technology
+                  🎬 {stream.genre.replace("_", " ")}
                 </span>
                 <span
                   className="text-readout-sm"
                   style={{ color: "var(--text-muted)" }}
                 >
-                  ⏱ Started 2h 14m ago
+                  ⏱ Broadcast ID: {stream.id.split("-")[0]}
                 </span>
               </div>
             </div>
@@ -242,10 +202,7 @@ export default function WatchPage() {
                 <Bell size={14} />
                 {following ? "Following" : "Follow"}
               </button>
-              <button
-                className="btn-ghost flex items-center gap-2"
-                aria-label="Share stream"
-              >
+              <button className="btn-ghost flex items-center gap-2">
                 <Share2 size={14} />
                 Share
               </button>
@@ -278,12 +235,17 @@ export default function WatchPage() {
               className="text-readout-sm"
               style={{ color: "var(--text-muted)" }}
             >
-              {viewerCount.toLocaleString()} watching
+              {stream.peakViewers.toLocaleString()} watching
             </span>
           </div>
 
           {/* Chat messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {chat.length === 0 && (
+              <p className="text-center text-text-dim text-sm italic py-4">
+                Welcome to the chat!
+              </p>
+            )}
             {chat.map((msg) => (
               <motion.div
                 key={msg.id}
@@ -291,61 +253,16 @@ export default function WatchPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex gap-2.5"
               >
-                <Avatar size="xs" alt={msg.user} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span
-                      className="text-body-sm font-bold"
-                      style={{
-                        color: msg.badge === "mod" ? "var(--cyan)" : "white",
-                      }}
-                    >
+                    <span className="text-body-sm font-bold text-white">
                       {msg.user}
                     </span>
-                    {msg.badge && (
-                      <span
-                        className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded"
-                        style={{
-                          background:
-                            msg.badge === "pro"
-                              ? "var(--gold)"
-                              : msg.badge === "mod"
-                                ? "var(--cyan)"
-                                : "var(--accent)",
-                          color: "#000",
-                        }}
-                      >
-                        {msg.badge}
-                      </span>
-                    )}
                     <span className="text-timestamp">
                       {formatTime(msg.timestamp)}
                     </span>
                   </div>
-                  {msg.isTip ? (
-                    <div
-                      className="mt-1 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5"
-                      style={{
-                        background: "rgba(255,184,0,0.1)",
-                        border: "1px solid rgba(255,184,0,0.2)",
-                      }}
-                    >
-                      <Gift size={12} style={{ color: "var(--gold)" }} />
-                      <span
-                        className="text-readout-sm"
-                        style={{ color: "var(--gold)" }}
-                      >
-                        Tipped ${((msg.tipAmount || 0) / 100).toFixed(2)}
-                      </span>
-                    </div>
-                  ) : (
-                    <p
-                      className="text-body-sm"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {msg.message}
-                    </p>
-                  )}
+                  <p className="text-body-sm text-text-muted">{msg.message}</p>
                 </div>
               </motion.div>
             ))}
@@ -370,13 +287,7 @@ export default function WatchPage() {
               <button
                 onClick={sendMessage}
                 disabled={!chatInput.trim()}
-                aria-label="Send message"
-                className="p-2.5 rounded-xl transition-all disabled:opacity-30"
-                style={{
-                  background: chatInput.trim()
-                    ? "var(--accent)"
-                    : "rgba(255,255,255,0.05)",
-                }}
+                className="p-2.5 rounded-xl transition-all disabled:opacity-30 bg-accent"
               >
                 <Send size={16} className="text-white" />
               </button>
@@ -413,7 +324,6 @@ export default function WatchPage() {
                 </h3>
                 <button
                   onClick={() => setShowTipModal(false)}
-                  aria-label="Close tip modal"
                   className="p-2 rounded-lg hover:bg-white/10"
                 >
                   <X size={16} style={{ color: "var(--text-muted)" }} />
@@ -427,57 +337,50 @@ export default function WatchPage() {
                   border: "1px solid var(--border)",
                 }}
               >
-                <Avatar size="sm" alt="FutureCast" />
+                <Avatar size="sm" alt={creator.username} />
                 <div>
-                  <p className="text-card-title text-white">FutureCast</p>
-                  <p
-                    className="text-readout-sm"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    90% goes directly to the creator
+                  <p className="text-card-title text-white">
+                    {creator.displayName || creator.username}
+                  </p>
+                  <p className="text-readout-sm text-text-muted">
+                    90% goes to the creator
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-4 gap-2 mb-4">
-                {["$1", "$5", "$10", "$25"].map((amount) => (
+                {["1", "5", "10", "25"].map((amount) => (
                   <button
                     key={amount}
-                    onClick={() => setTipAmount(amount.replace("$", ""))}
+                    onClick={() => setTipAmount(amount)}
                     className="py-2.5 rounded-xl text-readout font-bold transition-all"
                     style={{
                       background:
-                        tipAmount === amount.replace("$", "")
+                        tipAmount === amount
                           ? "rgba(255,184,0,0.2)"
                           : "rgba(255,255,255,0.04)",
                       color:
-                        tipAmount === amount.replace("$", "")
+                        tipAmount === amount
                           ? "var(--gold)"
                           : "var(--text-muted)",
-                      border: `1px solid ${tipAmount === amount.replace("$", "") ? "rgba(255,184,0,0.3)" : "var(--border)"}`,
+                      border: `1px solid ${tipAmount === amount ? "rgba(255,184,0,0.3)" : "var(--border)"}`,
                     }}
                   >
-                    {amount}
+                    ${amount}
                   </button>
                 ))}
               </div>
 
               <div className="relative mb-6">
-                <span
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-readout font-bold"
-                  style={{ color: "var(--gold)" }}
-                >
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-readout font-bold text-gold">
                   $
                 </span>
                 <input
                   type="number"
-                  min="1"
-                  max="1000"
                   placeholder="Custom amount"
                   className="input-field pl-8"
                   value={tipAmount}
                   onChange={(e) => setTipAmount(e.target.value)}
-                  aria-label="Tip amount in USD"
                 />
               </div>
 
