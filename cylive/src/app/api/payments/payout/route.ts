@@ -61,9 +61,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Optional: Double check Stripe balance (might have pending funds)
-    // const balance = await getAccountBalance(user.stripeConnectedAcctId);
-    // ... logic to verify available balance on Stripe ...
+    // Double check Stripe balance to ensure the platform has enough funds
+    try {
+      const balance = await getAccountBalance(user.stripeConnectedAcctId);
+      const availableFunds = balance.available.reduce(
+        (sum, b) => sum + (b.amount || 0),
+        0,
+      );
+
+      if (availableFunds < amountCents) {
+        return NextResponse.json(
+          {
+            error:
+              "Stripe balance is currently insufficient for this transfer. Please try again later.",
+          },
+          { status: 400 },
+        );
+      }
+    } catch (err) {
+      console.error("[Payout] Stripe Balance Check Error:", err);
+      // We'll proceed even if check fails, as stripe.transfers.create will fail anyway if funds are missing,
+      // but we log it for debugging.
+    }
 
     // Execute transfer
     const transfer = await transferToCreator(
