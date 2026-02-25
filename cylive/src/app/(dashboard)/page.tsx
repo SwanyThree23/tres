@@ -18,7 +18,6 @@ import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { BroadcastCard } from "@/components/primitives/BroadcastCard";
 import { TierBadge } from "@/components/primitives/Badge";
-import { SignalBars } from "@/components/primitives/SignalBars";
 import { Avatar } from "@/components/primitives/Avatar";
 import {
   Zap,
@@ -31,8 +30,6 @@ import {
   ArrowUpRight,
   Eye,
   Activity,
-  Grid3X3,
-  Sparkles,
 } from "lucide-react";
 
 const fadeUp = {
