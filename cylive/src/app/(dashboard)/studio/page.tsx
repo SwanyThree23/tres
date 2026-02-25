@@ -37,6 +37,8 @@ export default function StudioPage() {
   // ── State ─────────────────────────────────────────────────────────
   const [isLive, setIsLive] = useState(false);
   const [streamId, setStreamId] = useState<string | null>(null);
+  const [streamKey, setStreamKey] = useState<string | null>(null);
+  const [ingestUrl, setIngestUrl] = useState<string | null>(null);
   const [camOn, setCamOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
@@ -131,6 +133,8 @@ export default function StudioPage() {
 
       const data = await res.json();
       setStreamId(data.stream.id);
+      setStreamKey(data.stream.streamKey);
+      setIngestUrl(data.stream.ingestUrl);
       setIsLive(true);
       setViewers(Math.floor(Math.random() * 50) + 10);
       setDuration(0);
@@ -163,6 +167,8 @@ export default function StudioPage() {
 
       setIsLive(false);
       setStreamId(null);
+      setStreamKey(null);
+      setIngestUrl(null);
       setDuration(0);
       setViewers(0);
       setEarnings(0);
@@ -607,6 +613,68 @@ export default function StudioPage() {
                 <Send size={14} />
                 Copy Invite Link
               </button>
+            )}
+          </div>
+          </div>
+
+          {/* Stream Credentials (RTMP) */}
+          <div className="glass-panel p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Radio size={16} className="text-accent" />
+              <span className="text-xs font-bold text-white">
+                Stream Credentials
+              </span>
+            </div>
+            {isLive ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[9px] uppercase tracking-wider text-text-dim block mb-1">Ingest URL</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={ingestUrl || ""}
+                      className="input-field py-1.5 text-[10px] font-mono"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(ingestUrl || "");
+                        alert("Ingest URL copied!");
+                      }}
+                      className="p-2 bg-white/5 rounded-lg hover:bg-white/10"
+                    >
+                      <Copy size={12} className="text-text-muted" />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[9px] uppercase tracking-wider text-text-dim block mb-1">Stream Key</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="password"
+                      readOnly
+                      value={streamKey || ""}
+                      className="input-field py-1.5 text-[10px] font-mono"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(streamKey || "");
+                        alert("Stream Key copied!");
+                      }}
+                      className="p-2 bg-white/5 rounded-lg hover:bg-white/10"
+                    >
+                      <Copy size={12} className="text-text-muted" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[10px] text-text-dim italic mt-2">
+                  Use these in OBS / Streamlabs to broadcast.
+                </p>
+              </div>
+            ) : (
+              <p className="text-text-dim text-xs">
+                Go live to generate your temporary stream key.
+              </p>
             )}
           </div>
         </div>
