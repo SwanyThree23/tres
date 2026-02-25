@@ -5,6 +5,7 @@
 
 import Stripe from "stripe";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-04-10" as any,
   typescript: true,
@@ -20,24 +21,26 @@ export const PLATFORM_FEE_PERCENT = 10;
 
 /** Viewer Subscription Tiers (monthly, in cents) */
 export const VIEWER_SUB_PRICES: Record<string, number> = {
-  FAN: 500,          // $5/month
-  SUPPORTER: 1000,   // $10/month
+  FAN: 500, // $5/month
+  SUPPORTER: 1000, // $10/month
   RIDE_OR_DIE: 2000, // $20/month
 };
 
 /** Creator Service Tiers (monthly, in cents) */
 export const CREATOR_TIER_PRICES: Record<string, number> = {
   FREE: 0,
-  CREATOR: 999,    // $9.99/month
-  PRO: 2999,       // $29.99/month
-  STUDIO: 9999,    // $99.99/month
+  CREATOR: 999, // $9.99/month
+  PRO: 2999, // $29.99/month
+  STUDIO: 9999, // $99.99/month
 };
 
 // ── Helper Functions ────────────────────────────────────────────────────────
 
 /** Calculate the 90/10 split for a given amount */
 export function calculateSplit(amountCents: number) {
-  const platformFeeCents = Math.round(amountCents * (PLATFORM_FEE_PERCENT / 100));
+  const platformFeeCents = Math.round(
+    amountCents * (PLATFORM_FEE_PERCENT / 100),
+  );
   const creatorPayoutCents = amountCents - platformFeeCents;
   return { platformFeeCents, creatorPayoutCents };
 }
@@ -68,7 +71,7 @@ export async function createPaymentIntent(
   amountCents: number,
   customerId: string,
   connectedAccountId: string,
-  metadata: Record<string, string>
+  metadata: Record<string, string>,
 ) {
   const { platformFeeCents } = calculateSplit(amountCents);
 
@@ -88,7 +91,7 @@ export async function createPaymentIntent(
 export async function transferToCreator(
   amountCents: number,
   connectedAccountId: string,
-  metadata: Record<string, string>
+  metadata: Record<string, string>,
 ) {
   return stripe.transfers.create({
     amount: amountCents,
@@ -102,7 +105,7 @@ export async function transferToCreator(
 export async function createAccountLink(
   accountId: string,
   returnUrl: string,
-  refreshUrl: string
+  refreshUrl: string,
 ) {
   return stripe.accountLinks.create({
     account: accountId,
