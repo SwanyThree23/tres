@@ -1,18 +1,18 @@
 <#
 .SYNOPSIS
-Deploys the SwanyThree platform to a Hostinger VPS.
+Deploys the CYLive Next.js monolith to a Hostinger VPS.
 
 .DESCRIPTION
 This script automates the deployment process:
-1. Compiles the React/Vite frontend.
-2. Archives the necessary frontend build and backend Python files.
+1. Compiles the Next.js application in standalone mode.
+2. Archives the necessary standalone build files.
 3. Transfers the archive to the VPS via SCP.
-4. Connects via SSH to extract, install dependencies, and restart the PM2 process.
+4. Connects via SSH to extract and restart the PM2 process.
 
 .NOTES
 Requirements:
 - OpenSSH client installed on Windows.
-- SSH Key authentication configured for passwordless login (recommended) OR prompt for password.
+- SSH Key authentication configured for passwordless login.
 - PM2 installed globally on the VPS.
 #>
 
@@ -23,46 +23,49 @@ $ErrorActionPreference = "Stop"
 # =====================================================================
 $SERVER_USER = "root"
 $SERVER_IP = "72.60.165.129" # seewhylive.com production IP
-$SERVER_DIR = "/var/www/swanythree"
-$PM2_APP_NAME = "swanythree-api"
-$ARCHIVE_NAME = "swanythree_release.tar.gz"
+$SERVER_DIR = "/var/www/cylive"
+$PM2_APP_NAME = "cylive-app"
+$ARCHIVE_NAME = "cylive_release.tar.gz"
 
 Write-Host "=====================================================" -ForegroundColor Cyan
-Write-Host "🚀 Starting SwanyThree Deployment to $SERVER_IP" -ForegroundColor Cyan
+Write-Host "🚀 Starting CYLive Deployment to $SERVER_IP" -ForegroundColor Cyan
 Write-Host "=====================================================" -ForegroundColor Cyan
 
-# 1. Build the Frontend
-Write-Host "`n[1/5] Building Frontend (Vite/React)..." -ForegroundColor Yellow
-Set-Location -Path ".\frontend"
-npm install    # <-- ensures all devDependencies required for Vite/TS are present
-if ($LASTEXITCODE -ne 0) { throw "Frontend npm install failed!" }
+# 1. Build the Application
+Write-Host "`n[1/5] Building Next.js Application (Standalone)..." -ForegroundColor Yellow
+Set-Location -Path ".\cylive"
+
+# Run prisma generate to ensure client is ready
+Write-Host "      Generating Prisma client..."
+npx prisma generate
+if ($LASTEXITCODE -ne 0) { throw "Prisma generate failed!" }
+
+npm install
+if ($LASTEXITCODE -ne 0) { throw "npm install failed!" }
+
 npm run build
-if ($LASTEXITCODE -ne 0) { throw "Frontend build failed!" }
+if ($LASTEXITCODE -ne 0) { throw "Next.js build failed!" }
 Set-Location -Path ".."
 
 # 2. Package the Release
 Write-Host "`n[2/5] Creating release archive ($ARCHIVE_NAME)..." -ForegroundColor Yellow
-# Remove old archive if it exists
 if (Test-Path $ARCHIVE_NAME) { Remove-Item $ARCHIVE_NAME -Force }
 
-# Create a temporary staging directory (outside project root to avoid watcher interference)
-$STAGING_DIR = Join-Path $env:TEMP "swanythree_release_staging"
+# Create a temporary staging directory
+$STAGING_DIR = Join-Path $env:TEMP "cylive_release_staging"
 if (Test-Path $STAGING_DIR) { Remove-Item $STAGING_DIR -Recurse -Force }
 New-Item -ItemType Directory -Path $STAGING_DIR | Out-Null
 
-# Copy frontend build
-Write-Host "      Copying frontend build..."
-Copy-Item -Path ".\frontend\dist" -Destination "$STAGING_DIR\frontend\dist" -Recurse -Force
+# Copy standalone build files
+Write-Host "      Copying standalone build..."
+# Standalone folder contains the server.js and a minimal node_modules
+Copy-Item -Path ".\cylive\.next\standalone\*" -Destination "$STAGING_DIR" -Recurse -Force
+# Next.js standalone requires .next/static and public to be copied manually
+New-Item -ItemType Directory -Path "$STAGING_DIR\.next\static" -Force | Out-Null
+Copy-Item -Path ".\cylive\.next\static\*" -Destination "$STAGING_DIR\.next\static" -Recurse -Force
+Copy-Item -Path ".\cylive\public" -Destination "$STAGING_DIR\public" -Recurse -Force
 
-# Copy backend files (excluding venv, cache, etc)
-Write-Host "      Copying backend code..."
-New-Item -ItemType Directory -Path "$STAGING_DIR\backend" | Out-Null
-$backendItems = Get-ChildItem -Path ".\backend" -Exclude ".venv", "__pycache__", "*.db", ".pytest_cache"
-foreach ($item in $backendItems) {
-    Copy-Item -Path $item.FullName -Destination "$STAGING_DIR\backend" -Recurse -Force
-}
-
-# Create tar.gz archive using built-in Windows tar
+# Create tar.gz archive
 Write-Host "      Compressing files..."
 Set-Location -Path $STAGING_DIR
 tar -czf "..\$ARCHIVE_NAME" *
@@ -86,26 +89,16 @@ $REMOTE_SCRIPT = @"
     tar -xzf /tmp/$ARCHIVE_NAME -C $SERVER_DIR
     rm -f /tmp/$ARCHIVE_NAME
 
-    echo '[Server] Installing/Updating Python dependencies...'
-    cd $SERVER_DIR/backend
-    
-    # Create venv if it doesn't exist
-    if [ ! -d ".venv" ]; then
-        python3 -m venv .venv
-    fi
-    source .venv/bin/activate
-    pip install --upgrade pip
-    pip install -r requirements.txt
-    
-    echo '[Server] Restarting API via PM2...'
-    # Assumes PM2 was previously started via:
-    # pm2 start main.py --name "swanythree-api" --interpreter ./venv/bin/python
-    pm2 restart $PM2_APP_NAME || echo 'PM2 application not found, please start it manually first.'
+    echo '[Server] Restarting application via PM2...'
+    cd $SERVER_DIR
+    # Start or restart the standalone server
+    # Note: PORT env var can be set here if needed
+    pm2 delete $PM2_APP_NAME || true
+    PORT=3000 pm2 start server.js --name "$PM2_APP_NAME"
     
     echo '[Server] Deployment completed successfully.'
 "@
 
-# Fix Windows CRLF line endings for Linux bash
 $REMOTE_SCRIPT = $REMOTE_SCRIPT -replace "`r", ""
 ssh -o StrictHostKeyChecking=accept-new "${SERVER_USER}@${SERVER_IP}" $REMOTE_SCRIPT
 if ($LASTEXITCODE -ne 0) { throw "Remote script execution failed!" }
@@ -114,5 +107,5 @@ if ($LASTEXITCODE -ne 0) { throw "Remote script execution failed!" }
 Write-Host "`n[5/5] Cleaning up local artifacts..." -ForegroundColor Yellow
 if (Test-Path $ARCHIVE_NAME) { Remove-Item $ARCHIVE_NAME -Force }
 
-Write-Host "`n✅ SwanyThree Deployment Complete!" -ForegroundColor Green
-Write-Host "Don't forget to configure Nginx on the server to point to $SERVER_DIR/frontend/dist and proxy /api to localhost:8000." -ForegroundColor Cyan
+Write-Host "`n✅ CYLive Deployment Complete!" -ForegroundColor Green
+Write-Host "Application is running via PM2. Ensure Nginx is proxying to port 3000." -ForegroundColor Cyan
