@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20", 10);
     const offset = parseInt(searchParams.get("offset") || "0", 10);
 
-    const where: any = {};
+    const where: Record<string, string> = {};
     if (status) where.status = status;
     if (genre) where.genre = genre;
 
