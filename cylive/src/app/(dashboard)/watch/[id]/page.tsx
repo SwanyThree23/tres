@@ -19,8 +19,27 @@ import {
   MessageCircle,
   Gift,
   X,
-  Loader2,
+  Loader,
 } from "lucide-react";
+
+interface Stream {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  status: string;
+  genre: string;
+  panelCount: number;
+  peakViewers: number;
+  totalEarnings: number;
+  user: {
+    id: string;
+    username: string;
+    displayName?: string;
+    avatarUrl?: string;
+    verified: boolean;
+  };
+}
 
 interface ChatMessage {
   id: string;
@@ -34,7 +53,7 @@ interface ChatMessage {
 
 export default function WatchPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
-  const [stream, setStream] = useState<any>(null);
+  const [stream, setStream] = useState<Stream | null>(null);
   const [loading, setLoading] = useState(true);
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
@@ -72,13 +91,20 @@ export default function WatchPage({ params }: { params: { id: string } }) {
       try {
         const res = await fetch(`/api/streams/${params.id}/messages`);
         const data = await res.json();
-        const mappedChat = data.messages.map((m: any) => ({
-          id: m.id,
-          user: m.user.displayName || m.user.username,
-          message: m.content,
-          timestamp: new Date(m.createdAt),
-          badge: m.user.tier !== "FREE" ? "pro" : undefined,
-        }));
+        const mappedChat = data.messages.map(
+          (m: {
+            id: string;
+            user: { displayName?: string; username: string; tier: string };
+            content: string;
+            createdAt: string;
+          }) => ({
+            id: m.id,
+            user: m.user.displayName || m.user.username,
+            message: m.content,
+            timestamp: new Date(m.createdAt),
+            badge: m.user.tier !== "FREE" ? "pro" : undefined,
+          }),
+        );
         setChat(mappedChat);
       } catch (err) {
         console.error("Chat fetch error:", err);
@@ -170,9 +196,13 @@ export default function WatchPage({ params }: { params: { id: string } }) {
         badge: "pro",
       };
       setChat((prev) => [...prev, tipMsg]);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Tip error:", err);
-      alert(err.message || "Failed to send tip");
+      if (err instanceof Error) {
+        alert(err.message || "Failed to send tip");
+      } else {
+        alert("Failed to send tip");
+      }
     } finally {
       setIsTipping(false);
     }
@@ -188,7 +218,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="animate-spin text-accent" size={48} />
+        <Loader className="animate-spin text-accent" size={48} />
       </div>
     );
   }
@@ -198,7 +228,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
       <div className="text-center py-20">
         <h2 className="text-hero-sm text-white">Stream Not Found</h2>
         <p className="text-text-muted mt-2">
-          The stream you're looking for doesn't exist or has ended.
+          The stream you&apos;re looking for doesn&apos;t exist or has ended.
         </p>
       </div>
     );
@@ -426,12 +456,14 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                   <Gift size={18} style={{ color: "var(--gold)" }} />
                   Send a Tip
                 </h3>
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setShowTipModal(false)}
-                  className="p-2 rounded-lg hover:bg-white/10"
+                  className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                  aria-label="Close"
                 >
-                  <X size={16} style={{ color: "var(--text-muted)" }} />
-                </button>
+                  <X size={20} className="text-text-muted" />
+                </motion.button>
               </div>
 
               <div
@@ -492,13 +524,14 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                 onClick={handleTip}
                 disabled={!tipAmount || parseFloat(tipAmount) <= 0 || isTipping}
                 className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
+                aria-label="Process Tip"
               >
                 {isTipping ? (
-                  <Loader2 className="animate-spin" size={16} />
+                  <Loader className="animate-spin" size={16} />
                 ) : (
                   <DollarSign size={16} />
                 )}
-                {isTipping ? "Processing..." : `Send $${tipAmount || "0"} Tip`}
+                {isTipping ? "Processing..." : "Send Tip"}
               </button>
             </motion.div>
           </motion.div>
