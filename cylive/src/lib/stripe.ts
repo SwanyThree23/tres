@@ -52,7 +52,7 @@ export function calculateSplit(amountCents: number) {
 
 /** Create a Stripe Customer for a new user */
 export async function createCustomer(email: string, name: string) {
-  return stripe.customers.create({
+  return getStripe().customers.create({
     email,
     name,
     metadata: { platform: "cylive" },
@@ -61,7 +61,7 @@ export async function createCustomer(email: string, name: string) {
 
 /** Create a Stripe Connected Account for a creator */
 export async function createConnectedAccount(email: string, userId: string) {
-  return stripe.accounts.create({
+  return getStripe().accounts.create({
     type: "express",
     email,
     metadata: { userId, platform: "cylive" },
@@ -80,7 +80,7 @@ export async function createPaymentIntent(
 ) {
   const { platformFeeCents } = calculateSplit(amountCents);
 
-  return stripe.paymentIntents.create({
+  return getStripe().paymentIntents.create({
     amount: amountCents,
     currency: "usd",
     customer: customerId,
@@ -98,7 +98,7 @@ export async function transferToCreator(
   connectedAccountId: string,
   metadata: Record<string, string>,
 ) {
-  return stripe.transfers.create({
+  return getStripe().transfers.create({
     amount: amountCents,
     currency: "usd",
     destination: connectedAccountId,
@@ -112,7 +112,7 @@ export async function createAccountLink(
   returnUrl: string,
   refreshUrl: string,
 ) {
-  return stripe.accountLinks.create({
+  return getStripe().accountLinks.create({
     account: accountId,
     return_url: returnUrl,
     refresh_url: refreshUrl,
@@ -122,7 +122,7 @@ export async function createAccountLink(
 
 /** Get account balance for a connected account */
 export async function getAccountBalance(connectedAccountId: string) {
-  return stripe.balance.retrieve({
+  return getStripe().balance.retrieve({
     stripeAccount: connectedAccountId,
   });
 }
