@@ -15,16 +15,7 @@ import { motion } from "framer-motion";
 import { BroadcastCard } from "@/components/primitives/BroadcastCard";
 import { Avatar } from "@/components/primitives/Avatar";
 import { SignalBars } from "@/components/primitives/SignalBars";
-import {
-  Compass,
-  Eye,
-  Users,
-  Grid3X3,
-  Sparkles,
-  TrendingUp,
-  Clock,
-  Search,
-} from "lucide-react";
+import { Compass, Eye, Grid3X3, Sparkles, Search } from "lucide-react";
 
 const genres = [
   "All",
