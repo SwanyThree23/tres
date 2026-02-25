@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@auth/prisma-adapter": "^2.11.1",
+    "@aws-sdk/client-s3": "^3.997.0",
+    "@aws-sdk/s3-request-presigner": "^3.997.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^7.4.1",
     "bcryptjs": "^3.0.3",
@@ -22,6 +25,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.71.2",
+    "resend": "^6.9.2",
     "stripe": "^20.3.1",
     "swr": "^2.4.0",
     "uuid": "^13.0.0",
