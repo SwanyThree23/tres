@@ -44,7 +44,7 @@ const stagger = {
 export default function DashboardPage() {
   const { data: session } = useSession();
   const displayName =
-    session?.user?.displayName || session?.user?.name || "Creator";
+    session?.user?.displayName || session?.user?.username || "Creator";
   const tier = (session?.user?.tier || "FREE") as
     | "FREE"
     | "CREATOR"
