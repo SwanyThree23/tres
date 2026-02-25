@@ -9,7 +9,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { subscribeSchema } from "@/schemas";
-import { stripe, VIEWER_SUB_PRICES } from "@/lib/stripe";
+import { VIEWER_SUB_PRICES } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
