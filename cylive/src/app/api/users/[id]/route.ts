@@ -34,11 +34,14 @@ export async function GET(
         id: true,
         displayName: true,
         username: true,
+        avatarUrl: true,
         image: true,
         bio: true,
         role: true,
         tier: true,
         verified: true,
+        followerCount: true,
+        totalEarnings: true,
         createdAt: true,
         _count: {
           select: {

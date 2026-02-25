@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [liveStreams, setLiveStreams] = useState<any[]>([]);
+  const [userStats, setUserStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const displayName =
@@ -59,16 +60,19 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [historyRes, streamsRes] = await Promise.all([
+        const [historyRes, streamsRes, userRes] = await Promise.all([
           fetch("/api/payments/history?limit=4"),
           fetch("/api/streams?status=LIVE&limit=3"),
+          fetch(`/api/users/${session?.user?.id}`),
         ]);
 
         const historyData = await historyRes.json();
         const streamsData = await streamsRes.json();
+        const userData = await userRes.json();
 
         setTransactions(historyData.payments || []);
         setLiveStreams(streamsData.streams || []);
+        setUserStats(userData.user);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
       } finally {
@@ -158,29 +162,31 @@ export default function DashboardPage() {
         {[
           {
             label: "Total Earnings",
-            value: "$2,847",
+            value: userStats
+              ? `$${Number(userStats.totalEarnings).toLocaleString()}`
+              : "$0",
             change: "+12.5%",
             icon: DollarSign,
             borderColor: "var(--gold)",
           },
           {
             label: "Followers",
-            value: "14,208",
+            value: userStats ? userStats.followerCount.toLocaleString() : "0",
             change: "+324",
             icon: Users,
             borderColor: "var(--accent)",
           },
           {
-            label: "Stream Hours",
-            value: "186",
+            label: "Total Streams",
+            value: userStats ? userStats._count.streams.toLocaleString() : "0",
             change: "+8h this wk",
             icon: Video,
             borderColor: "var(--cyan)",
           },
           {
-            label: "Watch Time",
-            value: "2.4K",
-            change: "+18% growth",
+            label: "Live Now",
+            value: liveStreams.length.toString(),
+            change: "Across platform",
             icon: TrendingUp,
             borderColor: "var(--green)",
           },
