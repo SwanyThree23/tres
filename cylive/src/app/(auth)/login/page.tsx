@@ -14,6 +14,8 @@
 import React, { useState, useCallback } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { SignalBars } from "@/components/primitives/SignalBars";
@@ -27,7 +29,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
@@ -62,7 +64,7 @@ export default function LoginPage() {
         setLoading(false);
       }
     },
-    [email, password, callbackUrl, router]
+    [email, password, callbackUrl, router],
   );
 
   return (
@@ -76,23 +78,38 @@ export default function LoginPage() {
         <div className="glass-panel-elevated p-10">
           {/* ── Logo & Brand ─────────────────────────────────────── */}
           <div className="text-center mb-10">
-            <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-6 animate-glow-pulse"
-              style={{ background: "linear-gradient(135deg, var(--accent), var(--cyan))", boxShadow: "var(--glow-accent)" }}>
+            <div
+              className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-6 animate-glow-pulse"
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--accent), var(--cyan))",
+                boxShadow: "var(--glow-accent)",
+              }}
+            >
               <Zap className="text-white fill-white" size={32} />
             </div>
 
             {/* Display headline — Bebas Neue */}
-            <h1 className="text-hero-sm text-white" style={{ fontSize: "36px" }}>
+            <h1
+              className="text-hero-sm text-white"
+              style={{ fontSize: "36px" }}
+            >
               CYLive
             </h1>
             {/* Body — Barlow Condensed */}
-            <p className="text-body mt-2" style={{ color: "var(--text-secondary)" }}>
+            <p
+              className="text-body mt-2"
+              style={{ color: "var(--text-secondary)" }}
+            >
               Sign in to your broadcast command center
             </p>
             <div className="flex items-center justify-center gap-2 mt-3">
               <SignalBars size="sm" color="green" />
               {/* DM Mono readout */}
-              <span className="text-readout-sm" style={{ color: "var(--text-muted)" }}>
+              <span
+                className="text-readout-sm"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Platform Online
               </span>
             </div>
@@ -106,11 +123,21 @@ export default function LoginPage() {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 className="flex items-start gap-3 p-3.5 rounded-xl mb-6"
-                style={{ background: "rgba(255, 59, 48, 0.08)", border: "1px solid rgba(255, 59, 48, 0.2)" }}
+                style={{
+                  background: "rgba(255, 59, 48, 0.08)",
+                  border: "1px solid rgba(255, 59, 48, 0.2)",
+                }}
               >
-                <AlertCircle size={16} className="shrink-0 mt-0.5" style={{ color: "var(--red)" }} />
+                <AlertCircle
+                  size={16}
+                  className="shrink-0 mt-0.5"
+                  style={{ color: "var(--red)" }}
+                />
                 {/* DM Mono error readout */}
-                <span className="text-readout-sm" style={{ color: "var(--red)" }}>
+                <span
+                  className="text-readout-sm"
+                  style={{ color: "var(--red)" }}
+                >
                   {error}
                 </span>
               </motion.div>
@@ -125,7 +152,11 @@ export default function LoginPage() {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2" size={16} style={{ color: "var(--text-muted)" }} />
+                <Mail
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                  size={16}
+                  style={{ color: "var(--text-muted)" }}
+                />
                 <input
                   id="email"
                   type="email"
@@ -144,7 +175,11 @@ export default function LoginPage() {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2" size={16} style={{ color: "var(--text-muted)" }} />
+                <Lock
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                  size={16}
+                  style={{ color: "var(--text-muted)" }}
+                />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -191,12 +226,21 @@ export default function LoginPage() {
 
           {/* ── Social Divider ───────────────────────────────────── */}
           <div className="flex items-center gap-4 my-7">
-            <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
+            <div
+              className="flex-1 h-px"
+              style={{ background: "var(--border)" }}
+            />
             {/* DM Mono label */}
-            <span className="text-readout-sm" style={{ color: "var(--text-dim)" }}>
+            <span
+              className="text-readout-sm"
+              style={{ color: "var(--text-dim)" }}
+            >
               Or continue with
             </span>
-            <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
+            <div
+              className="flex-1 h-px"
+              style={{ background: "var(--border)" }}
+            />
           </div>
 
           {/* ── OAuth Buttons — Barlow Condensed ─────────────────── */}
@@ -206,7 +250,11 @@ export default function LoginPage() {
               onClick={() => signIn("google", { callbackUrl })}
               className="btn-ghost"
             >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 mr-1.5" fill="currentColor">
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4 mr-1.5"
+                fill="currentColor"
+              >
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -219,7 +267,11 @@ export default function LoginPage() {
               onClick={() => signIn("apple", { callbackUrl })}
               className="btn-ghost"
             >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 mr-1.5" fill="currentColor">
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4 mr-1.5"
+                fill="currentColor"
+              >
                 <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
               </svg>
               Apple
@@ -227,7 +279,10 @@ export default function LoginPage() {
           </div>
 
           {/* ── Register CTA ─────────────────────────────────────── */}
-          <div className="text-center mt-8 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
+          <div
+            className="text-center mt-8 pt-6"
+            style={{ borderTop: "1px solid var(--border)" }}
+          >
             {/* Barlow Condensed */}
             <p className="text-body-sm" style={{ color: "var(--text-muted)" }}>
               Don&apos;t have an account?{" "}
@@ -243,10 +298,27 @@ export default function LoginPage() {
         </div>
 
         {/* ── Footer — DM Mono ──────────────────────────────────── */}
-        <p className="text-center mt-6 text-readout-sm" style={{ color: "var(--text-dim)" }}>
+        <p
+          className="text-center mt-6 text-readout-sm"
+          style={{ color: "var(--text-dim)" }}
+        >
           © {new Date().getFullYear()} CYLive • Culture Creator Platform
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#03030A]">
+          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
