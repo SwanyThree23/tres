@@ -1,12 +1,21 @@
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Audio Rooms (Voice Nodes)
-// WebRTC-based voice rooms with speaker management
+//
+// TYPOGRAPHY:
+//   Bebas Neue       → page title, section header
+//   Barlow Condensed → card titles, body, buttons
+//   DM Mono          → room stats, readouts, speaker count labels
+//
+// BroadcastCard on all room cards, SignalBars not needed (in layout header)
 // ──────────────────────────────────────────────────────────────────────────────
 
 "use client";
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BroadcastCard } from "@/components/primitives/BroadcastCard";
+import { Avatar } from "@/components/primitives/Avatar";
+import { SignalBars } from "@/components/primitives/SignalBars";
 import {
   Mic,
   Users,
@@ -14,17 +23,15 @@ import {
   X,
   Headphones,
   Sparkles,
-  Radio,
   Volume2,
 } from "lucide-react";
 
 interface AudioRoom {
   id: string;
   title: string;
-  host: { name: string; avatar: string };
+  host: { name: string; emoji: string };
   listeners: number;
   speakers: string[];
-  isActive: boolean;
   hasAura: boolean;
 }
 
@@ -32,28 +39,25 @@ const mockRooms: AudioRoom[] = [
   {
     id: "1",
     title: "Culture & Community Talk",
-    host: { name: "VoiceOfReason", avatar: "🎙️" },
+    host: { name: "VoiceOfReason", emoji: "🎙️" },
     listeners: 342,
     speakers: ["DJ_Smooth", "CultureQueen", "MindfulMike"],
-    isActive: true,
     hasAura: true,
   },
   {
     id: "2",
     title: "Late Night Freestyle Cypher",
-    host: { name: "BeatsMaster", avatar: "🎵" },
+    host: { name: "BeatsMaster", emoji: "🎵" },
     listeners: 891,
     speakers: ["LyricalGenius", "FlowState"],
-    isActive: true,
     hasAura: false,
   },
   {
     id: "3",
     title: "Tech Talk: Web3 & Beyond",
-    host: { name: "CryptoSage", avatar: "💻" },
+    host: { name: "CryptoSage", emoji: "💻" },
     listeners: 156,
     speakers: ["DevDreams", "BlockchainBoss", "AIExplorer", "CodeNinja"],
-    isActive: true,
     hasAura: true,
   },
 ];
@@ -80,11 +84,16 @@ export default function AudioRoomsPage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <Headphones size={24} className="text-cyan" />
+          {/* Bebas Neue page title */}
+          <h1 className="text-page-title text-white flex items-center gap-3">
+            <Headphones size={22} style={{ color: "var(--cyan)" }} />
             Voice Nodes
           </h1>
-          <p className="text-text-muted text-xs mt-1">
+          {/* DM Mono readout */}
+          <p
+            className="text-readout mt-1"
+            style={{ color: "var(--text-muted)" }}
+          >
             {mockRooms.length} active audio rooms
           </p>
         </div>
@@ -101,25 +110,37 @@ export default function AudioRoomsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {mockRooms.map((room) => (
           <motion.div key={room.id} variants={fadeUp}>
-            <div className="glass-panel p-6 hover:border-cyan/30 hover:shadow-glow-cyan transition-all duration-300 cursor-pointer group">
+            <BroadcastCard className="group cursor-pointer">
               {/* Header Row */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-cyan/10 flex items-center justify-center text-2xl border border-cyan/20">
-                    {room.host.avatar}
-                  </div>
+                  <Avatar
+                    size="md"
+                    emoji={room.host.emoji}
+                    alt={room.host.name}
+                    speaking
+                  />
                   <div>
-                    <h3 className="text-white font-bold text-sm group-hover:text-cyan transition-colors">
+                    {/* Card title — Barlow Condensed Bold */}
+                    <h3 className="text-card-title text-white group-hover:text-[var(--cyan)] transition-colors">
                       {room.title}
                     </h3>
-                    <p className="text-text-muted text-xs">
+                    {/* Body — Barlow Condensed */}
+                    <p
+                      className="text-body-sm"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       Hosted by @{room.host.name}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 bg-green rounded-full animate-live-pulse" />
-                  <span className="text-[9px] font-bold text-green uppercase">
+                <div className="flex items-center gap-2">
+                  <SignalBars size="sm" color="green" />
+                  {/* DM Mono badge */}
+                  <span
+                    className="text-readout-sm"
+                    style={{ color: "var(--green)" }}
+                  >
                     Live
                   </span>
                 </div>
@@ -127,16 +148,25 @@ export default function AudioRoomsPage() {
 
               {/* Speakers */}
               <div className="mb-4">
-                <p className="text-[9px] font-black uppercase tracking-widest text-text-muted mb-2">
+                {/* DM Mono section label */}
+                <p
+                  className="text-readout-sm mb-2"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   Speaking ({room.speakers.length})
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {room.speakers.map((speaker) => (
                     <span
                       key={speaker}
-                      className="px-2.5 py-1 bg-white/5 border border-border rounded-lg text-[10px] font-bold text-text-primary flex items-center gap-1"
+                      className="text-readout-sm flex items-center gap-1 px-2.5 py-1 rounded-lg"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid var(--border)",
+                        color: "var(--text-primary)",
+                      }}
                     >
-                      <Volume2 size={9} className="text-green" />
+                      <Volume2 size={9} style={{ color: "var(--green)" }} />
                       {speaker}
                     </span>
                   ))}
@@ -144,38 +174,47 @@ export default function AudioRoomsPage() {
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between pt-3 border-t border-border">
+              <div
+                className="flex items-center justify-between pt-3"
+                style={{ borderTop: "1px solid var(--border)" }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1 text-text-muted text-xs">
+                  {/* DM Mono listener count */}
+                  <span
+                    className="text-readout flex items-center gap-1"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     <Users size={12} />
                     {room.listeners.toLocaleString()} listening
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   {room.hasAura && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-purple/10 border border-purple/20 rounded-full">
-                      <Sparkles size={9} className="text-purple" />
-                      <span className="text-[9px] font-bold text-purple">
-                        Aura
-                      </span>
+                    <span className="badge-pro flex items-center gap-1">
+                      <Sparkles size={8} />
+                      Aura
                     </span>
                   )}
                   <button className="btn-ghost btn-sm">Join</button>
                 </div>
               </div>
-            </div>
+            </BroadcastCard>
           </motion.div>
         ))}
       </div>
 
-      {/* ── Create Room Modal ────────────────────────────────────────── */}
+      {/* ── Create Room Modal ────────────────────────────────────── */}
       <AnimatePresence>
         {showCreate && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            style={{
+              background: "rgba(0,0,0,0.6)",
+              backdropFilter: "blur(6px)",
+            }}
             onClick={() => setShowCreate(false)}
           >
             <motion.div
@@ -186,23 +225,27 @@ export default function AudioRoomsPage() {
               className="glass-panel-elevated p-8 w-full max-w-md"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-black text-white">
+                {/* Bebas Neue */}
+                <h3 className="text-section-header-lg text-white">
                   Start Audio Room
                 </h3>
                 <button
                   onClick={() => setShowCreate(false)}
                   aria-label="Close"
-                  className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                  className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                  style={{ background: "rgba(255,255,255,0.05)" }}
                 >
-                  <X size={16} className="text-text-muted" />
+                  <X size={16} style={{ color: "var(--text-muted)" }} />
                 </button>
               </div>
 
               <div className="space-y-5">
                 <div>
+                  {/* DM Mono label */}
                   <label htmlFor="room-title" className="input-label">
                     Room Title
                   </label>
+                  {/* Barlow Condensed input */}
                   <input
                     id="room-title"
                     type="text"
@@ -213,14 +256,23 @@ export default function AudioRoomsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white/3 rounded-xl border border-border">
+                <div
+                  className="flex items-center justify-between p-4 rounded-xl"
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid var(--border)",
+                  }}
+                >
                   <div className="flex items-center gap-2">
-                    <Sparkles size={16} className="text-purple" />
+                    <Sparkles size={16} style={{ color: "var(--purple)" }} />
                     <div>
-                      <p className="text-sm font-bold text-white">
-                        Aura Co-Host
-                      </p>
-                      <p className="text-[10px] text-text-muted">
+                      {/* Barlow Condensed */}
+                      <p className="text-card-title text-white">Aura Co-Host</p>
+                      {/* DM Mono sub-label */}
+                      <p
+                        className="text-readout-sm"
+                        style={{ color: "var(--text-muted)" }}
+                      >
                         AI-powered room companion
                       </p>
                     </div>
