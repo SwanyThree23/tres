@@ -49,6 +49,15 @@ export default function WatchPage({ params }: { params: { id: string } }) {
         const res = await fetch(`/api/streams/${params.id}`);
         const data = await res.json();
         setStream(data.stream);
+
+        // Fetch follow status for the creator
+        if (data.stream?.userId) {
+          const followRes = await fetch(
+            `/api/users/${data.stream.userId}/follow`,
+          );
+          const followData = await followRes.json();
+          setFollowing(followData.following);
+        }
       } catch (err) {
         console.error("Watch fetch error:", err);
       } finally {
@@ -110,6 +119,62 @@ export default function WatchPage({ params }: { params: { id: string } }) {
       }
     } catch (err) {
       console.error("Send message error:", err);
+    }
+  };
+
+  const handleFollow = async () => {
+    if (!session?.user?.id || !stream?.userId) return;
+    try {
+      const res = await fetch(`/api/users/${stream.userId}/follow`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      setFollowing(data.following);
+    } catch (err) {
+      console.error("Follow error:", err);
+    }
+  };
+
+  const [isTipping, setIsTipping] = useState(false);
+  const handleTip = async () => {
+    if (!tipAmount || parseFloat(tipAmount) <= 0 || !session?.user?.id) return;
+
+    setIsTipping(true);
+    try {
+      const res = await fetch("/api/payments/tip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          streamId: params.id,
+          recipientId: stream.userId,
+          amountCents: Math.round(parseFloat(tipAmount) * 100),
+          message: "Keep it up!",
+        }),
+      });
+
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // In a real app, we'd use Stripe Elements to confirm the payment
+      // For now, we simulate success
+      setShowTipModal(false);
+      setTipAmount("");
+      alert(`Tip of $${(data.amount / 100).toFixed(2)} sent successfully!`);
+
+      // Add tip message to chat local UI
+      const tipMsg: ChatMessage = {
+        id: `tip-${Date.now()}`,
+        user: "SYSTEM",
+        message: `${session.user.name || session.user.username} sent a $${(data.amount / 100).toFixed(2)} tip!`,
+        timestamp: new Date(),
+        badge: "pro",
+      };
+      setChat((prev) => [...prev, tipMsg]);
+    } catch (err: any) {
+      console.error("Tip error:", err);
+      alert(err.message || "Failed to send tip");
+    } finally {
+      setIsTipping(false);
     }
   };
 
@@ -231,7 +296,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setFollowing(!following)}
+                onClick={handleFollow}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-body-sm font-bold transition-all ${
                   following
                     ? "bg-white/5 border border-border text-white"
@@ -424,11 +489,16 @@ export default function WatchPage({ params }: { params: { id: string } }) {
               </div>
 
               <button
-                disabled={!tipAmount || parseFloat(tipAmount) <= 0}
+                onClick={handleTip}
+                disabled={!tipAmount || parseFloat(tipAmount) <= 0 || isTipping}
                 className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
               >
-                <DollarSign size={16} />
-                Send ${tipAmount || "0"} Tip
+                {isTipping ? (
+                  <Loader2 className="animate-spin" size={16} />
+                ) : (
+                  <DollarSign size={16} />
+                )}
+                {isTipping ? "Processing..." : `Send $${tipAmount || "0"} Tip`}
               </button>
             </motion.div>
           </motion.div>
