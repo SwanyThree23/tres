@@ -9,9 +9,15 @@ import { franc } from "franc";
 import { createHash } from "crypto";
 import { getCachedTranslation, setCachedTranslation } from "./redis";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
-});
+let _anthropic: Anthropic | null = null;
+function getAnthropic() {
+  if (!_anthropic) {
+    _anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY || "dummy_key_for_build",
+    });
+  }
+  return _anthropic;
+}
 
 // ── Supported Languages ─────────────────────────────────────────────────────
 
@@ -95,7 +101,7 @@ export async function translateMessage(
 
   // Call Claude for translation (lightweight call, not a full Aura call)
   try {
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 300,
       system: `You are a translation engine. Translate the following text to ${SUPPORTED_LANGUAGES[targetLang]}. Return ONLY the translated text with no explanations, no quotes, no additional commentary.`,

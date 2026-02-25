@@ -9,9 +9,15 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { checkAuraRateLimit } from "./redis";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
-});
+let _anthropic: Anthropic | null = null;
+function getAnthropic() {
+  if (!_anthropic) {
+    _anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY || "dummy_key_for_build",
+    });
+  }
+  return _anthropic;
+}
 
 const MODEL = "claude-sonnet-4-20250514";
 const MAX_CHARS = 180;
@@ -158,7 +164,7 @@ export async function generateAuraResponse(
   const userPrompt = buildTriggerPrompt(trigger, context);
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: MODEL,
       max_tokens: 100, // Enough for 180 chars
       system: systemPrompt,
