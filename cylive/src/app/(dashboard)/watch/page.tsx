@@ -17,7 +17,6 @@ import { Avatar } from "@/components/primitives/Avatar";
 import { SignalBars } from "@/components/primitives/SignalBars";
 import { Badge } from "@/components/primitives/Badge";
 import {
-  Heart,
   Send,
   DollarSign,
   Users,
@@ -25,9 +24,6 @@ import {
   Bell,
   MessageCircle,
   Gift,
-  ThumbsUp,
-  Star,
-  Flame,
   X,
 } from "lucide-react";
 
