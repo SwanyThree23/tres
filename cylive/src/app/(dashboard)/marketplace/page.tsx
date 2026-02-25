@@ -11,79 +11,10 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BroadcastCard } from "@/components/primitives/BroadcastCard";
-import { Clapperboard, Play, Lock, Eye, Upload, Heart } from "lucide-react";
-
-const mockPosts = [
-  {
-    id: "1",
-    title: "Behind the Scenes: Studio Tour 2025",
-    creator: "NightOwlMedia",
-    views: 12400,
-    duration: "14:23",
-    isPaywalled: false,
-    price: 0,
-    emoji: "🎬",
-    hearts: 892,
-  },
-  {
-    id: "2",
-    title: "Exclusive: Unreleased Music Session",
-    creator: "MelodicWaves",
-    views: 3200,
-    duration: "42:11",
-    isPaywalled: true,
-    price: 499,
-    emoji: "🎵",
-    hearts: 1243,
-  },
-  {
-    id: "3",
-    title: "The Art of Multi-Panel Streaming",
-    creator: "FutureCast",
-    views: 8700,
-    duration: "28:45",
-    isPaywalled: false,
-    price: 0,
-    emoji: "📺",
-    hearts: 634,
-  },
-  {
-    id: "4",
-    title: "Premium: Creator Monetization Masterclass",
-    creator: "GrowthHacker",
-    views: 1800,
-    duration: "1:02:15",
-    isPaywalled: true,
-    price: 999,
-    emoji: "💰",
-    hearts: 2105,
-  },
-  {
-    id: "5",
-    title: "Live Highlights: Best Moments This Week",
-    creator: "CultureQueen",
-    views: 6300,
-    duration: "8:30",
-    isPaywalled: false,
-    price: 0,
-    emoji: "⚡",
-    hearts: 456,
-  },
-  {
-    id: "6",
-    title: "Exclusive Interview: Industry Insider",
-    creator: "InsiderAccess",
-    views: 4100,
-    duration: "35:20",
-    isPaywalled: true,
-    price: 799,
-    emoji: "🎤",
-    hearts: 789,
-  },
-];
+import { Clapperboard, Lock, Eye, Upload } from "lucide-react";
 
 const fadeUp = {
   initial: { opacity: 0, y: 16 },
@@ -94,7 +25,6 @@ const stagger = { animate: { transition: { staggerChildren: 0.04 } } };
 export default function MarketplacePage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [filter, setFilter] = useState<"all" | "free" | "premium">("all");
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -104,8 +34,6 @@ export default function MarketplacePage() {
         setPosts(data.posts || []);
       } catch (err) {
         console.error("Marketplace fetch error:", err);
-      } finally {
-        setLoading(false);
       }
     }
     fetchPosts();
