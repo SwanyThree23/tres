@@ -139,8 +139,8 @@ export default function SettingsPage() {
               <div className="flex items-center gap-5 mb-6">
                 <Avatar
                   size="lg"
-                  name={displayName}
-                  image={session?.user?.avatarUrl || undefined}
+                  alt={displayName}
+                  src={session?.user?.avatarUrl || undefined}
                   verified={session?.user?.verified}
                 />
                 <div>
