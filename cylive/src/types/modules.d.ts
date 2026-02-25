@@ -78,12 +78,16 @@ declare module "lucide-react" {
   // All icons used in the project
   export const Activity: LucideIcon;
   export const AlertCircle: LucideIcon;
+  export const ArrowDown: LucideIcon;
   export const ArrowRight: LucideIcon;
+  export const ArrowUp: LucideIcon;
   export const ArrowUpRight: LucideIcon;
+  export const BarChart3: LucideIcon;
   export const Bell: LucideIcon;
   export const Calendar: LucideIcon;
   export const Check: LucideIcon;
   export const ChevronDown: LucideIcon;
+  export const Clapperboard: LucideIcon;
   export const Clock: LucideIcon;
   export const Compass: LucideIcon;
   export const Copy: LucideIcon;
@@ -95,8 +99,11 @@ declare module "lucide-react" {
   export const Gift: LucideIcon;
   export const Globe: LucideIcon;
   export const Grid3X3: LucideIcon;
+  export const Headphones: LucideIcon;
   export const Heart: LucideIcon;
+  export const Home: LucideIcon;
   export const Key: LucideIcon;
+  export const LayoutDashboard: LucideIcon;
   export const Lock: LucideIcon;
   export const LogOut: LucideIcon;
   export const Mail: LucideIcon;
@@ -104,6 +111,8 @@ declare module "lucide-react" {
   export const Mic: LucideIcon;
   export const MicOff: LucideIcon;
   export const Palette: LucideIcon;
+  export const Play: LucideIcon;
+  export const Plus: LucideIcon;
   export const Radio: LucideIcon;
   export const RefreshCw: LucideIcon;
   export const Save: LucideIcon;
@@ -118,11 +127,13 @@ declare module "lucide-react" {
   export const ThumbsUp: LucideIcon;
   export const TrendingUp: LucideIcon;
   export const Unlock: LucideIcon;
+  export const Upload: LucideIcon;
   export const User: LucideIcon;
   export const UserPlus: LucideIcon;
   export const Users: LucideIcon;
   export const Video: LucideIcon;
   export const VideoOff: LucideIcon;
+  export const Volume2: LucideIcon;
   export const X: LucideIcon;
   export const Zap: LucideIcon;
 }
