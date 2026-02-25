@@ -199,4 +199,5 @@ export function isAuraEligible(tier: string): boolean {
   return tier === "PRO" || tier === "STUDIO";
 }
 
-export default { generateAuraResponse, isAuraEligible };
+const auraService = { generateAuraResponse, isAuraEligible };
+export default auraService;
