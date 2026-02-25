@@ -293,6 +293,7 @@ export default function StudioPage() {
                   type="text"
                   readOnly
                   value="rtmps://ingest.cylive.app/live"
+                  aria-label="RTMP Ingest URL"
                   className="input-field font-mono text-xs flex-1"
                 />
                 <button
@@ -322,6 +323,7 @@ export default function StudioPage() {
                   type="password"
                   readOnly
                   value={streamKey}
+                  aria-label="Stream Key"
                   className="input-field font-mono text-xs flex-1"
                 />
                 <button
