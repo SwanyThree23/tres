@@ -61,9 +61,14 @@ Write-Host "      Copying standalone build..."
 # Standalone folder contains the server.js and a minimal node_modules
 Copy-Item -Path ".\cylive\.next\standalone\*" -Destination "$STAGING_DIR" -Recurse -Force
 # Next.js standalone requires .next/static and public to be copied manually
-New-Item -ItemType Directory -Path "$STAGING_DIR\.next\static" -Force | Out-Null
-Copy-Item -Path ".\cylive\.next\static\*" -Destination "$STAGING_DIR\.next\static" -Recurse -Force
-Copy-Item -Path ".\cylive\public" -Destination "$STAGING_DIR\public" -Recurse -Force
+if (Test-Path ".\cylive\.next\static") {
+    New-Item -ItemType Directory -Path "$STAGING_DIR\.next\static" -Force | Out-Null
+    Copy-Item -Path ".\cylive\.next\static\*" -Destination "$STAGING_DIR\.next\static" -Recurse -Force
+}
+if (Test-Path ".\cylive\public") {
+    Copy-Item -Path ".\cylive\public" -Destination "$STAGING_DIR\public" -Recurse -Force
+}
+
 
 # Create tar.gz archive
 Write-Host "      Compressing files..."
