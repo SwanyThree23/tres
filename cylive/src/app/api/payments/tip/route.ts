@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Tip API Route
 // POST /api/payments/tip — Send a tip to a creator

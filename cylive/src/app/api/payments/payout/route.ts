@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Payout API Route
 // POST /api/payments/payout — Request a payout to Stripe Connected Account

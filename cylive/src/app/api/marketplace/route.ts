@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Marketplace API Route
 // GET /api/marketplace — Fetch video posts

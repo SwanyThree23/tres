@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Streams API Route
 // GET /api/streams — List streams (filterable by status, genre)

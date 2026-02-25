@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Moderation API Route
 // POST /api/moderation — Flag/moderate chat messages and users

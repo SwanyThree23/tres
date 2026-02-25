@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Subscription API Route
 // POST /api/payments/subscribe — Subscribe to a creator

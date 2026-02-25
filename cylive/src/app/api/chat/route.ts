@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Chat API Route
 // GET  /api/chat?streamId=xxx     → Fetch recent messages

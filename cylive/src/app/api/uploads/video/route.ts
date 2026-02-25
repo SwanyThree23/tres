@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Video Upload API Route
 // POST /api/uploads/video — Generate pre-signed S3 upload URL

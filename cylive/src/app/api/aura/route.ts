@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Aura AI API Route
 // POST /api/aura — Generate Aura co-host response

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Transaction History API Route
 // GET /api/payments/history — Fetch payment history for the current user
