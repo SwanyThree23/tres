@@ -6,6 +6,7 @@
 import { withAuth } from "next-auth/middleware";
 
 export default withAuth(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function middleware(_req) {
     // Middleware logic — currently passes through after auth check
     return;
