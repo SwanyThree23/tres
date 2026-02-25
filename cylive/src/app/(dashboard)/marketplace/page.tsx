@@ -92,15 +92,26 @@ const fadeUp = {
 const stagger = { animate: { transition: { staggerChildren: 0.04 } } };
 
 export default function MarketplacePage() {
+  const [posts, setPosts] = useState<any[]>([]);
   const [filter, setFilter] = useState<"all" | "free" | "premium">("all");
+  const [loading, setLoading] = useState(true);
 
-  const filtered = mockPosts.filter((p) =>
-    filter === "all"
-      ? true
-      : filter === "free"
-        ? !p.isPaywalled
-        : p.isPaywalled,
-  );
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const res = await fetch(`/api/marketplace?filter=${filter}`);
+        const data = await res.json();
+        setPosts(data.posts || []);
+      } catch (err) {
+        console.error("Marketplace fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, [filter]);
+
+  const filtered = posts;
 
   return (
     <motion.div
@@ -172,9 +183,6 @@ export default function MarketplacePage() {
                     "linear-gradient(135deg, var(--bg-card-high), var(--bg-card))",
                 }}
               >
-                <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-20">
-                  {post.emoji}
-                </div>
                 <div
                   className="absolute inset-0"
                   style={{
@@ -182,20 +190,6 @@ export default function MarketplacePage() {
                       "linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.15), transparent)",
                   }}
                 />
-
-                {/* Play overlay */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center"
-                    style={{
-                      background: "rgba(255,255,255,0.15)",
-                      backdropFilter: "blur(10px)",
-                      border: "1px solid rgba(255,255,255,0.2)",
-                    }}
-                  >
-                    <Play size={24} className="text-white fill-white ml-1" />
-                  </div>
-                </div>
 
                 {/* Paywall badge — DM Mono */}
                 {post.isPaywalled && (
@@ -212,23 +206,26 @@ export default function MarketplacePage() {
                       className="text-readout-sm"
                       style={{ color: "var(--gold)" }}
                     >
-                      ${(post.price / 100).toFixed(2)}
+                      ${((post.paywallAmount || 0) / 100).toFixed(2)}
                     </span>
                   </div>
                 )}
 
                 {/* Duration — DM Mono */}
-                <div
-                  className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md"
-                  style={{
-                    background: "rgba(0,0,0,0.6)",
-                    backdropFilter: "blur(8px)",
-                  }}
-                >
-                  <span className="text-readout-sm text-white">
-                    {post.duration}
-                  </span>
-                </div>
+                {post.duration && (
+                  <div
+                    className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md"
+                    style={{
+                      background: "rgba(0,0,0,0.6)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <span className="text-readout-sm text-white">
+                      {Math.floor(post.duration / 60)}:
+                      {(post.duration % 60).toString().padStart(2, "0")}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Card title — Barlow Condensed Bold */}
@@ -236,28 +233,19 @@ export default function MarketplacePage() {
                 {post.title}
               </h3>
               <div className="flex items-center justify-between mt-3">
-                {/* Barlow Condensed */}
                 <span
                   className="text-body-sm"
                   style={{ color: "var(--text-muted)" }}
                 >
-                  @{post.creator}
+                  @{post.user.username}
                 </span>
                 <div className="flex items-center gap-3">
-                  {/* DM Mono view/heart counts */}
                   <span
                     className="text-readout-sm flex items-center gap-1"
                     style={{ color: "var(--text-muted)" }}
                   >
                     <Eye size={10} />
-                    {post.views.toLocaleString()}
-                  </span>
-                  <span
-                    className="text-readout-sm flex items-center gap-1"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    <Heart size={10} />
-                    {post.hearts.toLocaleString()}
+                    {post.viewCount.toLocaleString()}
                   </span>
                 </div>
               </div>
