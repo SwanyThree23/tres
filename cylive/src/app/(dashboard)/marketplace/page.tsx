@@ -1,24 +1,20 @@
 // ──────────────────────────────────────────────────────────────────────────────
-// CYLive — Marketplace (Video Posts)
-// Paywalled and free video content from creators
+// CYLive — Marketplace (Content Market)
+//
+// TYPOGRAPHY:
+//   Bebas Neue       → page title, section headers
+//   Barlow Condensed → card titles, body, button text, descriptions
+//   DM Mono          → price badges, view/heart counts, duration, filter labels
+//
+// BroadcastCard corner brackets on all video post cards
 // ──────────────────────────────────────────────────────────────────────────────
 
 "use client";
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Clapperboard,
-  Play,
-  Lock,
-  Eye,
-  Clock,
-  DollarSign,
-  Upload,
-  Filter,
-  Heart,
-  Share2,
-} from "lucide-react";
+import { BroadcastCard } from "@/components/primitives/BroadcastCard";
+import { Clapperboard, Play, Lock, Eye, Upload, Heart } from "lucide-react";
 
 const mockPosts = [
   {
@@ -118,25 +114,37 @@ export default function MarketplacePage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <Clapperboard size={24} className="text-gold" />
+          {/* Bebas Neue page title */}
+          <h1 className="text-page-title text-white flex items-center gap-3">
+            <Clapperboard size={22} style={{ color: "var(--gold)" }} />
             Content Market
           </h1>
-          <p className="text-text-muted text-xs mt-1">
+          {/* DM Mono readout */}
+          <p
+            className="text-readout mt-1"
+            style={{ color: "var(--text-muted)" }}
+          >
             {filtered.length} video posts from top creators
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-white/5 rounded-xl p-1 border border-border">
+          {/* DM Mono filter toggle */}
+          <div
+            className="flex rounded-xl p-1"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid var(--border)",
+            }}
+          >
             {(["all", "free", "premium"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
-                  filter === f
-                    ? "bg-accent text-white"
-                    : "text-text-muted hover:text-white"
-                }`}
+                className="text-readout px-4 py-1.5 rounded-lg transition-all"
+                style={{
+                  background: filter === f ? "var(--accent)" : "transparent",
+                  color: filter === f ? "white" : "var(--text-muted)",
+                }}
               >
                 {f}
               </button>
@@ -155,59 +163,105 @@ export default function MarketplacePage() {
       >
         {filtered.map((post) => (
           <motion.div key={post.id} variants={fadeUp}>
-            <div className="glass-panel overflow-hidden group hover:border-gold/30 transition-all duration-300 cursor-pointer">
-              <div className="relative h-44 bg-gradient-to-br from-bg-card-high to-bg-card overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-30">
+            <BroadcastCard className="group cursor-pointer">
+              {/* Thumbnail */}
+              <div
+                className="relative h-44 rounded-xl overflow-hidden mb-4"
+                style={{
+                  background:
+                    "linear-gradient(135deg, var(--bg-card-high), var(--bg-card))",
+                }}
+              >
+                <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-20">
                   {post.emoji}
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.15), transparent)",
+                  }}
+                />
 
-                {/* Play Button Overlay */}
+                {/* Play overlay */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center"
+                    style={{
+                      background: "rgba(255,255,255,0.15)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                    }}
+                  >
                     <Play size={24} className="text-white fill-white ml-1" />
                   </div>
                 </div>
 
-                {/* Paywall Badge */}
+                {/* Paywall badge — DM Mono */}
                 {post.isPaywalled && (
-                  <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 bg-gold/20 backdrop-blur-sm rounded-full border border-gold/20">
-                    <Lock size={10} className="text-gold" />
-                    <span className="text-[10px] font-bold text-gold">
+                  <div
+                    className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full"
+                    style={{
+                      background: "rgba(255,184,0,0.2)",
+                      backdropFilter: "blur(8px)",
+                      border: "1px solid rgba(255,184,0,0.15)",
+                    }}
+                  >
+                    <Lock size={10} style={{ color: "var(--gold)" }} />
+                    <span
+                      className="text-readout-sm"
+                      style={{ color: "var(--gold)" }}
+                    >
                       ${(post.price / 100).toFixed(2)}
                     </span>
                   </div>
                 )}
 
-                {/* Duration */}
-                <div className="absolute bottom-3 right-3 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded-md">
-                  <span className="text-[10px] font-mono font-bold text-white">
+                {/* Duration — DM Mono */}
+                <div
+                  className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md"
+                  style={{
+                    background: "rgba(0,0,0,0.6)",
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  <span className="text-readout-sm text-white">
                     {post.duration}
                   </span>
                 </div>
               </div>
 
-              <div className="p-4">
-                <h3 className="text-white font-bold text-sm truncate group-hover:text-gold transition-colors">
-                  {post.title}
-                </h3>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-text-muted text-xs">
-                    @{post.creator}
+              {/* Card title — Barlow Condensed Bold */}
+              <h3 className="text-card-title text-white truncate group-hover:text-[var(--gold)] transition-colors">
+                {post.title}
+              </h3>
+              <div className="flex items-center justify-between mt-3">
+                {/* Barlow Condensed */}
+                <span
+                  className="text-body-sm"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  @{post.creator}
+                </span>
+                <div className="flex items-center gap-3">
+                  {/* DM Mono view/heart counts */}
+                  <span
+                    className="text-readout-sm flex items-center gap-1"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    <Eye size={10} />
+                    {post.views.toLocaleString()}
                   </span>
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 text-text-muted text-[10px]">
-                      <Eye size={10} />
-                      {post.views.toLocaleString()}
-                    </span>
-                    <span className="flex items-center gap-1 text-text-muted text-[10px]">
-                      <Heart size={10} />
-                      {post.hearts.toLocaleString()}
-                    </span>
-                  </div>
+                  <span
+                    className="text-readout-sm flex items-center gap-1"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    <Heart size={10} />
+                    {post.hearts.toLocaleString()}
+                  </span>
                 </div>
               </div>
-            </div>
+            </BroadcastCard>
           </motion.div>
         ))}
       </motion.div>
