@@ -90,7 +90,10 @@ export async function POST(req: NextRequest) {
           where: { stripeSubscriptionId: updated.id },
           data: {
             status: status as "ACTIVE" | "PAST_DUE" | "CANCELLED",
-            currentPeriodEnd: new Date(updated.current_period_end * 1000),
+            currentPeriodEnd: new Date(
+              ((updated as Record<string, unknown>)
+                .current_period_end as number) * 1000,
+            ),
           },
         });
         break;
