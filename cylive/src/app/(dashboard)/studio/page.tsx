@@ -36,6 +36,7 @@ export default function StudioPage() {
 
   // ── State ─────────────────────────────────────────────────────────
   const [isLive, setIsLive] = useState(false);
+  const [streamId, setStreamId] = useState<string | null>(null);
   const [camOn, setCamOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
@@ -46,9 +47,11 @@ export default function StudioPage() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallAmount, setPaywallAmount] = useState("");
   const [streamTitle, setStreamTitle] = useState("");
+  const [streamGenre, setStreamGenre] = useState<string>("OTHER");
   const [viewers, setViewers] = useState(0);
   const [earnings, setEarnings] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isStarting, setIsStarting] = useState(false);
 
   const tier = session?.user?.tier || "FREE";
   const isProOrStudio = tier === "PRO" || tier === "STUDIO";
@@ -104,19 +107,69 @@ export default function StudioPage() {
   }, [isLive]);
 
   // ── Go Live ───────────────────────────────────────────────────────
-  const handleGoLive = useCallback(() => {
-    if (!streamTitle.trim()) return;
-    setIsLive(true);
-    setViewers(Math.floor(Math.random() * 50) + 10);
-    setDuration(0);
-  }, [streamTitle]);
+  const handleGoLive = useCallback(async () => {
+    if (!streamTitle.trim() || isStarting) return;
 
-  const handleEndStream = useCallback(() => {
-    setIsLive(false);
-    setDuration(0);
-    setViewers(0);
-    setEarnings(0);
-  }, []);
+    setIsStarting(true);
+    try {
+      const res = await fetch("/api/streams", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: streamTitle,
+          genre: streamGenre,
+          panelCount,
+          isPaywalled: showPaywall,
+          paywallAmountCents: showPaywall
+            ? parseFloat(paywallAmount) * 100
+            : undefined,
+          auraMode: auraEnabled ? auraMode : undefined,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to start stream");
+
+      const data = await res.json();
+      setStreamId(data.stream.id);
+      setIsLive(true);
+      setViewers(Math.floor(Math.random() * 50) + 10);
+      setDuration(0);
+    } catch (err) {
+      console.error("[Studio] Go Live Error:", err);
+      alert("Failed to start stream. Please try again.");
+    } finally {
+      setIsStarting(false);
+    }
+  }, [
+    streamTitle,
+    streamGenre,
+    panelCount,
+    showPaywall,
+    paywallAmount,
+    auraEnabled,
+    auraMode,
+    isStarting,
+  ]);
+
+  const handleEndStream = useCallback(async () => {
+    if (!streamId) return;
+
+    try {
+      await fetch(`/api/streams/${streamId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "ENDED" }),
+      });
+
+      setIsLive(false);
+      setStreamId(null);
+      setDuration(0);
+      setViewers(0);
+      setEarnings(0);
+    } catch (err) {
+      console.error("[Studio] End Stream Error:", err);
+    }
+  }, [streamId]);
 
   // ── Format Helpers ────────────────────────────────────────────────
   const formatTime = (s: number) => {

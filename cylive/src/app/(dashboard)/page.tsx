@@ -12,7 +12,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
@@ -30,6 +30,7 @@ import {
   ArrowUpRight,
   Eye,
   Activity,
+  RefreshCw,
 } from "lucide-react";
 
 const fadeUp = {
@@ -43,6 +44,10 @@ const stagger = {
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [liveStreams, setLiveStreams] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const displayName =
     session?.user?.displayName || session?.user?.username || "Creator";
   const tier = (session?.user?.tier || "FREE") as
@@ -50,6 +55,31 @@ export default function DashboardPage() {
     | "CREATOR"
     | "PRO"
     | "STUDIO";
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [historyRes, streamsRes] = await Promise.all([
+          fetch("/api/payments/history?limit=4"),
+          fetch("/api/streams?status=LIVE&limit=3"),
+        ]);
+
+        const historyData = await historyRes.json();
+        const streamsData = await streamsRes.json();
+
+        setTransactions(historyData.payments || []);
+        setLiveStreams(streamsData.streams || []);
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (session?.user) {
+      fetchData();
+    }
+  }, [session]);
 
   return (
     <motion.div
@@ -273,104 +303,87 @@ export default function DashboardPage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            {
-              title: "Late Night Culture Talk",
-              creator: "NightOwlMedia",
-              viewers: 2847,
-              panels: 4,
-              genre: "Talk Show",
-              verified: true,
-            },
-            {
-              title: "Studio Session: Neo Soul",
-              creator: "MelodicWaves",
-              viewers: 1204,
-              panels: 2,
-              genre: "Music",
-              verified: true,
-            },
-            {
-              title: "Tech & Tea: AI Discussion",
-              creator: "FutureCast",
-              viewers: 892,
-              panels: 6,
-              genre: "Technology",
-              verified: false,
-            },
-          ].map((stream) => (
-            <BroadcastCard key={stream.title} className="group cursor-pointer">
-              {/* Thumbnail */}
-              <div
-                className="h-36 rounded-xl overflow-hidden relative mb-4"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--bg-card-high), var(--bg-card))",
-                }}
-              >
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "linear-gradient(to top, rgba(0,0,0,0.6), transparent)",
-                  }}
-                />
-                <div className="absolute top-3 left-3 flex items-center gap-2">
-                  <span className="badge-live">
-                    <span className="w-1.5 h-1.5 bg-white rounded-full animate-live-pulse" />
-                    Live
-                  </span>
-                  {/* DM Mono readout */}
-                  <span
-                    className="text-readout-sm text-white"
+          {liveStreams.length > 0 ? (
+            liveStreams.map((stream) => (
+              <BroadcastCard key={stream.id} className="group cursor-pointer">
+                <Link href={`/watch/${stream.id}`}>
+                  {/* Thumbnail */}
+                  <div
+                    className="h-36 rounded-xl overflow-hidden relative mb-4"
                     style={{
-                      background: "rgba(0,0,0,0.5)",
-                      backdropFilter: "blur(8px)",
-                      padding: "2px 6px",
-                      borderRadius: "999px",
+                      background:
+                        "linear-gradient(135deg, var(--bg-card-high), var(--bg-card))",
                     }}
                   >
-                    {stream.panels} panels
-                  </span>
-                </div>
-                <div className="absolute bottom-3 right-3 flex items-center gap-1">
-                  <Eye size={10} style={{ color: "rgba(255,255,255,0.7)" }} />
-                  {/* DM Mono viewer count */}
-                  <span className="text-readout-sm text-white">
-                    {stream.viewers.toLocaleString()}
-                  </span>
-                </div>
-              </div>
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,0.6), transparent)",
+                      }}
+                    />
+                    <div className="absolute top-3 left-3 flex items-center gap-2">
+                      <span className="badge-live">
+                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-live-pulse" />
+                        Live
+                      </span>
+                      <span
+                        className="text-readout-sm text-white"
+                        style={{
+                          background: "rgba(0,0,0,0.5)",
+                          backdropFilter: "blur(8px)",
+                          padding: "2px 6px",
+                          borderRadius: "999px",
+                        }}
+                      >
+                        {stream.panelCount} panels
+                      </span>
+                    </div>
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1">
+                      <Eye
+                        size={10}
+                        style={{ color: "rgba(255,255,255,0.7)" }}
+                      />
+                      <span className="text-readout-sm text-white">
+                        {stream.peakViewers.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Card title — Barlow Condensed Bold */}
-              <h4 className="text-card-title text-white truncate group-hover:text-[var(--accent)] transition-colors">
-                {stream.title}
-              </h4>
-              <div className="flex items-center justify-between mt-2">
-                <div className="flex items-center gap-2">
-                  <Avatar
-                    size="xs"
-                    alt={stream.creator}
-                    verified={stream.verified}
-                  />
-                  {/* Barlow Condensed */}
-                  <span
-                    className="text-body-sm"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    @{stream.creator}
-                  </span>
-                </div>
-                {/* DM Mono genre badge */}
-                <span
-                  className="text-readout-sm"
-                  style={{ color: "var(--cyan)" }}
-                >
-                  {stream.genre}
-                </span>
-              </div>
-            </BroadcastCard>
-          ))}
+                  <h4 className="text-card-title text-white truncate group-hover:text-[var(--accent)] transition-colors">
+                    {stream.title}
+                  </h4>
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-2">
+                      <Avatar
+                        size="xs"
+                        alt={stream.user.displayName || stream.user.username}
+                        verified={stream.user.verified}
+                      />
+                      <span
+                        className="text-body-sm"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        @{stream.user.username}
+                      </span>
+                    </div>
+                    <span
+                      className="text-readout-sm"
+                      style={{ color: "var(--cyan)" }}
+                    >
+                      {stream.genre.replace("_", " ")}
+                    </span>
+                  </div>
+                </Link>
+              </BroadcastCard>
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center glass-panel border-dashed">
+              <p className="text-text-dim text-sm italic">
+                No streams live right now. Be the first!
+              </p>
+            </div>
+          )}
         </div>
       </motion.div>
 
@@ -387,106 +400,84 @@ export default function DashboardPage() {
           className="glass-panel divide-y"
           style={{ borderColor: "var(--border)" }}
         >
-          {[
-            {
-              type: "Tip",
-              from: "MoonwalkerFan",
-              amount: "$25.00",
-              time: "2m ago",
-              status: "completed",
-            },
-            {
-              type: "Subscription",
-              from: "VelvetVibes",
-              amount: "$20.00",
-              time: "18m ago",
-              status: "completed",
-            },
-            {
-              type: "Paywall",
-              from: "NewListener42",
-              amount: "$5.00",
-              time: "1h ago",
-              status: "completed",
-            },
-            {
-              type: "Tip",
-              from: "NightRider",
-              amount: "$50.00",
-              time: "3h ago",
-              status: "processing",
-            },
-          ].map((tx, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{
-                    background:
-                      tx.type === "Tip"
-                        ? "rgba(255, 184, 0, 0.1)"
-                        : tx.type === "Subscription"
-                          ? "rgba(255, 21, 100, 0.1)"
-                          : "rgba(0, 229, 255, 0.1)",
-                    color:
-                      tx.type === "Tip"
-                        ? "var(--gold)"
-                        : tx.type === "Subscription"
-                          ? "var(--accent)"
-                          : "var(--cyan)",
-                  }}
-                >
-                  <DollarSign size={18} />
-                </div>
-                <div>
-                  {/* Card title — Barlow Condensed Bold */}
-                  <p className="text-card-title text-white">{tx.type}</p>
-                  {/* Body — Barlow Condensed */}
-                  <p
-                    className="text-body-sm"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    from @{tx.from}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                {/* Stat value — Bebas Neue */}
-                <p
-                  className="font-stat"
-                  style={{ fontSize: "24px", color: "var(--gold)" }}
-                >
-                  {tx.amount}
-                </p>
-                <div className="flex items-center gap-1.5 justify-end mt-0.5">
+          {transactions.length > 0 ? (
+            transactions.map((tx) => (
+              <div
+                key={tx.id}
+                className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <div className="flex items-center gap-4">
                   <div
-                    className="w-1.5 h-1.5 rounded-full"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{
                       background:
-                        tx.status === "completed"
-                          ? "var(--green)"
-                          : "var(--gold)",
-                      animation:
-                        tx.status !== "completed"
-                          ? "live-pulse 2s ease-in-out infinite"
-                          : "none",
+                        tx.type === "TIP"
+                          ? "rgba(255, 184, 0, 0.1)"
+                          : tx.type === "SUBSCRIPTION"
+                            ? "rgba(255, 21, 100, 0.1)"
+                            : "rgba(0, 229, 255, 0.1)",
+                      color:
+                        tx.type === "TIP"
+                          ? "var(--gold)"
+                          : tx.type === "SUBSCRIPTION"
+                            ? "var(--accent)"
+                            : "var(--cyan)",
                     }}
-                  />
-                  {/* DM Mono timestamp */}
-                  <span
-                    className="text-readout-sm"
-                    style={{ color: "var(--text-muted)" }}
                   >
-                    {tx.time}
-                  </span>
+                    <DollarSign size={18} />
+                  </div>
+                  <div>
+                    <p className="text-card-title text-white">
+                      {tx.type} {tx.isOutgoing ? "Sent" : "Received"}
+                    </p>
+                    <p
+                      className="text-body-sm"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {tx.isOutgoing ? "to" : "from"} @
+                      {tx.counterparty?.username || "Anonymous"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p
+                    className="font-stat"
+                    style={{
+                      fontSize: "24px",
+                      color: tx.isOutgoing ? "var(--text-dim)" : "var(--gold)",
+                    }}
+                  >
+                    {tx.isOutgoing ? "-" : "+"}$
+                    {(tx.amountCents / 100).toFixed(2)}
+                  </p>
+                  <div className="flex items-center gap-1.5 justify-end mt-0.5">
+                    <div
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{
+                        background:
+                          tx.status === "SUCCEEDED"
+                            ? "var(--green)"
+                            : "var(--gold)",
+                      }}
+                    />
+                    <span
+                      className="text-readout-sm"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {new Date(tx.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="p-8 text-center">
+              <p className="text-text-dim text-sm italic">
+                No recent transactions.
+              </p>
             </div>
-          ))}
+          )}
         </div>
       </motion.div>
     </motion.div>
