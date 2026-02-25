@@ -7,42 +7,28 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Video,
   VideoOff,
   Mic,
   MicOff,
   ScreenShare,
-  Settings,
   Users,
   Copy,
   Check,
   Grid3X3,
-  Zap,
   DollarSign,
   Eye,
   Sparkles,
-  ChevronDown,
-  AlertCircle,
   Radio,
   Lock,
-  Unlock,
   Send,
   RefreshCw,
 } from "lucide-react";
 
 type PanelConfig = 1 | 2 | 3 | 4 | 6 | 9;
 type AuraMode = "SASSY" | "HYPE" | "CALM" | "KIND";
-
-const panelLayouts: Record<PanelConfig, string> = {
-  1: "grid-cols-1 grid-rows-1",
-  2: "grid-cols-2 grid-rows-1",
-  3: "grid-cols-3 grid-rows-1",
-  4: "grid-cols-2 grid-rows-2",
-  6: "grid-cols-3 grid-rows-2",
-  9: "grid-cols-3 grid-rows-3",
-};
 
 export default function StudioPage() {
   const { data: session } = useSession();
