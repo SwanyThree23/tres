@@ -1,22 +1,20 @@
 // ──────────────────────────────────────────────────────────────────────────────
 // CYLive — Scheduler (Time Manifest)
-// Schedule future streams with countdown, follower notifications
+//
+// TYPOGRAPHY:
+//   Bebas Neue       → page title, countdown values, section headers
+//   Barlow Condensed → event titles, body, buttons
+//   DM Mono          → date/time, genre pills, panel counts, labels
+//
+// BroadcastCard on all event cards
 // ──────────────────────────────────────────────────────────────────────────────
 
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Calendar,
-  Clock,
-  Plus,
-  X,
-  Bell,
-  Grid3X3,
-  Users,
-  Zap,
-} from "lucide-react";
+import { BroadcastCard } from "@/components/primitives/BroadcastCard";
+import { Calendar, Plus, X, Bell, Grid3X3 } from "lucide-react";
 
 interface ScheduledEvent {
   id: string;
@@ -56,7 +54,6 @@ const mockEvents: ScheduledEvent[] = [
 
 function useCountdown(targetDate: string) {
   const [timeLeft, setTimeLeft] = useState("");
-
   useEffect(() => {
     const calc = () => {
       const diff = new Date(targetDate).getTime() - Date.now();
@@ -70,7 +67,6 @@ function useCountdown(targetDate: string) {
     const interval = setInterval(calc, 60000);
     return () => clearInterval(interval);
   }, [targetDate]);
-
   return timeLeft;
 }
 
@@ -79,37 +75,59 @@ function EventCard({ event }: { event: ScheduledEvent }) {
   const date = new Date(event.scheduledAt);
 
   return (
-    <div className="glass-panel p-6 hover:border-accent/30 transition-all duration-300 group">
-      <div className="flex items-start justify-between mb-4">
+    <BroadcastCard className="group">
+      <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-bold text-base truncate group-hover:text-accent transition-colors">
+          {/* Card title — Barlow Condensed Bold */}
+          <h3 className="text-card-title-lg text-white truncate group-hover:text-[var(--accent)] transition-colors">
             {event.title}
           </h3>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-[9px] font-bold text-text-dim uppercase bg-white/5 px-2 py-0.5 rounded-full">
+            {/* DM Mono genre badge */}
+            <span
+              className="text-readout-sm px-2 py-0.5 rounded-full"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                color: "var(--text-muted)",
+              }}
+            >
               {event.genre}
             </span>
-            <span className="flex items-center gap-1 text-text-muted text-xs">
-              <Grid3X3 size={10} />
+            {/* DM Mono panel count */}
+            <span
+              className="text-readout-sm flex items-center gap-1"
+              style={{ color: "var(--text-muted)" }}
+            >
+              <Grid3X3 size={9} />
               {event.panelCount} panels
             </span>
             {event.notifyFollowers && (
-              <span className="flex items-center gap-1 text-text-muted text-xs">
-                <Bell size={10} className="text-gold" />
+              <span
+                className="text-readout-sm flex items-center gap-1"
+                style={{ color: "var(--gold)" }}
+              >
+                <Bell size={9} />
                 Notify
               </span>
             )}
           </div>
         </div>
         <div className="text-right shrink-0 ml-4">
-          <p className="font-stat text-2xl text-accent">{countdown}</p>
-          <p className="text-[10px] text-text-muted font-mono">
+          {/* Bebas Neue countdown */}
+          <p
+            className="font-stat"
+            style={{ fontSize: "28px", color: "var(--accent)" }}
+          >
+            {countdown}
+          </p>
+          {/* DM Mono date/time */}
+          <p className="text-timestamp">
             {date.toLocaleDateString("en-US", {
               weekday: "short",
               month: "short",
               day: "numeric",
-            })}{" "}
-            at{" "}
+            })}
+            {" at "}
             {date.toLocaleTimeString("en-US", {
               hour: "numeric",
               minute: "2-digit",
@@ -118,7 +136,7 @@ function EventCard({ event }: { event: ScheduledEvent }) {
           </p>
         </div>
       </div>
-    </div>
+    </BroadcastCard>
   );
 }
 
@@ -146,11 +164,16 @@ export default function SchedulerPage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <Calendar size={24} className="text-accent" />
+          {/* Bebas Neue page title */}
+          <h1 className="text-page-title text-white flex items-center gap-3">
+            <Calendar size={22} style={{ color: "var(--accent)" }} />
             Time Manifest
           </h1>
-          <p className="text-text-muted text-xs mt-1">
+          {/* DM Mono readout */}
+          <p
+            className="text-readout mt-1"
+            style={{ color: "var(--text-muted)" }}
+          >
             {mockEvents.length} upcoming broadcasts scheduled
           </p>
         </div>
@@ -177,14 +200,18 @@ export default function SchedulerPage() {
         ))}
       </div>
 
-      {/* ── Create Modal ─────────────────────────────────────────────── */}
+      {/* ── Create Modal ─────────────────────────────────────────── */}
       <AnimatePresence>
         {showCreate && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            style={{
+              background: "rgba(0,0,0,0.6)",
+              backdropFilter: "blur(6px)",
+            }}
             onClick={() => setShowCreate(false)}
           >
             <motion.div
@@ -195,15 +222,16 @@ export default function SchedulerPage() {
               className="glass-panel-elevated p-8 w-full max-w-md"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-black text-white">
+                <h3 className="text-section-header-lg text-white">
                   Schedule Stream
                 </h3>
                 <button
                   onClick={() => setShowCreate(false)}
                   aria-label="Close"
-                  className="p-2 bg-white/5 rounded-lg hover:bg-white/10"
+                  className="p-2 rounded-lg hover:bg-white/10"
+                  style={{ background: "rgba(255,255,255,0.05)" }}
                 >
-                  <X size={16} className="text-text-muted" />
+                  <X size={16} style={{ color: "var(--text-muted)" }} />
                 </button>
               </div>
 
@@ -256,11 +284,15 @@ export default function SchedulerPage() {
                       <button
                         key={n}
                         onClick={() => setPanels(n)}
-                        className={`aspect-square rounded-lg border text-xs font-bold flex items-center justify-center transition-all ${
-                          panels === n
-                            ? "bg-accent text-white border-accent"
-                            : "bg-white/5 text-text-muted border-border hover:border-accent/40"
-                        }`}
+                        className="aspect-square rounded-lg text-readout flex items-center justify-center transition-all"
+                        style={{
+                          background:
+                            panels === n
+                              ? "var(--accent)"
+                              : "rgba(255,255,255,0.04)",
+                          color: panels === n ? "white" : "var(--text-muted)",
+                          border: `1px solid ${panels === n ? "var(--accent)" : "var(--border)"}`,
+                        }}
                       >
                         {n}
                       </button>
@@ -268,23 +300,30 @@ export default function SchedulerPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white/3 rounded-xl border border-border">
+                <div
+                  className="flex items-center justify-between p-4 rounded-xl"
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid var(--border)",
+                  }}
+                >
                   <div className="flex items-center gap-2">
-                    <Bell size={16} className="text-gold" />
+                    <Bell size={16} style={{ color: "var(--gold)" }} />
                     <div>
-                      <p className="text-sm font-bold text-white">
+                      <p className="text-card-title text-white">
                         Notify Followers
                       </p>
-                      <p className="text-[10px] text-text-muted">
-                        Send reminder before stream
+                      <p
+                        className="text-readout-sm"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        Send reminder 10 min before stream
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => setNotify(!notify)}
-                    aria-label={
-                      notify ? "Disable notifications" : "Enable notifications"
-                    }
+                    aria-label={notify ? "Disable" : "Enable"}
                     className="toggle-track"
                     data-active={notify}
                   >
