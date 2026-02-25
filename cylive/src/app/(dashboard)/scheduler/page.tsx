@@ -25,133 +25,82 @@ interface ScheduledEvent {
   notifyFollowers: boolean;
 }
 
-const mockEvents: ScheduledEvent[] = [
-  {
-    id: "1",
-    title: "Weekend Vibes: Music & Community",
-    scheduledAt: new Date(Date.now() + 86400000 * 2).toISOString(),
-    panelCount: 4,
-    genre: "Music",
-    notifyFollowers: true,
-  },
-  {
-    id: "2",
-    title: "Creator Roundtable: Monetization Tips",
-    scheduledAt: new Date(Date.now() + 86400000 * 5).toISOString(),
-    panelCount: 6,
-    genre: "Education",
-    notifyFollowers: true,
-  },
-  {
-    id: "3",
-    title: "Late Night Stand-Up: Open Mic",
-    scheduledAt: new Date(Date.now() + 86400000 * 8).toISOString(),
-    panelCount: 3,
-    genre: "Comedy",
-    notifyFollowers: false,
-  },
-];
-
-function useCountdown(targetDate: string) {
-  const [timeLeft, setTimeLeft] = useState("");
-  useEffect(() => {
-    const calc = () => {
-      const diff = new Date(targetDate).getTime() - Date.now();
-      if (diff <= 0) return setTimeLeft("Starting soon");
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff % 86400000) / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      setTimeLeft(d > 0 ? `${d}d ${h}h ${m}m` : `${h}h ${m}m`);
-    };
-    calc();
-    const interval = setInterval(calc, 60000);
-    return () => clearInterval(interval);
-  }, [targetDate]);
-  return timeLeft;
-}
-
-function EventCard({ event }: { event: ScheduledEvent }) {
-  const countdown = useCountdown(event.scheduledAt);
-  const date = new Date(event.scheduledAt);
-
-  return (
-    <BroadcastCard className="group">
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          {/* Card title — Barlow Condensed Bold */}
-          <h3 className="text-card-title-lg text-white truncate group-hover:text-[var(--accent)] transition-colors">
-            {event.title}
-          </h3>
-          <div className="flex items-center gap-3 mt-2">
-            {/* DM Mono genre badge */}
-            <span
-              className="text-readout-sm px-2 py-0.5 rounded-full"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                color: "var(--text-muted)",
-              }}
-            >
-              {event.genre}
-            </span>
-            {/* DM Mono panel count */}
-            <span
-              className="text-readout-sm flex items-center gap-1"
-              style={{ color: "var(--text-muted)" }}
-            >
-              <Grid3X3 size={9} />
-              {event.panelCount} panels
-            </span>
-            {event.notifyFollowers && (
-              <span
-                className="text-readout-sm flex items-center gap-1"
-                style={{ color: "var(--gold)" }}
-              >
-                <Bell size={9} />
-                Notify
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="text-right shrink-0 ml-4">
-          {/* Bebas Neue countdown */}
-          <p
-            className="font-stat"
-            style={{ fontSize: "28px", color: "var(--accent)" }}
-          >
-            {countdown}
-          </p>
-          {/* DM Mono date/time */}
-          <p className="text-timestamp">
-            {date.toLocaleDateString("en-US", {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            })}
-            {" at "}
-            {date.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true,
-            })}
-          </p>
-        </div>
-      </div>
-    </BroadcastCard>
-  );
-}
-
-const fadeUp = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-};
-
 export default function SchedulerPage() {
+  const { data: session } = useSession();
+  const [events, setEvents] = useState<ScheduledEvent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [panels, setPanels] = useState(1);
   const [notify, setNotify] = useState(true);
+  const [genre, setGenre] = useState("CULTURE");
+  const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    async function fetchSchedules() {
+      if (!session?.user?.id) return;
+      try {
+        const res = await fetch(
+          `/api/streams?status=SCHEDULED&userId=${session.user.id}`,
+        );
+        const data = await res.json();
+        const mapped = data.streams.map((s: any) => ({
+          id: s.id,
+          title: s.title,
+          scheduledAt: s.scheduledAt,
+          panelCount: s.panelCount,
+          genre: s.genre,
+          notifyFollowers: true,
+        }));
+        setEvents(mapped);
+      } catch (err) {
+        console.error("Schedule fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSchedules();
+  }, [session?.user?.id]);
+
+  const handleSchedule = async () => {
+    if (!title.trim() || !date || !time) return;
+    setIsCreating(true);
+    try {
+      const scheduledAt = new Date(`${date}T${time}`).toISOString();
+      const res = await fetch("/api/streams", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          genre,
+          panelCount: panels,
+          scheduledAt,
+        }),
+      });
+      const data = await res.json();
+      if (data.stream) {
+        const newEvent = {
+          id: data.stream.id,
+          title: data.stream.title,
+          scheduledAt: data.stream.scheduledAt,
+          panelCount: data.stream.panelCount,
+          genre: data.stream.genre,
+          notifyFollowers: true,
+        };
+        setEvents((prev) => [newEvent, ...prev]);
+        setShowCreate(false);
+        setTitle("");
+        setDate("");
+        setTime("");
+      }
+    } catch (err) {
+      console.error("Create schedule error:", err);
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   return (
     <motion.div
@@ -174,7 +123,7 @@ export default function SchedulerPage() {
             className="text-readout mt-1"
             style={{ color: "var(--text-muted)" }}
           >
-            {mockEvents.length} upcoming broadcasts scheduled
+            {events.length} upcoming broadcasts scheduled
           </p>
         </div>
         <button
@@ -188,7 +137,7 @@ export default function SchedulerPage() {
 
       {/* Events List */}
       <div className="space-y-4">
-        {mockEvents.map((event, i) => (
+        {events.map((event, i) => (
           <motion.div
             key={event.id}
             variants={fadeUp}
@@ -332,11 +281,16 @@ export default function SchedulerPage() {
                 </div>
 
                 <button
-                  disabled={!title.trim() || !date || !time}
+                  onClick={handleSchedule}
+                  disabled={!title.trim() || !date || !time || isCreating}
                   className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-40"
                 >
-                  <Calendar size={16} />
-                  Schedule Broadcast
+                  {isCreating ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : (
+                    <Calendar size={16} />
+                  )}
+                  {isCreating ? "Scheduling..." : "Schedule Broadcast"}
                 </button>
               </div>
             </motion.div>

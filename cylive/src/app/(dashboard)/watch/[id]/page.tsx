@@ -165,7 +165,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
       const tipMsg: ChatMessage = {
         id: `tip-${Date.now()}`,
         user: "SYSTEM",
-        message: `${session.user.name || session.user.username} sent a $${(data.amount / 100).toFixed(2)} tip!`,
+        message: `${session.user.displayName || session.user.username} sent a $${(data.amount / 100).toFixed(2)} tip!`,
         timestamp: new Date(),
         badge: "pro",
       };
