@@ -26,8 +26,7 @@ export function BroadcastCard({
     <div
       className={`broadcast-card ${compact ? "broadcast-card--compact" : ""} ${className}`}
       onClick={onClick}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      {...(onClick ? { role: "button" as const, tabIndex: 0 } : {})}
     >
       <div className="broadcast-card__inner">{children}</div>
     </div>
