@@ -636,6 +636,7 @@ export default function StudioPage() {
                       readOnly
                       value={ingestUrl || ""}
                       className="input-field py-1.5 text-[10px] font-mono"
+                      aria-label="Ingest URL"
                     />
                     <button
                       onClick={() => {
@@ -643,6 +644,8 @@ export default function StudioPage() {
                         alert("Ingest URL copied!");
                       }}
                       className="p-2 bg-white/5 rounded-lg hover:bg-white/10"
+                      aria-label="Copy Ingest URL"
+                      title="Copy Ingest URL"
                     >
                       <Copy size={12} className="text-text-muted" />
                     </button>
@@ -658,6 +661,7 @@ export default function StudioPage() {
                       readOnly
                       value={streamKey || ""}
                       className="input-field py-1.5 text-[10px] font-mono"
+                      aria-label="Stream Key"
                     />
                     <button
                       onClick={() => {
@@ -665,6 +669,8 @@ export default function StudioPage() {
                         alert("Stream Key copied!");
                       }}
                       className="p-2 bg-white/5 rounded-lg hover:bg-white/10"
+                      aria-label="Copy Stream Key"
+                      title="Copy Stream Key"
                     >
                       <Copy size={12} className="text-text-muted" />
                     </button>

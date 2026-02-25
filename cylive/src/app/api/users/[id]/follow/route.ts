@@ -101,7 +101,7 @@ export async function GET(
     });
 
     return NextResponse.json({ following: !!existing });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ following: false });
   }
 }
