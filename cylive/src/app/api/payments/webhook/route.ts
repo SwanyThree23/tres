@@ -91,8 +91,8 @@ export async function POST(req: NextRequest) {
           data: {
             status: status as "ACTIVE" | "PAST_DUE" | "CANCELLED",
             currentPeriodEnd: new Date(
-              ((updated as Record<string, unknown>)
-                .current_period_end as number) * 1000,
+              (updated as unknown as Record<string, number>)
+                .current_period_end * 1000,
             ),
           },
         });
