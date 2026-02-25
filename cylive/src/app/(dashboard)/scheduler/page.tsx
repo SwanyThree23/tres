@@ -13,8 +13,61 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
 import { BroadcastCard } from "@/components/primitives/BroadcastCard";
-import { Calendar, Plus, X, Bell, Grid3X3 } from "lucide-react";
+import { Calendar, Plus, X, Bell, Grid3X3, Loader2, Users } from "lucide-react";
+
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+};
+
+function EventCard({ event }: { event: ScheduledEvent }) {
+  return (
+    <BroadcastCard>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-white/5 flex flex-col items-center justify-center border border-white/10">
+            <span className="text-[10px] font-mono text-muted uppercase">
+              {new Date(event.scheduledAt).toLocaleString("en-US", {
+                month: "short",
+              })}
+            </span>
+            <span className="text-lg font-bebas text-white leading-none">
+              {new Date(event.scheduledAt).getDate()}
+            </span>
+          </div>
+          <div>
+            <h3 className="text-card-title text-white">{event.title}</h3>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-readout-sm text-muted uppercase tracking-wider">
+                {event.genre}
+              </span>
+              <span className="text-muted">•</span>
+              <span className="text-readout-sm text-muted">
+                {new Date(event.scheduledAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <div className="flex items-center gap-1.5 justify-end">
+              <Grid3X3 size={12} className="text-muted" />
+              <span className="text-readout-sm text-white">
+                {event.panelCount} Panels
+              </span>
+            </div>
+          </div>
+          <button className="btn-ghost btn-sm">Edit</button>
+        </div>
+      </div>
+    </BroadcastCard>
+  );
+}
 
 interface ScheduledEvent {
   id: string;
@@ -27,6 +80,7 @@ interface ScheduledEvent {
 
 export default function SchedulerPage() {
   const { data: session } = useSession();
+
   const [events, setEvents] = useState<ScheduledEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);

@@ -11,8 +11,9 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
 import { BroadcastCard } from "@/components/primitives/BroadcastCard";
 import { Avatar } from "@/components/primitives/Avatar";
 import { SignalBars } from "@/components/primitives/SignalBars";
@@ -24,7 +25,14 @@ import {
   Headphones,
   Sparkles,
   Volume2,
+  Loader2,
 } from "lucide-react";
+
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+};
+
 
 interface AudioRoom {
   id: string;
@@ -36,11 +44,14 @@ interface AudioRoom {
 }
 
 export default function AudioRoomsPage() {
+  const { data: session } = useSession();
   const [rooms, setRooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [isStarting, setIsStarting] = useState(false);
+  const [enableAura, setEnableAura] = useState(true);
+
 
   useEffect(() => {
     async function fetchRooms() {
