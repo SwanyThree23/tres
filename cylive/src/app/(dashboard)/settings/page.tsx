@@ -70,6 +70,9 @@ export default function SettingsPage() {
     promotions: false,
   });
   const [saving, setSaving] = useState(false);
+  const [ingestUrl] = useState("rtmps://ingest.cylive.app/live");
+  const [streamKey, setStreamKey] = useState("sk_xxxxxxxxxxxxxxxxxxxx"); // Placeholder for stream key
+  const [showStreamKey, setShowStreamKey] = useState(false);
 
   const tier = (session?.user?.tier as string) || "FREE";
 
@@ -143,6 +146,7 @@ export default function SettingsPage() {
           <button
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-body-sm transition-all text-left hover:bg-white/5"
             style={{ color: "var(--accent)" }}
+            aria-label="Sign Out"
           >
             <LogOut size={16} />
             Sign Out
@@ -180,6 +184,7 @@ export default function SettingsPage() {
                       background: "rgba(255,255,255,0.05)",
                       color: "var(--cyan)",
                     }}
+                    aria-label="Change Avatar"
                   >
                     Change Avatar
                   </button>
@@ -197,6 +202,7 @@ export default function SettingsPage() {
                     className="input-field"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
+                    aria-label="Display Name"
                   />
                 </div>
                 <div>
@@ -222,6 +228,7 @@ export default function SettingsPage() {
                             .replace(/[^a-z0-9_]/g, ""),
                         )
                       }
+                      aria-label="Username"
                     />
                   </div>
                 </div>
@@ -236,6 +243,7 @@ export default function SettingsPage() {
                     placeholder="Tell viewers about yourself..."
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
+                    aria-label="Bio"
                   />
                 </div>
                 <div>
@@ -248,6 +256,7 @@ export default function SettingsPage() {
                     className="input-field"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    aria-label="Email"
                   />
                 </div>
                 <div>
@@ -259,6 +268,7 @@ export default function SettingsPage() {
                     className="input-field"
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
+                    aria-label="Preferred Language"
                   >
                     <option value="en">English</option>
                     <option value="es">Español</option>
@@ -275,6 +285,7 @@ export default function SettingsPage() {
                 onClick={handleSave}
                 disabled={saving}
                 className="btn-primary flex items-center gap-2 mt-6"
+                aria-label={saving ? "Saving changes" : "Save Changes"}
               >
                 {saving ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -339,7 +350,7 @@ export default function SettingsPage() {
                           [item.key]: !n[item.key],
                         }))
                       }
-                      aria-label={`Toggle ${item.label}`}
+                      aria-label={`Toggle ${item.label} notifications`}
                       className="toggle-track"
                       data-active={notifications[item.key]}
                     >
@@ -385,7 +396,12 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
-              <button className="btn-gold flex items-center gap-2">
+              <button
+                className="btn-gold flex items-center gap-2"
+                aria-label={
+                  tier === "FREE" ? "Upgrade Now" : "Manage Subscription"
+                }
+              >
                 <CreditCard size={14} />
                 {tier === "FREE" ? "Upgrade Now" : "Manage Subscription"}
               </button>
@@ -407,6 +423,7 @@ export default function SettingsPage() {
                     placeholder="Enter current password"
                     className="input-field"
                     autoComplete="current-password"
+                    aria-label="Current Password"
                   />
                 </div>
                 <div>
@@ -419,6 +436,7 @@ export default function SettingsPage() {
                     placeholder="Enter new password"
                     className="input-field"
                     autoComplete="new-password"
+                    aria-label="New Password"
                   />
                 </div>
                 <div>
@@ -431,9 +449,13 @@ export default function SettingsPage() {
                     placeholder="Confirm new password"
                     className="input-field"
                     autoComplete="new-password"
+                    aria-label="Confirm New Password"
                   />
                 </div>
-                <button className="btn-primary flex items-center gap-2 mt-2">
+                <button
+                  className="btn-primary flex items-center gap-2 mt-2"
+                  aria-label="Update Password"
+                >
                   <Shield size={14} />
                   Update Password
                 </button>
@@ -484,23 +506,51 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div>
                   <label className="input-label">RTMP Ingest URL</label>
-                  <input
-                    type="text"
-                    readOnly
-                    value="rtmps://ingest.cylive.app/live"
-                    className="input-field font-mono text-xs"
-                    aria-label="RTMP Ingest URL"
-                  />
+                  <div className="relative flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={ingestUrl || ""}
+                      className="input-field py-1.5 text-[10px] font-mono"
+                      aria-label="Ingest URL"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(ingestUrl || "");
+                        alert("Ingest URL copied!");
+                      }}
+                      className="p-2 bg-white/5 rounded-lg hover:bg-white/10"
+                      aria-label="Copy Ingest URL"
+                      title="Copy Ingest URL"
+                    >
+                      <Copy size={12} className="text-text-muted" />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="input-label">Stream Key</label>
-                  <input
-                    type="password"
-                    readOnly
-                    value="sk_live_xxxxxxxxxxxxxxxxxxxx"
-                    className="input-field font-mono text-xs"
-                    aria-label="Stream Key"
-                  />
+                  <div className="relative flex items-center gap-2">
+                    <input
+                      type={showStreamKey ? "text" : "password"}
+                      readOnly
+                      value={
+                        showStreamKey ? streamKey : "sk_••••••••••••••••••••"
+                      }
+                      className="input-field py-1.5 text-[10px] font-mono"
+                      aria-label="Stream Key"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(streamKey || "");
+                        alert("Stream Key copied!");
+                      }}
+                      className="p-2 bg-white/5 rounded-lg hover:bg-white/10"
+                      aria-label="Copy Stream Key"
+                      title="Copy Stream Key"
+                    >
+                      <Copy size={12} className="text-text-muted" />
+                    </button>
+                  </div>
                   <p
                     className="text-readout-sm mt-1.5 ml-1"
                     style={{ color: "var(--text-dim)" }}
@@ -509,11 +559,18 @@ export default function SettingsPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3 mt-2">
-                  <button className="btn-ghost flex items-center gap-2">
+                  <button
+                    onClick={() => setShowStreamKey(!showStreamKey)}
+                    className="btn-ghost flex items-center gap-2"
+                    aria-label={showStreamKey ? "Hide Key" : "Reveal Key"}
+                  >
                     <Eye size={14} />
-                    Reveal Key
+                    {showStreamKey ? "Hide Key" : "Reveal Key"}
                   </button>
-                  <button className="btn-ghost flex items-center gap-2">
+                  <button
+                    className="btn-ghost flex items-center gap-2"
+                    aria-label="Regenerate Stream Key"
+                  >
                     <Key size={14} />
                     Regenerate
                   </button>

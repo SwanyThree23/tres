@@ -13,7 +13,7 @@ const createRoomSchema = z.object({
   description: z.string().max(500).optional(),
 });
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const rooms = await prisma.audioRoom.findMany({
       where: { status: "ACTIVE" },
