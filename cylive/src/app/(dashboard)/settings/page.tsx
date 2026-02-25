@@ -140,7 +140,7 @@ export default function SettingsPage() {
                 <Avatar
                   size="lg"
                   name={displayName}
-                  image={session?.user?.image || undefined}
+                  image={session?.user?.avatarUrl || undefined}
                   verified={session?.user?.verified}
                 />
                 <div>
