@@ -59,19 +59,58 @@ export default function WatchPage({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   useEffect(() => {
+    async function fetchMessages() {
+      try {
+        const res = await fetch(`/api/streams/${params.id}/messages`);
+        const data = await res.json();
+        const mappedChat = data.messages.map((m: any) => ({
+          id: m.id,
+          user: m.user.displayName || m.user.username,
+          message: m.content,
+          timestamp: new Date(m.createdAt),
+          badge: m.user.tier !== "FREE" ? "pro" : undefined,
+        }));
+        setChat(mappedChat);
+      } catch (err) {
+        console.error("Chat fetch error:", err);
+      }
+    }
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 5000); // Polling for demo
+    return () => clearInterval(interval);
+  }, [params.id]);
+
+  useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
-  const sendMessage = () => {
-    if (!chatInput.trim()) return;
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      user: session?.user?.username || "Guest",
-      message: chatInput,
-      timestamp: new Date(),
-    };
-    setChat((prev) => [...prev, newMessage]);
+  const sendMessage = async () => {
+    if (!chatInput.trim() || !session?.user?.id) return;
+
+    const content = chatInput;
     setChatInput("");
+
+    try {
+      const res = await fetch(`/api/streams/${params.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+
+      const data = await res.json();
+      if (data.message) {
+        const newMessage: ChatMessage = {
+          id: data.message.id,
+          user: data.message.user.displayName || data.message.user.username,
+          message: data.message.content,
+          timestamp: new Date(data.message.createdAt),
+          badge: data.message.user.tier !== "FREE" ? "pro" : undefined,
+        };
+        setChat((prev) => [...prev, newMessage]);
+      }
+    } catch (err) {
+      console.error("Send message error:", err);
+    }
   };
 
   const formatTime = (date: Date) =>
