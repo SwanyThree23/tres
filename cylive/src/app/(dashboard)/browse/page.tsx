@@ -30,117 +30,6 @@ const genres = [
   "Art",
 ];
 
-const mockStreams = [
-  {
-    id: "1",
-    title: "Late Night Culture Panel: Black History & Beyond",
-    creator: "NightOwlMedia",
-    viewers: 3842,
-    panels: 4,
-    genre: "Talk Show",
-    isLive: true,
-    hasAura: true,
-    verified: true,
-    emoji: "🌙",
-  },
-  {
-    id: "2",
-    title: "Freestyle Friday Cypher — Open Mic",
-    creator: "MelodicWaves",
-    viewers: 2150,
-    panels: 2,
-    genre: "Music",
-    isLive: true,
-    hasAura: false,
-    verified: true,
-    emoji: "🎤",
-  },
-  {
-    id: "3",
-    title: "Web3 Builder Hour: Smart Contracts Deep Dive",
-    creator: "CryptoSage",
-    viewers: 985,
-    panels: 6,
-    genre: "Technology",
-    isLive: true,
-    hasAura: true,
-    verified: true,
-    emoji: "⛓️",
-  },
-  {
-    id: "4",
-    title: "Stand-Up Showcase: Fresh Voices",
-    creator: "ComedyVault",
-    viewers: 1632,
-    panels: 1,
-    genre: "Comedy",
-    isLive: true,
-    hasAura: false,
-    verified: false,
-    emoji: "😂",
-  },
-  {
-    id: "5",
-    title: "Digital Art Live: Portrait Series",
-    creator: "PixelMaster",
-    viewers: 764,
-    panels: 3,
-    genre: "Art",
-    isLive: true,
-    hasAura: false,
-    verified: true,
-    emoji: "🖌️",
-  },
-  {
-    id: "6",
-    title: "Morning Meditation & Mindfulness",
-    creator: "ZenStream",
-    viewers: 543,
-    panels: 1,
-    genre: "Education",
-    isLive: true,
-    hasAura: true,
-    verified: false,
-    emoji: "🧘",
-  },
-  {
-    id: "7",
-    title: "NBA Watch Party: Playoffs React",
-    creator: "SportsGrid",
-    viewers: 4201,
-    panels: 9,
-    genre: "Sports",
-    isLive: true,
-    hasAura: false,
-    verified: true,
-    emoji: "🏀",
-  },
-  {
-    id: "8",
-    title: "Sunset DJ Set: Afrobeats & Amapiano",
-    creator: "BeatKontrol",
-    viewers: 2890,
-    panels: 2,
-    genre: "Music",
-    isLive: true,
-    hasAura: false,
-    verified: true,
-    emoji: "🌅",
-  },
-  {
-    id: "9",
-    title: "Indie Game Dev Showcase",
-    creator: "PixelFoundry",
-    viewers: 412,
-    panels: 4,
-    genre: "Gaming",
-    isLive: true,
-    hasAura: true,
-    verified: false,
-    emoji: "🎮",
-  },
-];
-
 const fadeUp = {
   initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0 },
@@ -148,19 +37,39 @@ const fadeUp = {
 const stagger = { animate: { transition: { staggerChildren: 0.04 } } };
 
 export default function BrowsePage() {
+  const [streams, setStreams] = useState<any[]>([]);
   const [activeGenre, setActiveGenre] = useState("All");
   const [sortBy, setSortBy] = useState<"viewers" | "recent">("viewers");
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const filtered = mockStreams
-    .filter((s) => activeGenre === "All" || s.genre === activeGenre)
+  useEffect(() => {
+    async function fetchStreams() {
+      try {
+        const genreQuery =
+          activeGenre !== "All"
+            ? `&genre=${activeGenre.toUpperCase().replace(" ", "_")}`
+            : "";
+        const res = await fetch(`/api/streams?status=LIVE${genreQuery}`);
+        const data = await res.json();
+        setStreams(data.streams || []);
+      } catch (err) {
+        console.error("Browse fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStreams();
+  }, [activeGenre]);
+
+  const filtered = streams
     .filter((s) =>
       search
         ? s.title.toLowerCase().includes(search.toLowerCase()) ||
-          s.creator.toLowerCase().includes(search.toLowerCase())
+          s.user.username.toLowerCase().includes(search.toLowerCase())
         : true,
     )
-    .sort((a, b) => (sortBy === "viewers" ? b.viewers - a.viewers : 0));
+    .sort((a, b) => (sortBy === "viewers" ? b.peakViewers - a.peakViewers : 0));
 
   return (
     <motion.div
@@ -186,7 +95,7 @@ export default function BrowsePage() {
             style={{ color: "var(--text-muted)" }}
           >
             {filtered.length} streams broadcasting •{" "}
-            {mockStreams.reduce((s, x) => s + x.viewers, 0).toLocaleString()}{" "}
+            {streams.reduce((s, x) => s + x.peakViewers, 0).toLocaleString()}{" "}
             viewers online
           </p>
         </div>
@@ -263,100 +172,95 @@ export default function BrowsePage() {
       >
         {filtered.map((stream) => (
           <motion.div key={stream.id} variants={fadeUp}>
-            <BroadcastCard className="group cursor-pointer">
-              {/* Thumbnail Area */}
-              <div
-                className="relative h-44 rounded-xl overflow-hidden mb-4"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--bg-card-high), var(--bg-card))",
-                }}
-              >
-                {/* Emoji placeholder */}
-                <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-20">
-                  {stream.emoji}
-                </div>
-                {/* Gradient overlay */}
+            <Link href={`/watch/${stream.id}`}>
+              <BroadcastCard className="group cursor-pointer">
+                {/* Thumbnail Area */}
                 <div
-                  className="absolute inset-0"
+                  className="relative h-44 rounded-xl overflow-hidden mb-4"
                   style={{
                     background:
-                      "linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.1), transparent)",
+                      "linear-gradient(135deg, var(--bg-card-high), var(--bg-card))",
                   }}
-                />
-
-                {/* Top-left badges */}
-                <div className="absolute top-3 left-3 flex items-center gap-2">
-                  <span className="badge-live">
-                    <span className="w-1.5 h-1.5 bg-white rounded-full animate-live-pulse" />
-                    Live
-                  </span>
-                  {stream.hasAura && (
-                    <span className="badge-pro flex items-center gap-1">
-                      <Sparkles size={8} />
-                      Aura
-                    </span>
-                  )}
-                </div>
-
-                {/* Top-right: panel count — DM Mono */}
-                <div className="absolute top-3 right-3">
-                  <span
-                    className="text-readout-sm flex items-center gap-1 px-2.5 py-1 rounded-lg"
-                    style={{
-                      background: "rgba(0,0,0,0.5)",
-                      backdropFilter: "blur(8px)",
-                      color: "white",
-                    }}
-                  >
-                    <Grid3X3 size={9} />
-                    {stream.panels}P
-                  </span>
-                </div>
-
-                {/* Bottom stats — DM Mono */}
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                  <span
-                    className="text-readout-sm flex items-center gap-1"
-                    style={{ color: "rgba(255,255,255,0.8)" }}
-                  >
-                    <Eye size={10} />
-                    {stream.viewers.toLocaleString()}
-                  </span>
-                  <SignalBars size="sm" color="green" />
-                </div>
-              </div>
-
-              {/* Card title — Barlow Condensed Bold */}
-              <h3 className="text-card-title text-white truncate group-hover:text-[var(--accent)] transition-colors">
-                {stream.title}
-              </h3>
-
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex items-center gap-2">
-                  <Avatar
-                    size="xs"
-                    emoji={stream.emoji}
-                    alt={stream.creator}
-                    verified={stream.verified}
-                  />
-                  {/* Barlow Condensed */}
-                  <span
-                    className="text-body-sm"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    @{stream.creator}
-                  </span>
-                </div>
-                {/* DM Mono genre label */}
-                <span
-                  className="text-readout-sm"
-                  style={{ color: "var(--cyan)" }}
                 >
-                  {stream.genre}
-                </span>
-              </div>
-            </BroadcastCard>
+                  {/* Gradient overlay */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.1), transparent)",
+                    }}
+                  />
+
+                  {/* Top-left badges */}
+                  <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <span className="badge-live">
+                      <span className="w-1.5 h-1.5 bg-white rounded-full animate-live-pulse" />
+                      Live
+                    </span>
+                    {stream.auraMode && (
+                      <span className="badge-pro flex items-center gap-1">
+                        <Sparkles size={8} />
+                        Aura
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Top-right: panel count — DM Mono */}
+                  <div className="absolute top-3 right-3">
+                    <span
+                      className="text-readout-sm flex items-center gap-1 px-2.5 py-1 rounded-lg"
+                      style={{
+                        background: "rgba(0,0,0,0.5)",
+                        backdropFilter: "blur(8px)",
+                        color: "white",
+                      }}
+                    >
+                      <Grid3X3 size={9} />
+                      {stream.panelCount}P
+                    </span>
+                  </div>
+
+                  {/* Bottom stats — DM Mono */}
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                    <span
+                      className="text-readout-sm flex items-center gap-1"
+                      style={{ color: "rgba(255,255,255,0.8)" }}
+                    >
+                      <Eye size={10} />
+                      {stream.peakViewers.toLocaleString()}
+                    </span>
+                    <SignalBars size="sm" color="green" />
+                  </div>
+                </div>
+
+                {/* Card title — Barlow Condensed Bold */}
+                <h3 className="text-card-title text-white truncate group-hover:text-[var(--accent)] transition-colors">
+                  {stream.title}
+                </h3>
+
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      size="xs"
+                      alt={stream.user.displayName || stream.user.username}
+                      verified={stream.user.verified}
+                    />
+                    <span
+                      className="text-body-sm"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      @{stream.user.username}
+                    </span>
+                  </div>
+                  <span
+                    className="text-readout-sm"
+                    style={{ color: "var(--cyan)" }}
+                  >
+                    {stream.genre.replace("_", " ")}
+                  </span>
+                </div>
+              </BroadcastCard>
+            </Link>
           </motion.div>
         ))}
       </motion.div>
