@@ -5,7 +5,13 @@
 
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY || "");
+let _resend: Resend | null = null;
+export function getResend() {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY || "re_build_key");
+  }
+  return _resend;
+}
 
 const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@cylive.app";
 const APP_NAME = "CYLive";
@@ -13,7 +19,7 @@ const APP_NAME = "CYLive";
 // ── Email Templates ─────────────────────────────────────────────────────────
 
 export async function sendWelcomeEmail(email: string, displayName: string) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: `${APP_NAME} <${FROM_EMAIL}>`,
     to: email,
     subject: `Welcome to ${APP_NAME}, ${displayName}!`,
@@ -34,7 +40,7 @@ export async function sendStreamScheduledEmail(
   streamTitle: string,
   scheduledAt: string,
 ) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: `${APP_NAME} <${FROM_EMAIL}>`,
     to: email,
     subject: `🔴 ${creatorName} is going live: ${streamTitle}`,
@@ -56,7 +62,7 @@ export async function sendPaymentReceiptEmail(
   type: string,
   recipientName: string,
 ) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: `${APP_NAME} <${FROM_EMAIL}>`,
     to: email,
     subject: `Payment Receipt — ${amount} ${type}`,
