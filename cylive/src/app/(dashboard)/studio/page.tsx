@@ -615,7 +615,6 @@ export default function StudioPage() {
               </button>
             )}
           </div>
-          </div>
 
           {/* Stream Credentials (RTMP) */}
           <div className="glass-panel p-5">
@@ -628,7 +627,9 @@ export default function StudioPage() {
             {isLive ? (
               <div className="space-y-3">
                 <div>
-                  <label className="text-[9px] uppercase tracking-wider text-text-dim block mb-1">Ingest URL</label>
+                  <label className="text-[9px] uppercase tracking-wider text-text-dim block mb-1">
+                    Ingest URL
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
@@ -648,7 +649,9 @@ export default function StudioPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-[9px] uppercase tracking-wider text-text-dim block mb-1">Stream Key</label>
+                  <label className="text-[9px] uppercase tracking-wider text-text-dim block mb-1">
+                    Stream Key
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="password"
