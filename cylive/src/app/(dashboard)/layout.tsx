@@ -343,7 +343,7 @@ export default function DashboardLayout({
               className="shrink-0 hover:scale-105 transition-transform"
             >
               <Avatar
-                src={session?.user?.image}
+                src={session?.user?.avatarUrl}
                 alt={session?.user?.displayName || "Profile"}
                 size="sm"
                 verified={session?.user?.verified}
