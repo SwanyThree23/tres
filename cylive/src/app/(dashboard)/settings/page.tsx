@@ -56,7 +56,7 @@ export default function SettingsPage() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
   const [displayName, setDisplayName] = useState(
-    session?.user?.displayName || session?.user?.name || "",
+    session?.user?.displayName || session?.user?.username || "",
   );
   const [username, setUsername] = useState(session?.user?.username || "");
   const [bio, setBio] = useState("");
