@@ -240,6 +240,7 @@ model Stream {
   panels   StreamPanel[]
   messages Message[]
   payments Payment[]
+  moderations Moderation[]
 
   @@index([userId])
   @@index([status])
