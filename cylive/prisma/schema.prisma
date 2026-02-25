@@ -109,6 +109,7 @@ model User {
   username              String    @unique
   displayName           String    @map("display_name")
   passwordHash          String?   @map("password_hash")
+  image                 String?   // NextAuth standard avatar field
   avatarUrl             String?   @map("avatar_url")
   avatarEmoji           String?   @map("avatar_emoji")
   bio                   String?
@@ -140,6 +141,8 @@ model User {
   scheduledStreams   ScheduledStream[]
   accounts          Account[]
   sessions          Session[]
+  moderationActions Moderation[]    @relation("ModerationModerator")
+  moderationTargets Moderation[]    @relation("ModerationTarget")
 
   @@index([email])
   @@index([username])
@@ -273,6 +276,7 @@ model Message {
   isAura            Boolean  @default(false) @map("is_aura")
   superAmount       Int?     @map("super_amount_cents")
   giftType          String?  @map("gift_type")
+  isDeleted         Boolean  @default(false) @map("is_deleted")
   createdAt         DateTime @default(now()) @map("created_at")
 
   stream Stream @relation(fields: [streamId], references: [id], onDelete: Cascade)
@@ -407,4 +411,32 @@ model Notification {
 
   @@index([userId, read])
   @@map("notifications")
+}
+
+// ── Moderation ──────────────────────────────────────────────────────────────
+
+enum ModerationAction {
+  BAN
+  TIMEOUT
+  DELETE_MESSAGE
+  WARNING
+}
+
+model Moderation {
+  id            String           @id @default(uuid())
+  streamId      String           @map("stream_id")
+  targetUserId  String           @map("target_user_id")
+  moderatorId   String           @map("moderator_id")
+  action        ModerationAction
+  reason        String?
+  expiresAt     DateTime?        @map("expires_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  stream    Stream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  target    User   @relation("ModerationTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+  moderator User   @relation("ModerationModerator", fields: [moderatorId], references: [id], onDelete: Cascade)
+
+  @@index([streamId])
+  @@index([targetUserId])
+  @@map("moderations")
 }
