@@ -24,13 +24,10 @@ import {
   Shield,
   CreditCard,
   Palette,
-  Globe,
   Key,
   Save,
   LogOut,
-  Mail,
   Eye,
-  EyeOff,
 } from "lucide-react";
 
 type SettingsTab =
