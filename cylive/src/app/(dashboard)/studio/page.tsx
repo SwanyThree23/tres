@@ -324,6 +324,37 @@ export default function StudioPage() {
               />
             </div>
 
+            <div>
+              <label htmlFor="stream-genre" className="input-label">
+                Genre
+              </label>
+              <select
+                id="stream-genre"
+                className="input-field bg-bg-card"
+                value={streamGenre}
+                onChange={(e) => setStreamGenre(e.target.value)}
+                disabled={isLive}
+              >
+                {[
+                  "TALK_SHOW",
+                  "MUSIC",
+                  "GAMING",
+                  "LIFESTYLE",
+                  "EDUCATION",
+                  "SPORTS",
+                  "NEWS",
+                  "COMEDY",
+                  "ART",
+                  "TECHNOLOGY",
+                  "OTHER",
+                ].map((g) => (
+                  <option key={g} value={g}>
+                    {g.replace("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* RTMP Key */}
             <div>
               <label className="input-label">RTMP Ingest URL</label>
