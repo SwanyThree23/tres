@@ -90,7 +90,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             {/* Status readout */}
-            <SignalBars level={5} size="sm" />
+            <SignalBars size="sm" />
             <span className="text-readout-sm" style={{ color: "var(--green)" }}>
               Creating Account
             </span>

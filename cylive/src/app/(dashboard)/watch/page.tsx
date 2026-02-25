@@ -175,12 +175,12 @@ export default function WatchPage() {
                   {viewerCount.toLocaleString()}
                 </span>
               </div>
-              <SignalBars level={4} size="sm" />
+              <SignalBars size="sm" />
             </div>
 
             {/* Bottom bar */}
             <div className="absolute bottom-4 left-4 flex items-center gap-3">
-              <Avatar size="md" name="FutureCast" />
+              <Avatar size="md" alt="FutureCast" />
               <div>
                 <p className="text-card-title text-white text-shadow">
                   FutureCast
@@ -291,7 +291,7 @@ export default function WatchPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex gap-2.5"
               >
-                <Avatar size="xs" name={msg.user} />
+                <Avatar size="xs" alt={msg.user} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span
@@ -427,7 +427,7 @@ export default function WatchPage() {
                   border: "1px solid var(--border)",
                 }}
               >
-                <Avatar size="sm" name="FutureCast" />
+                <Avatar size="sm" alt="FutureCast" />
                 <div>
                   <p className="text-card-title text-white">FutureCast</p>
                   <p
