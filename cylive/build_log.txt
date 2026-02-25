@@ -1,0 +1,30 @@
+
+> cylive@0.1.0 build
+> next build
+
+  Γû▓ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+Error: Neither apiKey nor config.authenticator provided
+    at r._setAuthenticator (C:\safe\cylive\.next\server\chunks\777.js:1:88180)
+    at new r (C:\safe\cylive\.next\server\chunks\777.js:1:82795)
+    at 46029 (C:\safe\cylive\.next\server\app\api\payments\payout\route.js:1:5613)
+    at t (C:\safe\cylive\.next\server\webpack-runtime.js:1:128)
+    at 43846 (C:\safe\cylive\.next\server\app\api\payments\payout\route.js:1:1248)
+    at t (C:\safe\cylive\.next\server\webpack-runtime.js:1:128)
+    at a (C:\safe\cylive\.next\server\app\api\payments\payout\route.js:1:9307)
+    at C:\safe\cylive\.next\server\app\api\payments\payout\route.js:1:9349
+    at t.X (C:\safe\cylive\.next\server\webpack-runtime.js:1:1206)
+    at C:\safe\cylive\.next\server\app\api\payments\payout\route.js:1:9320
+
+> Build error occurred
+Error: Failed to collect page data for /api/payments/payout
+    at C:\safe\cylive\node_modules\next\dist\build\utils.js:1269:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  type: 'Error'
+}
