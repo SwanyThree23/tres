@@ -185,15 +185,6 @@ export default function StudioPage() {
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
   };
 
-  const streamKey =
-    "sk_live_" +
-    "x"
-      .repeat(24)
-      .replace(
-        /x/g,
-        () => "abcdefghijklmnop0123456789"[Math.floor(Math.random() * 36)],
-      );
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* ── Stream Setup Header ──────────────────────────────────────── */}
