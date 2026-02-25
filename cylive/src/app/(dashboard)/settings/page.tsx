@@ -74,10 +74,31 @@ export default function SettingsPage() {
   const tier = (session?.user?.tier as string) || "FREE";
 
   const handleSave = async () => {
+    if (!session?.user?.id) return;
     setSaving(true);
-    // Simulate save
-    await new Promise((r) => setTimeout(r, 1000));
-    setSaving(false);
+    try {
+      const res = await fetch(`/api/users/${session.user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          displayName,
+          username,
+          bio,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to save changes");
+      }
+
+      alert("Profile updated successfully!");
+    } catch (err: any) {
+      console.error("[Settings] Save Error:", err);
+      alert(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
