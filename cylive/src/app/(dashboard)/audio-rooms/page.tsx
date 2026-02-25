@@ -35,42 +35,49 @@ interface AudioRoom {
   hasAura: boolean;
 }
 
-const mockRooms: AudioRoom[] = [
-  {
-    id: "1",
-    title: "Culture & Community Talk",
-    host: { name: "VoiceOfReason", emoji: "🎙️" },
-    listeners: 342,
-    speakers: ["DJ_Smooth", "CultureQueen", "MindfulMike"],
-    hasAura: true,
-  },
-  {
-    id: "2",
-    title: "Late Night Freestyle Cypher",
-    host: { name: "BeatsMaster", emoji: "🎵" },
-    listeners: 891,
-    speakers: ["LyricalGenius", "FlowState"],
-    hasAura: false,
-  },
-  {
-    id: "3",
-    title: "Tech Talk: Web3 & Beyond",
-    host: { name: "CryptoSage", emoji: "💻" },
-    listeners: 156,
-    speakers: ["DevDreams", "BlockchainBoss", "AIExplorer", "CodeNinja"],
-    hasAura: true,
-  },
-];
-
-const fadeUp = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-};
-
 export default function AudioRoomsPage() {
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState("");
-  const [enableAura, setEnableAura] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
+
+  useEffect(() => {
+    async function fetchRooms() {
+      try {
+        const res = await fetch("/api/audio-rooms");
+        const data = await res.json();
+        setRooms(data.rooms || []);
+      } catch (err) {
+        console.error("Audio rooms fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRooms();
+  }, []);
+
+  const handleCreateRoom = async () => {
+    if (!newTitle.trim() || isStarting) return;
+    setIsStarting(true);
+    try {
+      const res = await fetch("/api/audio-rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle }),
+      });
+      const data = await res.json();
+      if (data.room) {
+        setRooms((prev) => [data.room, ...prev]);
+        setShowCreate(false);
+        setNewTitle("");
+      }
+    } catch (err) {
+      console.error("Create room error:", err);
+    } finally {
+      setIsStarting(false);
+    }
+  };
 
   return (
     <motion.div
@@ -94,7 +101,7 @@ export default function AudioRoomsPage() {
             className="text-readout mt-1"
             style={{ color: "var(--text-muted)" }}
           >
-            {mockRooms.length} active audio rooms
+            {rooms.length} active audio rooms
           </p>
         </div>
         <button
@@ -108,7 +115,7 @@ export default function AudioRoomsPage() {
 
       {/* Room Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {mockRooms.map((room) => (
+        {rooms.map((room) => (
           <motion.div key={room.id} variants={fadeUp}>
             <BroadcastCard className="group cursor-pointer">
               {/* Header Row */}
@@ -116,8 +123,8 @@ export default function AudioRoomsPage() {
                 <div className="flex items-center gap-3">
                   <Avatar
                     size="md"
-                    emoji={room.host.emoji}
-                    alt={room.host.name}
+                    emoji={room.host.avatarEmoji}
+                    alt={room.host.displayName || room.host.username}
                     speaking
                   />
                   <div>
@@ -130,7 +137,7 @@ export default function AudioRoomsPage() {
                       className="text-body-sm"
                       style={{ color: "var(--text-muted)" }}
                     >
-                      Hosted by @{room.host.name}
+                      Hosted by @{room.host.username}
                     </p>
                   </div>
                 </div>
@@ -153,23 +160,20 @@ export default function AudioRoomsPage() {
                   className="text-readout-sm mb-2"
                   style={{ color: "var(--text-muted)" }}
                 >
-                  Speaking ({room.speakers.length})
+                  Speaking (1)
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {room.speakers.map((speaker) => (
-                    <span
-                      key={speaker}
-                      className="text-readout-sm flex items-center gap-1 px-2.5 py-1 rounded-lg"
-                      style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid var(--border)",
-                        color: "var(--text-primary)",
-                      }}
-                    >
-                      <Volume2 size={9} style={{ color: "var(--green)" }} />
-                      {speaker}
-                    </span>
-                  ))}
+                  <span
+                    className="text-readout-sm flex items-center gap-1 px-2.5 py-1 rounded-lg"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid var(--border)",
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    <Volume2 size={9} style={{ color: "var(--green)" }} />
+                    {room.host.username}
+                  </span>
                 </div>
               </div>
 
@@ -185,16 +189,10 @@ export default function AudioRoomsPage() {
                     style={{ color: "var(--text-muted)" }}
                   >
                     <Users size={12} />
-                    {room.listeners.toLocaleString()} listening
+                    {room.listenerCount.toLocaleString()} listening
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {room.hasAura && (
-                    <span className="badge-pro flex items-center gap-1">
-                      <Sparkles size={8} />
-                      Aura
-                    </span>
-                  )}
                   <button className="btn-ghost btn-sm">Join</button>
                 </div>
               </div>
@@ -288,11 +286,16 @@ export default function AudioRoomsPage() {
                 </div>
 
                 <button
-                  disabled={!newTitle.trim()}
+                  onClick={handleCreateRoom}
+                  disabled={!newTitle.trim() || isStarting}
                   className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-40"
                 >
-                  <Mic size={16} />
-                  Go Live
+                  {isStarting ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : (
+                    <Mic size={16} />
+                  )}
+                  {isStarting ? "Initializing..." : "Go Live"}
                 </button>
               </div>
             </motion.div>

@@ -18,12 +18,14 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const genre = searchParams.get("genre");
+    const userId = searchParams.get("userId");
     const limit = parseInt(searchParams.get("limit") || "20", 10);
     const offset = parseInt(searchParams.get("offset") || "0", 10);
 
-    const where: Record<string, string> = {};
+    const where: any = {};
     if (status) where.status = status;
     if (genre) where.genre = genre;
+    if (userId) where.userId = userId;
 
     const [streams, total] = await Promise.all([
       prisma.stream.findMany({
