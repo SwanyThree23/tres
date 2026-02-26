@@ -1,7 +1,7 @@
 import httpx
 import logging
 from api.config import settings
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 logger = logging.getLogger(__name__)
 
