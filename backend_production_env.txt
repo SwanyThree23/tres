@@ -1,0 +1,10 @@
+APP_ENV=production
+SECRET_KEY=production-backend-secret-a98b7c6d5e4f3g2h1
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/cylive
+REDIS_URL=redis://localhost:6379/0
+CELERY_BROKER_URL=redis://localhost:6379/1
+API_PORT=8000
+VAULT_MASTER_KEY=YmFzZTY0LWVuY29kZWQtMzItYnl0ZS1rZXktZ28=
+OLLAMA_URL=http://localhost:11434
+WHISPER_URL=http://localhost:8001
+DEFAULT_LLM_MODEL=llama3.2:3b
