@@ -30,7 +30,7 @@ from api.config import settings
 
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=(settings.ENV != "production"),
+    echo=(settings.APP_ENV != "production"),
 )
 
 # ---------------------------------------------------------------------------
