@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     )
 
     # ── General ───────────────────────────────────────────────────────────
-    ENV: str = "development"
+    APP_ENV: str = "development"
     SECRET_KEY: str
     API_PORT: int = 8000
 

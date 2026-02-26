@@ -34,7 +34,7 @@ async def health_check():
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "environment": settings.ENV,
+        "environment": settings.APP_ENV,
         "features": {
             "ai": settings.DEFAULT_LLM_MODEL,
             "stripe": "enabled" if settings.STRIPE_SECRET_KEY else "disabled"
@@ -46,5 +46,5 @@ if __name__ == "__main__":
         "main:app", 
         host="0.0.0.0", 
         port=settings.API_PORT, 
-        reload=(settings.ENV == "development")
+        reload=(settings.APP_ENV == "development")
     )

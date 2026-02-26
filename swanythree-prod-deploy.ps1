@@ -87,7 +87,7 @@ EOF
 
     # Backend ENV
     cat > $BACKEND_DIR/.env <<EOF
-ENV=production
+APP_ENV=production
 SECRET_KEY=$BACKEND_SECRET
 DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/cylive
 REDIS_URL=redis://localhost:6379/0
