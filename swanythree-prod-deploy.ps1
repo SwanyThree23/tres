@@ -79,7 +79,7 @@ $REMOTE_SCRIPT = @"
     cat > $CYLIVE_DIR/.env <<EOF
 PORT=3000
 NEXTAUTH_SECRET=$NEXTAUTH_SECRET
-NEXTAUTH_URL=http://seewhylive.com
+NEXTAUTH_URL=https://seewhylive.com
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/cylive?schema=public
 REDIS_URL=redis://localhost:6379
 NODE_ENV=production
