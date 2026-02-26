@@ -1,6 +1,15 @@
 /**
  * SwanyThree Unified Gateway Server (Production)
  * Integrates: 20-Guest Panel, 90/10 Split, Guest Destinations, Watch Party, SwanyThree Ecosystem
+ *
+ * COMPLIANCE LAYER:
+ * - Transparent fee disclosure (no false advertising)
+ * - Fuzzed geolocation (no precise viewer tracking)
+ * - Watch Party URL validation (DMCA protection)
+ * - Multistreaming compliance acknowledgment (platform TOS)
+ * - Creator ID verification for private/paid panels (CSAM/trafficking prevention)
+ * - Content safety integration (NCMEC hash matching)
+ * - AI content watermarking and voice consent verification
  */
 
 import express from 'express';
@@ -15,7 +24,13 @@ import axios from 'axios';
 
 import { SwanyAIWrapper } from './services/SwanyAIWrapper';
 import { GuestStreamingManager } from './services/GuestStreamingManager';
-import { processTransaction } from './services/PaymentProcessor';
+import { processTransaction, getFeeDisclosure } from './services/PaymentProcessor';
+import { fuzzLocation, aggregateViewerLocations } from './services/GeolocationPrivacy';
+import { validateWatchPartyUrl } from './services/WatchPartyValidator';
+import { CreatorVerification } from './services/CreatorVerification';
+import { ContentSafety } from './services/ContentSafety';
+import { AIContentWatermark } from './services/AIContentWatermark';
+import { VoiceConsentService } from './services/VoiceConsentService';
 
 // ============================================================================
 // SERVER INITIALIZATION
@@ -30,6 +45,9 @@ const io = new Server(httpServer, {
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 const swanyAI = new SwanyAIWrapper();
 const guestStreamer = new GuestStreamingManager(redis);
+const creatorVerification = new CreatorVerification();
+const contentSafety = new ContentSafety();
+const voiceConsent = new VoiceConsentService();
 
 // Middleware
 app.use(helmet());
@@ -53,7 +71,13 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', service: 'swanythree-gateway' });
 });
 
-// 1. Payment Route (90/10 Split)
+// ---- COMPLIANCE: Fee Disclosure Endpoint ----
+// Returns transparent fee structure for display in UI
+app.get('/api/fees', (_req, res) => {
+  res.json(getFeeDisclosure());
+});
+
+// 1. Payment Route (90/10 Split) — Compliance-aware
 app.post('/api/pay', async (req, res) => {
   try {
     const { amount, creatorId, method } = req.body;
@@ -65,9 +89,10 @@ app.post('/api/pay', async (req, res) => {
 
     const result = await processTransaction(amount, creatorId, method);
 
-    // Real-time notification to creator
+    // Real-time notification to creator with fee disclosure
     io.to(`user:${creatorId}`).emit('payment_received', {
       amount: result.creatorNet,
+      feeDisclosure: result.feeDisclosure,
       message: 'You received a new payment!',
     });
 
@@ -78,7 +103,7 @@ app.post('/api/pay', async (req, res) => {
   }
 });
 
-// 2. Start Guest Destination Fanout
+// 2. Start Guest Destination Fanout — with compliance gate
 app.post('/api/guest/stream', async (req, res) => {
   try {
     const { guestId, destinations } = req.body;
@@ -96,9 +121,30 @@ app.post('/api/guest/stream', async (req, res) => {
     } else {
       res.status(404).json({ error: 'Active stream not found for this guest' });
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error('Guest stream error:', err);
-    res.status(500).json({ error: 'Failed to start guest destinations' });
+    // Surface compliance errors to the client
+    if (err.message?.includes('compliance')) {
+      res.status(403).json({ error: err.message });
+    } else {
+      res.status(500).json({ error: 'Failed to start guest destinations' });
+    }
+  }
+});
+
+// 2b. Multistreaming compliance acknowledgment
+app.post('/api/guest/stream/acknowledge', async (req, res) => {
+  try {
+    const { guestId } = req.body;
+    if (!guestId) {
+      res.status(400).json({ error: 'Missing guestId' });
+      return;
+    }
+    await guestStreamer.recordComplianceAck(guestId);
+    res.json({ success: true, message: 'Multistreaming compliance acknowledged' });
+  } catch (err) {
+    console.error('Compliance ack error:', err);
+    res.status(500).json({ error: 'Failed to record acknowledgment' });
   }
 });
 
@@ -165,6 +211,125 @@ app.post('/api/moderation/ban', async (req, res) => {
   }
 });
 
+// ---- COMPLIANCE: Watch Party URL Validation ----
+app.post('/api/watch-party/validate', (req, res) => {
+  const { url } = req.body;
+  if (!url) {
+    res.status(400).json({ error: 'Missing url' });
+    return;
+  }
+  const result = validateWatchPartyUrl(url);
+  res.json(result);
+});
+
+// ---- COMPLIANCE: Geolocation Privacy (Fuzzed only) ----
+app.post('/api/viewers/locations', async (req, res) => {
+  try {
+    const { viewers } = req.body;
+    // Aggregate and fuzz — never return precise coordinates
+    const fuzzed = aggregateViewerLocations(viewers || []);
+    res.json({ locations: fuzzed });
+  } catch (err) {
+    console.error('Geolocation error:', err);
+    res.status(500).json({ error: 'Failed to process viewer locations' });
+  }
+});
+
+// ---- COMPLIANCE: Creator ID Verification ----
+app.post('/api/creator/verify', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      res.status(400).json({ error: 'Missing userId' });
+      return;
+    }
+    const session = await creatorVerification.createVerificationSession(userId);
+    res.json({ success: true, clientSecret: session.clientSecret });
+  } catch (err) {
+    console.error('Verification error:', err);
+    res.status(500).json({ error: 'Failed to create verification session' });
+  }
+});
+
+app.get('/api/creator/verify/status/:userId', async (req, res) => {
+  try {
+    const status = await creatorVerification.getStatus(req.params.userId);
+    res.json({ status });
+  } catch (err) {
+    console.error('Verification status error:', err);
+    res.status(500).json({ error: 'Failed to get verification status' });
+  }
+});
+
+// Stripe Identity webhook handler
+app.post('/api/webhooks/stripe-identity', async (req, res) => {
+  try {
+    await creatorVerification.handleWebhook(req.body);
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Stripe Identity webhook error:', err);
+    res.status(500).json({ error: 'Webhook processing failed' });
+  }
+});
+
+// ---- COMPLIANCE: Content Safety / Admin stream review ----
+app.get('/api/admin/stream-snapshots/:roomId', async (req, res) => {
+  try {
+    const snapshots = await contentSafety.getStreamSnapshots(req.params.roomId);
+    res.json({ snapshots });
+  } catch (err) {
+    console.error('Snapshot retrieval error:', err);
+    res.status(500).json({ error: 'Failed to retrieve snapshots' });
+  }
+});
+
+// ---- COMPLIANCE: AI Watermark Generation ----
+app.post('/api/ai/watermark', (req, res) => {
+  const { userId, contentType } = req.body;
+  if (!userId || !contentType) {
+    res.status(400).json({ error: 'Missing userId or contentType' });
+    return;
+  }
+  const watermark = AIContentWatermark.generateWatermark(userId, contentType);
+  res.json({ watermark });
+});
+
+// ---- COMPLIANCE: Voice Consent ----
+app.post('/api/voice/challenge', (_req, res) => {
+  const challenge = voiceConsent.generateChallenge();
+  res.json(challenge);
+});
+
+app.post('/api/voice/consent', async (req, res) => {
+  try {
+    const { userId, challengeId } = req.body;
+    if (!userId || !challengeId) {
+      res.status(400).json({ error: 'Missing userId or challengeId' });
+      return;
+    }
+    await voiceConsent.recordConsent(userId, challengeId);
+    res.json({ success: true, message: 'Voice consent recorded' });
+  } catch (err) {
+    console.error('Voice consent error:', err);
+    res.status(500).json({ error: 'Failed to record consent' });
+  }
+});
+
+app.post('/api/voice/revoke', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      res.status(400).json({ error: 'Missing userId' });
+      return;
+    }
+    await voiceConsent.revokeConsent(userId);
+    res.json({ success: true, message: 'Voice consent revoked' });
+  } catch (err) {
+    console.error('Voice revoke error:', err);
+    res.status(500).json({ error: 'Failed to revoke consent' });
+  }
+});
+
 // ============================================================================
 // WEBSOCKET (SOCKET.IO) - SIGNALING & WATCH PARTY
 // ============================================================================
@@ -195,7 +360,7 @@ io.on('connection', (socket) => {
   });
 
   // B. WebRTC Signaling
-  socket.on('offer', ({ roomId, offer, targetId }) => {
+  socket.on('offer', ({ offer, targetId }) => {
     socket.to(targetId).emit('offer', { offer, senderId: socket.id });
   });
 
@@ -207,8 +372,19 @@ io.on('connection', (socket) => {
     socket.to(targetId).emit('ice-candidate', { candidate, senderId: socket.id });
   });
 
-  // C. Watch Party Sync System
+  // C. Watch Party Sync System — with URL validation
   socket.on('watch-party-action', ({ roomId, action, timestamp, mediaUrl }) => {
+    // COMPLIANCE: Validate Watch Party URLs before broadcasting
+    if (action === 'load' && mediaUrl) {
+      const validation = validateWatchPartyUrl(mediaUrl);
+      if (!validation.valid) {
+        socket.emit('error', {
+          message: `Watch Party URL rejected: ${validation.reason}`,
+        });
+        return;
+      }
+    }
+
     io.to(roomId).emit('watch-party-sync', {
       action,
       timestamp,
@@ -254,6 +430,13 @@ io.on('connection', (socket) => {
   // E. User Room Subscription (for payment notifications)
   socket.on('subscribe-user', ({ userId }) => {
     socket.join(`user:${userId}`);
+  });
+
+  // F. Viewer location reporting — fuzzed to region level only
+  socket.on('report-location', (data) => {
+    const fuzzed = fuzzLocation(data);
+    // Only broadcast the fuzzed label, never raw coordinates
+    io.to(data.roomId).emit('viewer-location', fuzzed);
   });
 
   socket.on('disconnect', () => {

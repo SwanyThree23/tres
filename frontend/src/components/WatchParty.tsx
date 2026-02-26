@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import ReactPlayer from 'react-player';
 
+const SUPPORTED_PLATFORMS = 'YouTube, Vimeo, Dailymotion, SoundCloud, or Twitch';
+
 interface WatchPartyProps {
   active: boolean;
   url: string;
@@ -25,6 +27,32 @@ export default function WatchParty({
   onStart,
 }: WatchPartyProps) {
   const [inputUrl, setInputUrl] = useState('');
+  const [urlError, setUrlError] = useState('');
+
+  const handleStart = async () => {
+    if (!inputUrl) return;
+    setUrlError('');
+
+    // Client-side validation before sending to server
+    try {
+      const res = await fetch('/api/watch-party/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: inputUrl }),
+      });
+      const result = await res.json();
+
+      if (!result.valid) {
+        setUrlError(result.reason);
+        return;
+      }
+
+      onStart(inputUrl);
+    } catch {
+      // If validation endpoint is unreachable, still reject raw files
+      setUrlError('Could not validate URL. Please use a supported platform link.');
+    }
+  };
 
   return (
     <div className="w-full bg-black relative border-b-4 border-swany-gold">
@@ -46,22 +74,33 @@ export default function WatchParty({
           </div>
         </div>
       ) : (
-        <div className="h-16 flex items-center justify-center gap-4">
+        <div className="py-4 flex flex-col items-center justify-center gap-2">
           {role === 'host' && (
             <>
-              <input
-                type="text"
-                value={inputUrl}
-                onChange={(e) => setInputUrl(e.target.value)}
-                placeholder="Enter media URL..."
-                className="bg-swany-panel text-swany-cream px-4 py-2 rounded-lg border border-swany-gold/30 w-96 focus:outline-none focus:border-swany-gold"
-              />
-              <button
-                onClick={() => inputUrl && onStart(inputUrl)}
-                className="text-swany-gold font-bold hover:text-white transition-colors"
-              >
-                Start Watch Party
-              </button>
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  value={inputUrl}
+                  onChange={(e) => {
+                    setInputUrl(e.target.value);
+                    setUrlError('');
+                  }}
+                  placeholder={`Paste a ${SUPPORTED_PLATFORMS} link...`}
+                  className="bg-swany-panel text-swany-cream px-4 py-2 rounded-lg border border-swany-gold/30 w-96 focus:outline-none focus:border-swany-gold"
+                />
+                <button
+                  onClick={handleStart}
+                  className="text-swany-gold font-bold hover:text-white transition-colors"
+                >
+                  Start Watch Party
+                </button>
+              </div>
+              {urlError && (
+                <p className="text-red-400 text-xs max-w-lg text-center">{urlError}</p>
+              )}
+              <p className="text-gray-500 text-xs">
+                Supported: {SUPPORTED_PLATFORMS}. Direct file uploads are not permitted.
+              </p>
             </>
           )}
           {role === 'guest' && (

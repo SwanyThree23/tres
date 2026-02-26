@@ -1,21 +1,38 @@
 {
-  "beta_agreement_v1": {
-    "version": "1.0",
-    "effective_date": "2026-02-10",
+  "beta_agreement_v2": {
+    "version": "2.0",
+    "effective_date": "2026-02-26",
     "terms": [
-      "I acknowledge that SwanyThree facilitates 90% revenue pass-through.",
-      "I agree to not stream copyrighted content during Watch Parties.",
-      "I understand Guest Destinations require my own platform stream keys.",
+      "I acknowledge that SwanyThree platform features (Paywalls, Subscriptions) carry a 10% service fee. Direct tips via CashApp, Zelle, and Venmo are fee-free.",
+      "I agree to not stream copyrighted content during Watch Parties. Only embeddable sources (YouTube, Vimeo, Dailymotion, SoundCloud, Twitch) are permitted.",
+      "I understand Guest Destinations require my own platform stream keys and that I must confirm I am not violating platform exclusivity agreements (e.g., Twitch Affiliate/Partner).",
       "I accept that this is a beta product and may contain bugs or incomplete features.",
-      "I agree to report any issues or security vulnerabilities to the SwanyThree team."
+      "I agree to report any issues or security vulnerabilities to the SwanyThree team.",
+      "I understand that creators hosting private or paid panels must complete identity verification via Stripe Identity before going live.",
+      "I acknowledge that private streams are NOT end-to-end encrypted and that SwanyThree retains admin access for legal compliance and content moderation purposes.",
+      "I agree that all AI-generated content (avatars, voice cloning) will be watermarked as synthetic media and that voice cloning requires live voice verification to prove ownership.",
+      "I understand that I am solely responsible for reporting income from direct tips (CashApp, Zelle, Venmo) for tax purposes. Platform transactions via Stripe are reported via 1099-K."
     ],
-    "revenue_policy": "Platform retains 10% gross. Processor fees are deducted before net calculation.",
-    "privacy": "Camera/Mic access is local-only via WebRTC until 'Go Live' is pressed.",
-    "data_retention": "Stream recordings are kept for 30 days unless the creator opts for permanent storage.",
+    "revenue_policy": {
+      "platform_transactions": "10% service fee on Paywalls and Subscriptions processed via Stripe Connect. Tax reporting (1099-K) handled automatically.",
+      "direct_tips": "CashApp, Zelle, and Venmo tips are fee-free and go directly to the creator. Creators are solely responsible for reporting this income."
+    },
+    "privacy": {
+      "camera_mic": "Camera/Mic access is local-only via WebRTC until 'Go Live' is pressed.",
+      "viewer_location": "Viewer locations are fuzzed to Country/State level only. Precise coordinates, city names, and IP addresses are never displayed or stored.",
+      "stream_keys": "Third-party stream keys are encrypted via AES-256-GCM (Vault Pro) and are never exposed to frontend APIs or other users."
+    },
+    "content_safety": {
+      "id_verification": "Creators hosting private or paid panels must verify their identity via Stripe Identity (government ID + selfie match).",
+      "moderation": "SwanyThree retains admin access to all streams (including private panels) for legal compliance. NCMEC hash-matching is active for uploaded content.",
+      "ai_content": "All AI-generated video/audio is watermarked (visible and invisible). Voice cloning requires live voice consent verification."
+    },
+    "data_retention": "Stream recordings are kept for 30 days unless the creator opts for permanent storage. Content safety snapshots are retained for legal compliance.",
     "beta_limitations": [
       "Maximum 20 simultaneous guests per panel",
-      "Watch Party supports YouTube, Vimeo, and direct MP4 URLs",
-      "Guest Destinations support RTMP-compatible platforms only"
+      "Watch Party supports YouTube, Vimeo, Dailymotion, SoundCloud, and Twitch embeds only (no direct file uploads)",
+      "Guest Destinations support RTMP-compatible platforms only",
+      "Multistreaming requires compliance acknowledgment regarding platform exclusivity agreements"
     ]
   }
 }

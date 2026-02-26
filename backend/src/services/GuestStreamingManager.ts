@@ -2,10 +2,14 @@
  * Guest Streaming Manager
  * Handles individual guest RTMP fanout via FFmpeg subprocesses.
  * Each guest can stream to their own set of destinations (YouTube, Twitch, etc.)
+ *
+ * COMPLIANCE FIX: Multistreaming compliance acknowledgment required.
+ * Stream keys are never returned to the frontend API.
  */
 
 import { spawn, ChildProcess } from 'child_process';
 import Redis from 'ioredis';
+import mongoose from 'mongoose';
 import { Vault } from '../utils/vault';
 
 export interface StreamDestination {
@@ -24,13 +28,56 @@ export class GuestStreamingManager {
   }
 
   /**
+   * Check if a guest has acknowledged the multistreaming compliance terms.
+   * Guests must confirm they are not violating exclusivity agreements
+   * with platforms like Twitch (Affiliate/Partner 24-hour exclusivity).
+   */
+  async hasComplianceAck(guestId: string): Promise<boolean> {
+    const ack = await mongoose.connection
+      .collection('multistream_acks')
+      .findOne({ guestId, acknowledged: true });
+    return !!ack;
+  }
+
+  /**
+   * Record the guest's multistreaming compliance acknowledgment.
+   */
+  async recordComplianceAck(guestId: string): Promise<void> {
+    await mongoose.connection.collection('multistream_acks').updateOne(
+      { guestId },
+      {
+        $set: {
+          acknowledged: true,
+          acknowledgedAt: new Date(),
+          terms: 'I confirm that streaming to multiple platforms simultaneously does not violate my agreements with those platforms (e.g., Twitch Affiliate/Partner exclusivity).',
+        },
+        $setOnInsert: { createdAt: new Date() },
+      },
+      { upsert: true }
+    );
+  }
+
+  /**
    * Spawns isolated FFmpeg process for each guest destination.
-   * Stream keys are decrypted from the SwanyThree Vault at runtime.
+   * Stream keys are decrypted from the SwanyThree Vault at runtime
+   * and NEVER returned to the frontend or any API response.
+   *
+   * COMPLIANCE: Requires multistreaming acknowledgment before starting.
    */
   async startFanout(guestId: string, inputStream: string, destinations: StreamDestination[]) {
+    // Enforce compliance acknowledgment
+    const hasAck = await this.hasComplianceAck(guestId);
+    if (!hasAck) {
+      throw new Error(
+        'Multistreaming compliance acknowledgment required. ' +
+        'Please confirm you are not violating platform exclusivity agreements.'
+      );
+    }
+
     const guestProcesses: ChildProcess[] = [];
 
     for (const dest of destinations) {
+      // Stream key decrypted server-side only — never sent to client
       const streamKey = Vault.decrypt(dest.encryptedKey);
       const rtmpUrl = `${dest.url}/${streamKey}`;
 
@@ -52,6 +99,7 @@ export class GuestStreamingManager {
       });
 
       if (ffmpeg.pid) {
+        // Only store PID (not stream key) in Redis
         await this.redis.hset(`fanout:${guestId}`, dest.platform, ffmpeg.pid.toString());
       }
 

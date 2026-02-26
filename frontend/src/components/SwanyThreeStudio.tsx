@@ -1,16 +1,20 @@
 /**
  * SwanyThree Frontend Application (Main Component)
  * Features: 20-Grid Panel, Watch Party Player, Direct Payments, Embeds
+ *
+ * COMPLIANCE: Transparent fee disclosure, error handling for URL validation,
+ * multistreaming acknowledgment flow surfaced in UI.
  */
 
 import React, { useState, useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
-import { DollarSign, Share2 } from 'lucide-react';
+import { DollarSign, Share2, Info } from 'lucide-react';
 import { useSocket } from '../hooks/useSocket';
 import WatchParty from './WatchParty';
 import GuestPanel from './GuestPanel';
 import EmbedModal from './EmbedModal';
 import ChatPanel from './ChatPanel';
+import FeeDisclosure from './FeeDisclosure';
 
 interface Guest {
   id: string;
@@ -23,6 +27,7 @@ export default function SwanyThreeStudio() {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [expandedGuestId, setExpandedGuestId] = useState<string | null>(null);
   const [showEmbedModal, setShowEmbedModal] = useState(false);
+  const [showFeeInfo, setShowFeeInfo] = useState(false);
   const [watchParty, setWatchParty] = useState({
     url: '',
     playing: false,
@@ -59,10 +64,15 @@ export default function SwanyThreeStudio() {
       setEarnings((prev) => prev + data.amount);
     });
 
+    socket.on('error', (data) => {
+      console.error('Server error:', data.message);
+    });
+
     return () => {
       socket.off('watch-party-sync');
       socket.off('panel-update');
       socket.off('payment_received');
+      socket.off('error');
     };
   }, [role, socketRef]);
 
@@ -115,7 +125,7 @@ export default function SwanyThreeStudio() {
       {/* Chat Panel */}
       <ChatPanel socketRef={socketRef} roomId="current-room" />
 
-      {/* Bottom Control Bar */}
+      {/* Bottom Control Bar — COMPLIANCE: Transparent fee disclosure */}
       <div className="fixed bottom-0 w-full bg-swany-panel border-t border-swany-gold p-4 flex justify-between items-center z-50">
         <div className="flex gap-4">
           <button className="bg-swany-burgundy text-white px-6 py-2 rounded-lg font-bold hover:bg-[#a00028] transition-colors">
@@ -132,10 +142,20 @@ export default function SwanyThreeStudio() {
 
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <p className="text-xs text-gray-400">YOUR CUT (90%)</p>
+            <div className="flex items-center justify-end gap-1">
+              <p className="text-xs text-gray-400">PLATFORM EARNINGS (90%)</p>
+              <button
+                onClick={() => setShowFeeInfo(!showFeeInfo)}
+                className="text-gray-500 hover:text-swany-gold transition-colors"
+                title="Fee details"
+              >
+                <Info size={12} />
+              </button>
+            </div>
             <p className="text-xl font-bold text-swany-gold">
               ${(earnings / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </p>
+            <p className="text-[10px] text-gray-500">10% service fee on platform transactions. Direct tips are fee-free.</p>
           </div>
           <button className="bg-green-600 px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-green-500 transition-colors">
             <DollarSign size={18} /> Cash Out
@@ -146,6 +166,11 @@ export default function SwanyThreeStudio() {
       {/* Embed Modal */}
       {showEmbedModal && (
         <EmbedModal onClose={() => setShowEmbedModal(false)} />
+      )}
+
+      {/* Fee Disclosure Modal */}
+      {showFeeInfo && (
+        <FeeDisclosure onClose={() => setShowFeeInfo(false)} />
       )}
     </div>
   );
