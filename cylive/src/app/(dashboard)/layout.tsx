@@ -39,7 +39,7 @@ import {
 // ── Navigation Config ───────────────────────────────────────────────────────
 
 const navItems = [
-  { href: "/", icon: Home, label: "Home" },
+  { href: "/dashboard", icon: Home, label: "Home" },
   { href: "/browse", icon: Compass, label: "Explore" },
   { href: "/studio", icon: LayoutDashboard, label: "Studio" },
   { href: "/audio-rooms", icon: Mic, label: "Rooms" },
@@ -50,7 +50,7 @@ const navItems = [
 
 // Page titles use Bebas Neue
 const pageTitle: Record<string, string> = {
-  "/": "Command Center",
+  "/dashboard": "Command Center",
   "/browse": "Global Grid",
   "/studio": "Creator Studio",
   "/audio-rooms": "Voice Nodes",
@@ -97,7 +97,7 @@ export default function DashboardLayout({
       >
         {/* Logo */}
         <Link
-          href="/"
+          href="/dashboard"
           className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg mb-10 animate-glow-pulse shrink-0"
           style={{
             background: "linear-gradient(135deg, var(--accent), var(--cyan))",

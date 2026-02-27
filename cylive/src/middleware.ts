@@ -20,16 +20,5 @@ export default withAuth(
 
 // Only protect dashboard routes — keep auth and API routes public
 export const config = {
-  matcher: [
-    "/",
-    "/studio/:path*",
-    "/browse/:path*",
-    "/watch/:path*",
-    "/analytics/:path*",
-    "/marketplace/:path*",
-    "/audio-rooms/:path*",
-    "/scheduler/:path*",
-    "/settings/:path*",
-    "/admin/:path*",
-  ],
+  matcher: [],
 };
