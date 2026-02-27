@@ -55,7 +55,6 @@ export default function AnalyticsPage() {
           </p>
         </div>
         {/* Period toggle — DM Mono */}
-        </div>
         <div className="flex flex-col items-end gap-2">
           <div className="flex rounded-xl p-1" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)" }}>
             {(["7d", "30d", "90d"] as const).map((p) => (

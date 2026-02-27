@@ -286,6 +286,16 @@ export default function StudioPage() {
               </div>
             )}
 
+            {/* Privacy Heartbeat */}
+            {isLive && (
+              <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-red/30 shadow-2xl">
+                <div className="w-2 h-2 bg-red rounded-full animate-red-pulse" />
+                <span className="text-[10px] font-black text-red uppercase tracking-widest">
+                  Privacy Active
+                </span>
+              </div>
+            )}
+
             {/* AV Controls Bar */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
               <button
