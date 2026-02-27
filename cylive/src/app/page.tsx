@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────────────────────────────────────
-// CYLive — Landing Page (Root)
+// SEEWHY LIVE — Landing Page (Root)
 //
 // Public-facing hero, feature highlights, tier pricing, and CTA
 // Redirects to /dashboard if already authenticated
@@ -64,7 +64,7 @@ const tiers = [
     name: "CREATOR",
     price: "$9",
     period: "/month",
-    color: "var(--cyan)",
+    color: "var(--SWan)",
     features: [
       "3 panel stream",
       "1080p quality",
@@ -127,10 +127,10 @@ export default function LandingPage() {
               className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{ background: "var(--accent)" }}
             >
-              <span className="text-white font-bold text-sm">CY</span>
+              <span className="text-white font-bold text-sm">SW</span>
             </div>
             <span className="font-display text-2xl tracking-wider text-white">
-              CYLIVE
+              SEEWHY LIVE
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -178,7 +178,7 @@ export default function LandingPage() {
             <span
               style={{
                 background:
-                  "linear-gradient(135deg, var(--accent), var(--gold), var(--cyan))",
+                  "linear-gradient(135deg, var(--accent), var(--gold), var(--SWan))",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
