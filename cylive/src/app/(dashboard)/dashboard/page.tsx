@@ -229,6 +229,13 @@ export default function DashboardPage() {
         ))}
       </motion.div>
 
+      {/* ── Gold Tier Marketing ────────────────────────────────────── */}
+      {(tier === "FREE" || tier === "CREATOR") && (
+        <motion.div variants={fadeUp}>
+          <GoldTierCard />
+        </motion.div>
+      )}
+
       {/* ── Quick Actions Grid ──────────────────────────────────────── */}
       <motion.div variants={fadeUp}>
         {/* Section header — Bebas Neue 12px uppercase */}
