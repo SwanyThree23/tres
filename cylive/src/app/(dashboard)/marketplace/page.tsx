@@ -111,55 +111,57 @@ export default function MarketplacePage() {
       >
         {filtered.map((post) => (
           <motion.div key={post.id} variants={fadeUp}>
-            <BroadcastCard className="group cursor-pointer">
-              {/* Thumbnail */}
-              <div className="relative h-44 rounded-xl overflow-hidden mb-4 bg-gradient-to-br from-bg-card-high to-bg-card">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
-                {post.thumbnailUrl && (
-                  <img
-                    src={post.thumbnailUrl}
-                    alt={post.title}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                )}
+            <Link href={`/marketplace/${post.id}`}>
+              <BroadcastCard className="group cursor-pointer">
+                {/* Thumbnail */}
+                <div className="relative h-44 rounded-xl overflow-hidden mb-4 bg-gradient-to-br from-bg-card-high to-bg-card">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+                  {post.thumbnailUrl && (
+                    <img
+                      src={post.thumbnailUrl}
+                      alt={post.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  )}
 
-                {/* Paywall badge — DM Mono */}
-                {post.isPaywalled && (
-                  <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-gold/20 backdrop-blur-md border border-gold/15">
-                    <Lock size={10} className="text-gold" />
-                    <span className="text-readout-sm text-gold">
-                      ${((post.paywallAmount || 0) / 100).toFixed(2)}
-                    </span>
-                  </div>
-                )}
+                  {/* Paywall badge — DM Mono */}
+                  {post.isPaywalled && (
+                    <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-gold/20 backdrop-blur-md border border-gold/15">
+                      <Lock size={10} className="text-gold" />
+                      <span className="text-readout-sm text-gold">
+                        ${((post.paywallAmount || 0) / 100).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
 
-                {/* Duration — DM Mono */}
-                {post.duration && (
-                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md">
-                    <span className="text-readout-sm text-white">
-                      {Math.floor(post.duration / 60)}:
-                      {(post.duration % 60).toString().padStart(2, "0")}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Card title — Barlow Condensed Bold */}
-              <h3 className="text-card-title text-white truncate group-hover:text-[var(--gold)] transition-colors">
-                {post.title}
-              </h3>
-              <div className="flex items-center justify-between mt-3">
-                <span className="text-body-sm text-text-muted">
-                  @{post.user.username}
-                </span>
-                <div className="flex items-center gap-3">
-                  <span className="text-readout-sm flex items-center gap-1 text-text-muted">
-                    <Eye size={10} />
-                    {post.viewCount.toLocaleString()}
-                  </span>
+                  {/* Duration — DM Mono */}
+                  {post.duration && (
+                    <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md">
+                      <span className="text-readout-sm text-white">
+                        {Math.floor(post.duration / 60)}:
+                        {(post.duration % 60).toString().padStart(2, "0")}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </BroadcastCard>
+
+                {/* Card title — Barlow Condensed Bold */}
+                <h3 className="text-card-title text-white truncate group-hover:text-[var(--gold)] transition-colors">
+                  {post.title}
+                </h3>
+                <div className="flex items-center justify-between mt-3">
+                  <span className="text-body-sm text-text-muted">
+                    @{post.user.username}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-readout-sm flex items-center gap-1 text-text-muted">
+                      <Eye size={10} />
+                      {post.viewCount.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </BroadcastCard>
+            </Link>
           </motion.div>
         ))}
       </motion.div>
