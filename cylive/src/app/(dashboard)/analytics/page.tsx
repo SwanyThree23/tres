@@ -47,10 +47,10 @@ export default function AnalyticsPage() {
       <motion.div variants={fadeUp} className="flex items-center justify-between">
         <div>
           <h1 className="text-page-title text-white flex items-center gap-3">
-            <BarChart3 size={22} style={{ color: "var(--cyan)" }} />
+            <BarChart3 size={22} className="text-cyan" />
             Performance Matrix
           </h1>
-          <p className="text-readout mt-1" style={{ color: "var(--text-muted)" }}>
+          <p className="text-readout mt-1" className="text-text-muted">
             Track growth, revenue, and audience engagement
           </p>
         </div>
@@ -108,7 +108,7 @@ export default function AnalyticsPage() {
               {/* Bebas Neue stat value */}
               <p className="font-stat text-white" style={{ fontSize: "36px" }}>{stat.value}</p>
               {/* DM Mono label */}
-              <p className="text-readout mt-1" style={{ color: "var(--text-muted)" }}>{stat.label}</p>
+              <p className="text-readout mt-1" className="text-text-muted">{stat.label}</p>
             </BroadcastCard>
           </motion.div>
         ))}
@@ -118,7 +118,7 @@ export default function AnalyticsPage() {
       <motion.div variants={fadeUp}>
         <BroadcastCard>
           {/* Section header — Bebas Neue */}
-          <h3 className="text-section-header-sm mb-6" style={{ color: "var(--text-muted)" }}>
+          <h3 className="text-section-header-sm mb-6" className="text-text-muted">
             Weekly Revenue
           </h3>
           <div className="flex items-end justify-between gap-3 h-48">
@@ -138,7 +138,7 @@ export default function AnalyticsPage() {
                     style={{ background: "linear-gradient(to top, rgba(255,184,0,0.3), rgba(255,184,0,0.8))" }}
                   />
                   {/* DM Mono day label */}
-                  <span className="text-readout-sm" style={{ color: "var(--text-muted)" }}>{d.day}</span>
+                  <span className="text-readout-sm" className="text-text-muted">{d.day}</span>
                 </div>
               );
             })}
@@ -148,7 +148,7 @@ export default function AnalyticsPage() {
 
       {/* ── AI Insights ─────────────────────────────────────────── */}
       <motion.div variants={fadeUp}>
-        <h3 className="text-section-header-sm ml-1 mb-4" style={{ color: "var(--text-muted)" }}>
+        <h3 className="text-section-header-sm ml-1 mb-4" className="text-text-muted">
           Aura Strategic Insights
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -175,7 +175,7 @@ export default function AnalyticsPage() {
 
       {/* ── Top Streams ─────────────────────────────────────────── */}
       <motion.div variants={fadeUp}>
-        <h3 className="text-section-header-sm ml-1 mb-4" style={{ color: "var(--text-muted)" }}>
+        <h3 className="text-section-header-sm ml-1 mb-4" className="text-text-muted">
           Top Performing Streams
         </h3>
         <div className="glass-panel overflow-hidden">
@@ -199,11 +199,11 @@ export default function AnalyticsPage() {
                   <p className="text-card-title text-white">{stream.title}</p>
                   <div className="flex items-center gap-3 mt-1">
                     {/* DM Mono readouts */}
-                    <span className="text-readout-sm flex items-center gap-1" style={{ color: "var(--text-muted)" }}>
+                    <span className="text-readout-sm flex items-center gap-1" className="text-text-muted">
                       <Eye size={10} />
                       {stream.viewers.toLocaleString()} peak
                     </span>
-                    <span className="text-readout-sm flex items-center gap-1" style={{ color: "var(--text-muted)" }}>
+                    <span className="text-readout-sm flex items-center gap-1" className="text-text-muted">
                       <Clock size={10} />
                       {stream.duration}
                     </span>

@@ -152,7 +152,7 @@ export default function DashboardLayout({
         {/* Bottom Actions */}
         <div
           className="flex flex-col items-center gap-2 mt-4 w-full px-3 pt-4"
-          style={{ borderTop: "1px solid var(--border)" }}
+          className="border-t border-border"
         >
           {isAdmin && (
             <Link
@@ -208,7 +208,7 @@ export default function DashboardLayout({
             title="Sign Out"
             aria-label="Sign Out"
             className="w-full p-3.5 rounded-2xl transition-all flex flex-col items-center gap-1.5 hover:bg-red-500/5"
-            style={{ color: "var(--text-muted)" }}
+            className="text-text-muted"
           >
             <LogOut size={20} />
             <span
@@ -294,7 +294,7 @@ export default function DashboardLayout({
                 <SignalBars size="sm" color="green" />
                 <span
                   className="text-readout-sm hidden sm:inline"
-                  style={{ color: "var(--text-muted)" }}
+                  className="text-text-muted"
                 >
                   Connected
                 </span>
@@ -308,7 +308,7 @@ export default function DashboardLayout({
               <Search
                 className="absolute left-3.5 top-1/2 -translate-y-1/2"
                 size={15}
-                style={{ color: "var(--text-muted)" }}
+                className="text-text-muted"
               />
               <input
                 id="global-search"
@@ -335,7 +335,7 @@ export default function DashboardLayout({
                 border: "1px solid var(--border)",
               }}
             >
-              <Bell size={18} style={{ color: "var(--text-muted)" }} />
+              <Bell size={18} className="text-text-muted" />
             </button>
 
             <div className="h-8 w-px" style={{ background: "var(--border)" }} />

@@ -227,7 +227,7 @@ export default function DashboardPage() {
               {/* Label — DM Mono */}
               <p
                 className="text-readout mt-1"
-                style={{ color: "var(--text-muted)" }}
+                className="text-text-muted"
               >
                 {stat.label}
               </p>
@@ -248,7 +248,7 @@ export default function DashboardPage() {
         {/* Section header — Bebas Neue 12px uppercase */}
         <h3
           className="text-section-header-sm ml-1 mb-4"
-          style={{ color: "var(--text-muted)" }}
+          className="text-text-muted"
         >
           Quick Actions
         </h3>
@@ -286,7 +286,7 @@ export default function DashboardPage() {
                   <ArrowUpRight
                     size={16}
                     className="group-hover:text-white transition-colors"
-                    style={{ color: "var(--text-dim)" }}
+                    className="text-text-dim"
                   />
                 </div>
                 {/* Card title — Barlow Condensed Bold */}
@@ -296,7 +296,7 @@ export default function DashboardPage() {
                 {/* Body — Barlow Condensed */}
                 <p
                   className="text-body-sm mt-1"
-                  style={{ color: "var(--text-muted)" }}
+                  className="text-text-muted"
                 >
                   {action.desc}
                 </p>
@@ -312,14 +312,14 @@ export default function DashboardPage() {
           {/* Section header — Bebas Neue */}
           <h3
             className="text-section-header-sm ml-1"
-            style={{ color: "var(--text-muted)" }}
+            className="text-text-muted"
           >
             Live Now on CYLive
           </h3>
           <Link
             href="/browse"
             className="text-readout-sm flex items-center gap-1 hover:text-white transition-colors"
-            style={{ color: "var(--accent)" }}
+            className="text-accent"
           >
             View All <ArrowUpRight size={10} />
           </Link>
@@ -392,14 +392,14 @@ export default function DashboardPage() {
                       />
                       <span
                         className="text-body-sm"
-                        style={{ color: "var(--text-muted)" }}
+                        className="text-text-muted"
                       >
                         @{stream.user.username}
                       </span>
                     </div>
                     <span
                       className="text-readout-sm"
-                      style={{ color: "var(--cyan)" }}
+                      className="text-cyan"
                     >
                       {stream.genre.replace("_", " ")}
                     </span>
@@ -422,7 +422,7 @@ export default function DashboardPage() {
         {/* Section header — Bebas Neue */}
         <h3
           className="text-section-header-sm ml-1 mb-4"
-          style={{ color: "var(--text-muted)" }}
+          className="text-text-muted"
         >
           Recent Earnings
         </h3>
@@ -463,7 +463,7 @@ export default function DashboardPage() {
                     </p>
                     <p
                       className="text-body-sm"
-                      style={{ color: "var(--text-muted)" }}
+                      className="text-text-muted"
                     >
                       {tx.isOutgoing ? "to" : "from"} @
                       {tx.counterparty?.username || "Anonymous"}
@@ -493,7 +493,7 @@ export default function DashboardPage() {
                     />
                     <span
                       className="text-readout-sm"
-                      style={{ color: "var(--text-muted)" }}
+                      className="text-text-muted"
                     >
                       {new Date(tx.createdAt).toLocaleDateString()}
                     </span>

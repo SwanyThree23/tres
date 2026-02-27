@@ -92,7 +92,7 @@ export default function RegisterPage() {
           <div className="flex items-center justify-center gap-3 mb-4">
             {/* Status readout */}
             <SignalBars size="sm" />
-            <span className="text-readout-sm" style={{ color: "var(--green)" }}>
+            <span className="text-readout-sm" className="text-green">
               Creating Account
             </span>
           </div>
@@ -104,7 +104,7 @@ export default function RegisterPage() {
           </h1>
           <p
             className="text-body-sm mt-2"
-            style={{ color: "var(--text-muted)" }}
+            className="text-text-muted"
           >
             Create your creator account and start streaming
           </p>
@@ -133,7 +133,7 @@ export default function RegisterPage() {
             <div className="relative">
               <span
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-readout-sm"
-                style={{ color: "var(--text-dim)" }}
+                className="text-text-dim"
               >
                 @
               </span>
@@ -194,7 +194,7 @@ export default function RegisterPage() {
             </div>
             <p
               className="text-readout-sm mt-1.5 ml-1"
-              style={{ color: "var(--text-dim)" }}
+              className="text-text-dim"
             >
               Use 8+ characters with a mix of letters, numbers & symbols
             </p>
@@ -262,7 +262,7 @@ export default function RegisterPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-body-sm" style={{ color: "var(--text-muted)" }}>
+          <p className="text-body-sm" className="text-text-muted">
             Already have an account?{" "}
             <Link
               href="/login"
