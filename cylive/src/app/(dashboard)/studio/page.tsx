@@ -99,13 +99,24 @@ export default function StudioPage() {
     }
   }, [micOn, mediaStream]);
 
+  // ── Socket Events ────────────────────────────────────────────────
+  useEffect(() => {
+    if (!socket || !isConnected || !isLive || !streamId) return;
+
+    socket.on("viewer-count", (data: { count: number }) => {
+      setViewers(data.count);
+    });
+
+    return () => {
+      socket.off("viewer-count");
+    };
+  }, [socket, isConnected, isLive, streamId]);
+
   // ── Live Timer ────────────────────────────────────────────────────
   useEffect(() => {
     if (!isLive) return;
     const interval = setInterval(() => {
       setDuration((d) => d + 1);
-      // Simulate viewer fluctuation
-      setViewers((v) => Math.max(0, v + Math.floor(Math.random() * 20 - 5)));
     }, 1000);
     return () => clearInterval(interval);
   }, [isLive]);
