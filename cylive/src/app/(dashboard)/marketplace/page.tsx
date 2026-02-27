@@ -68,14 +68,11 @@ export default function MarketplacePage() {
         <div>
           {/* Bebas Neue page title */}
           <h1 className="text-page-title text-white flex items-center gap-3">
-            <Clapperboard size={22} style={{ color: "var(--gold)" }} />
+            <Clapperboard size={22} className="text-gold" />
             Content Market
           </h1>
           {/* DM Mono readout */}
-          <p
-            className="text-readout mt-1"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <p className="text-readout mt-1 text-text-muted">
             {filtered.length} video posts from top creators
           </p>
         </div>
@@ -194,8 +191,11 @@ export default function MarketplacePage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="input-label">Content Title</label>
+                  <label className="input-label" htmlFor="content-title">
+                    Content Title
+                  </label>
                   <input
+                    id="content-title"
                     type="text"
                     className="input-field"
                     placeholder="e.g. Masterclass: Neo-Soul Techniques"
@@ -207,8 +207,11 @@ export default function MarketplacePage() {
                 </div>
 
                 <div>
-                  <label className="input-label">Description</label>
+                  <label className="input-label" htmlFor="content-desc">
+                    Description
+                  </label>
                   <textarea
+                    id="content-desc"
                     className="input-field min-h-[80px]"
                     placeholder="Describe your content..."
                     value={uploadData.description}
@@ -240,6 +243,7 @@ export default function MarketplacePage() {
                       type="file"
                       className="hidden"
                       accept="video/*"
+                      title="Select video file"
                       onChange={(e) =>
                         setSelectedFile(e.target.files?.[0] || null)
                       }
@@ -264,6 +268,7 @@ export default function MarketplacePage() {
                       <button
                         onClick={() => setSelectedFile(null)}
                         className="p-2 hover:bg-white/10 rounded-lg text-text-dim"
+                        title="Remove selected file"
                       >
                         <Upload size={14} className="rotate-180" />
                       </button>
@@ -309,6 +314,7 @@ export default function MarketplacePage() {
                     }
                     className="toggle-track"
                     data-active={uploadData.isPaywalled}
+                    title="Toggle paywall"
                   >
                     <div
                       className="toggle-knob"
@@ -322,12 +328,15 @@ export default function MarketplacePage() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                   >
-                    <label className="input-label">Price (USD)</label>
+                    <label className="input-label" htmlFor="paywall-amount">
+                      Price (USD)
+                    </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold font-stat">
                         $
                       </span>
                       <input
+                        id="paywall-amount"
                         type="number"
                         className="input-field pl-8"
                         value={uploadData.paywallAmount}
