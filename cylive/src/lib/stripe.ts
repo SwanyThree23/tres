@@ -127,4 +127,4 @@ export async function getAccountBalance(connectedAccountId: string) {
   });
 }
 
-export default stripe;
+export default getStripe;
