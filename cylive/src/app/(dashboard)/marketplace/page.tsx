@@ -29,10 +29,14 @@ export default function MarketplacePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadData, setUploadData] = useState({
     title: "",
+    description: "",
     isPaywalled: false,
     paywallAmount: "4.99",
     videoUrl: "",
+    thumbnailUrl: "",
   });
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -75,29 +79,22 @@ export default function MarketplacePage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {/* DM Mono filter toggle */}
-          <div
-            className="flex rounded-xl p-1"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid var(--border)",
-            }}
-          >
+          <div className="flex bg-white/[0.04] border border-border rounded-xl p-1">
             {(["all", "free", "premium"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className="text-readout px-4 py-1.5 rounded-lg transition-all"
-                style={{
-                  background: filter === f ? "var(--accent)" : "transparent",
-                  color: filter === f ? "white" : "var(--text-muted)",
-                }}
+                className={`text-readout px-4 py-1.5 rounded-lg transition-all ${
+                  filter === f
+                    ? "bg-accent text-white"
+                    : "bg-transparent text-text-muted hover:text-white"
+                }`}
               >
                 {f}
               </button>
             ))}
           </div>
-          <button 
+          <button
             onClick={() => setShowUpload(true)}
             className="btn-gold flex items-center gap-2"
           >
@@ -115,36 +112,21 @@ export default function MarketplacePage() {
           <motion.div key={post.id} variants={fadeUp}>
             <BroadcastCard className="group cursor-pointer">
               {/* Thumbnail */}
-              <div
-                className="relative h-44 rounded-xl overflow-hidden mb-4"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--bg-card-high), var(--bg-card))",
-                }}
-              >
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.15), transparent)",
-                  }}
-                />
+              <div className="relative h-44 rounded-xl overflow-hidden mb-4 bg-gradient-to-br from-bg-card-high to-bg-card">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+                {post.thumbnailUrl && (
+                  <img
+                    src={post.thumbnailUrl}
+                    alt={post.title}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                )}
 
                 {/* Paywall badge — DM Mono */}
                 {post.isPaywalled && (
-                  <div
-                    className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full"
-                    style={{
-                      background: "rgba(255,184,0,0.2)",
-                      backdropFilter: "blur(8px)",
-                      border: "1px solid rgba(255,184,0,0.15)",
-                    }}
-                  >
-                    <Lock size={10} style={{ color: "var(--gold)" }} />
-                    <span
-                      className="text-readout-sm"
-                      style={{ color: "var(--gold)" }}
-                    >
+                  <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-gold/20 backdrop-blur-md border border-gold/15">
+                    <Lock size={10} className="text-gold" />
+                    <span className="text-readout-sm text-gold">
                       ${((post.paywallAmount || 0) / 100).toFixed(2)}
                     </span>
                   </div>
@@ -152,13 +134,7 @@ export default function MarketplacePage() {
 
                 {/* Duration — DM Mono */}
                 {post.duration && (
-                  <div
-                    className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md"
-                    style={{
-                      background: "rgba(0,0,0,0.6)",
-                      backdropFilter: "blur(8px)",
-                    }}
-                  >
+                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md">
                     <span className="text-readout-sm text-white">
                       {Math.floor(post.duration / 60)}:
                       {(post.duration % 60).toString().padStart(2, "0")}
@@ -172,17 +148,11 @@ export default function MarketplacePage() {
                 {post.title}
               </h3>
               <div className="flex items-center justify-between mt-3">
-                <span
-                  className="text-body-sm"
-                  style={{ color: "var(--text-muted)" }}
-                >
+                <span className="text-body-sm text-text-muted">
                   @{post.user.username}
                 </span>
                 <div className="flex items-center gap-3">
-                  <span
-                    className="text-readout-sm flex items-center gap-1"
-                    style={{ color: "var(--text-muted)" }}
-                  >
+                  <span className="text-readout-sm flex items-center gap-1 text-text-muted">
                     <Eye size={10} />
                     {post.viewCount.toLocaleString()}
                   </span>
@@ -211,8 +181,12 @@ export default function MarketplacePage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div>
-                <h2 className="text-section-header text-white">Broadcast New Content</h2>
-                <p className="text-readout-sm text-muted mt-1">Upload a video post to the CYLive market</p>
+                <h2 className="text-section-header text-white">
+                  Broadcast New Content
+                </h2>
+                <p className="text-readout-sm text-muted mt-1">
+                  Upload a video post to the CYLive market
+                </p>
               </div>
 
               <div className="space-y-4">
@@ -223,45 +197,143 @@ export default function MarketplacePage() {
                     className="input-field"
                     placeholder="e.g. Masterclass: Neo-Soul Techniques"
                     value={uploadData.title}
-                    onChange={(e) => setUploadData({ ...uploadData, title: e.target.value })}
+                    onChange={(e) =>
+                      setUploadData({ ...uploadData, title: e.target.value })
+                    }
                   />
                 </div>
 
                 <div>
-                  <label className="input-label">Video URL (Static Assets/S3)</label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="https://..."
-                    value={uploadData.videoUrl}
-                    onChange={(e) => setUploadData({ ...uploadData, videoUrl: e.target.value })}
+                  <label className="input-label">Description</label>
+                  <textarea
+                    className="input-field min-h-[80px]"
+                    placeholder="Describe your content..."
+                    value={uploadData.description}
+                    onChange={(e) =>
+                      setUploadData({
+                        ...uploadData,
+                        description: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border">
+                {!selectedFile && (
+                  <div
+                    className="border-2 border-dashed border-border rounded-2xl p-8 text-center hover:bg-white/[0.02] cursor-pointer transition-colors"
+                    onClick={() =>
+                      document.getElementById("video-upload")?.click()
+                    }
+                  >
+                    <Upload size={24} className="mx-auto text-text-dim mb-2" />
+                    <p className="text-body-sm text-white font-bold">
+                      Select Video File
+                    </p>
+                    <p className="text-readout-sm text-text-dim mt-1">
+                      MP4, WebM or MOV (Max 500MB)
+                    </p>
+                    <input
+                      id="video-upload"
+                      type="file"
+                      className="hidden"
+                      accept="video/*"
+                      onChange={(e) =>
+                        setSelectedFile(e.target.files?.[0] || null)
+                      }
+                    />
+                  </div>
+                )}
+
+                {selectedFile && (
+                  <div className="p-4 rounded-xl bg-white/[0.04] border border-border flex items-center justify-between">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <Clapperboard size={18} className="text-cyan shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-body-sm text-white font-bold truncate">
+                          {selectedFile.name}
+                        </p>
+                        <p className="text-readout-sm text-text-dim">
+                          {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB
+                        </p>
+                      </div>
+                    </div>
+                    {!isUploading && (
+                      <button
+                        onClick={() => setSelectedFile(null)}
+                        className="p-2 hover:bg-white/10 rounded-lg text-text-dim"
+                      >
+                        <Upload size={14} className="rotate-180" />
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {isUploading && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-readout-sm">
+                      <span className="text-text-muted">
+                        Uploading to cloud matrix...
+                      </span>
+                      <span className="text-white font-bold">
+                        {uploadProgress}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-accent"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-border">
                   <div>
-                    <h4 className="text-card-title text-white">Private Listing</h4>
-                    <p className="text-readout-sm text-muted">Gate content behind a paywall</p>
+                    <h4 className="text-card-title text-white">
+                      Private Listing
+                    </h4>
+                    <p className="text-readout-sm text-text-dim">
+                      Gate content behind a paywall
+                    </p>
                   </div>
                   <button
-                    onClick={() => setUploadData({ ...uploadData, isPaywalled: !uploadData.isPaywalled })}
+                    onClick={() =>
+                      setUploadData({
+                        ...uploadData,
+                        isPaywalled: !uploadData.isPaywalled,
+                      })
+                    }
                     className="toggle-track"
                     data-active={uploadData.isPaywalled}
                   >
-                    <div className="toggle-knob" data-active={uploadData.isPaywalled} />
+                    <div
+                      className="toggle-knob"
+                      data-active={uploadData.isPaywalled}
+                    />
                   </button>
                 </div>
 
                 {uploadData.isPaywalled && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}>
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                  >
                     <label className="input-label">Price (USD)</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold font-stat">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold font-stat">
+                        $
+                      </span>
                       <input
                         type="number"
                         className="input-field pl-8"
                         value={uploadData.paywallAmount}
-                        onChange={(e) => setUploadData({ ...uploadData, paywallAmount: e.target.value })}
+                        onChange={(e) =>
+                          setUploadData({
+                            ...uploadData,
+                            paywallAmount: e.target.value,
+                          })
+                        }
                         step="0.01"
                       />
                     </div>
@@ -271,35 +343,90 @@ export default function MarketplacePage() {
 
               <div className="flex items-center gap-3 pt-4">
                 <button
-                  onClick={() => setShowUpload(false)}
+                  onClick={() => {
+                    setShowUpload(false);
+                    setSelectedFile(null);
+                    setUploadProgress(0);
+                  }}
+                  disabled={isUploading}
                   className="btn-ghost flex-1"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={async () => {
-                    if (!uploadData.title || !uploadData.videoUrl) return;
+                    if (!uploadData.title || !selectedFile) return;
                     setIsUploading(true);
+                    setUploadProgress(0);
+
                     try {
+                      // 1. Get Presigned URL
+                      const presignedRes = await fetch(
+                        `/api/marketplace/upload/presigned?fileName=${encodeURIComponent(selectedFile.name)}&fileType=video&contentType=${encodeURIComponent(selectedFile.type)}`,
+                      );
+                      const { uploadUrl, cdnUrl } = await presignedRes.json();
+
+                      if (!uploadUrl)
+                        throw new Error("Failed to get upload URL");
+
+                      // 2. Upload to S3
+                      const xhr = new XMLHttpRequest();
+                      await new Promise((resolve, reject) => {
+                        xhr.open("PUT", uploadUrl);
+                        xhr.setRequestHeader("Content-Type", selectedFile.type);
+
+                        xhr.upload.onprogress = (e) => {
+                          if (e.lengthComputable) {
+                            setUploadProgress(
+                              Math.round((e.loaded / e.total) * 100),
+                            );
+                          }
+                        };
+
+                        xhr.onload = () =>
+                          xhr.status === 200 ? resolve(xhr.response) : reject();
+                        xhr.onerror = () => reject();
+                        xhr.send(selectedFile);
+                      });
+
+                      // 3. Finalize Post
                       const res = await fetch("/api/marketplace/upload", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                           ...uploadData,
-                          paywallAmountCents: Math.round(parseFloat(uploadData.paywallAmount) * 100),
+                          videoUrl: cdnUrl,
+                          paywallAmountCents: Math.round(
+                            parseFloat(uploadData.paywallAmount) * 100,
+                          ),
                         }),
                       });
-                      if (!res.ok) throw new Error("Upload failed");
+
+                      if (!res.ok) throw new Error("Post finalization failed");
+
                       setShowUpload(false);
-                      setUploadData({ title: "", isPaywalled: false, paywallAmount: "4.99", videoUrl: "" });
+                      setSelectedFile(null);
+                      setUploadData({
+                        title: "",
+                        description: "",
+                        isPaywalled: false,
+                        paywallAmount: "4.99",
+                        videoUrl: "",
+                        thumbnailUrl: "",
+                      });
                       alert("Content published successfully!");
+                      window.location.reload(); // Refresh to show new post
                     } catch (err) {
-                      alert("Error publishing content. Check logs.");
+                      console.error("Upload process error:", err);
+                      alert(
+                        "Error publishing content. Please check connection and try again.",
+                      );
                     } finally {
                       setIsUploading(false);
+                      setUploadProgress(0);
                     }
                   }}
-                  disabled={isUploading || !uploadData.title || !uploadData.videoUrl}
+                  disabled={isUploading || !uploadData.title || !selectedFile}
                   className="btn-gold flex-1 py-3"
                 >
                   {isUploading ? "Processing..." : "Publish Post"}
