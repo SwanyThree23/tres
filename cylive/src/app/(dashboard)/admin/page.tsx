@@ -101,10 +101,7 @@ export default function AdminPage() {
             <Shield size={24} className="text-gold" />
             Overlord Terminal
           </h1>
-          <p
-            className="text-readout mt-1"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <p className="text-readout mt-1 text-text-muted">
             Platform-wide governance, moderation, and intelligence
           </p>
         </div>
@@ -114,17 +111,11 @@ export default function AdminPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className="text-readout px-4 py-2 rounded-xl transition-all capitalize"
-              style={{
-                background:
-                  activeTab === tab
-                    ? "var(--accent)"
-                    : "rgba(255,255,255,0.03)",
-                color: activeTab === tab ? "white" : "var(--text-muted)",
-                border:
-                  "1px solid " +
-                  (activeTab === tab ? "var(--accent)" : "var(--border)"),
-              }}
+              className={`text-readout px-4 py-2 rounded-xl transition-all capitalize border ${
+                activeTab === tab
+                  ? "bg-accent text-white border-accent"
+                  : "bg-white/5 text-text-muted border-border"
+              }`}
             >
               {tab}
             </button>
@@ -142,43 +133,40 @@ export default function AdminPage() {
             label: "Active Nodes",
             value: stats?.activeStreams || "0",
             icon: Video,
-            color: "var(--accent)",
+            colorClass: "text-accent",
           },
           {
             label: "Total Grid Population",
             value: stats?.totalUsers || "0",
             icon: Users,
-            color: "var(--cyan)",
+            colorClass: "text-cyan",
           },
           {
             label: "Current Throughput",
             value: `$${(stats?.dailyRevenue || 0).toLocaleString()}`,
             icon: DollarSign,
-            color: "var(--gold)",
+            colorClass: "text-gold",
           },
           {
             label: "System Health",
             value: "99.9%",
             icon: Activity,
-            color: "var(--green)",
+            colorClass: "text-green",
           },
         ].map((stat) => (
           <motion.div key={stat.label} variants={fadeUp}>
             <BroadcastCard compact>
               <div className="flex items-center justify-between mb-4">
-                <stat.icon size={18} style={{ color: stat.color }} />
+                <stat.icon size={18} className={stat.colorClass} />
                 <span className="text-readout-sm text-green flex items-center gap-1">
                   <TrendingUp size={10} />
                   Nominal
                 </span>
               </div>
-              <p className="font-stat text-white" style={{ fontSize: "32px" }}>
+              <p className="font-stat text-white text-3xl">
                 {stat.value}
               </p>
-              <p
-                className="text-readout mt-1"
-                style={{ color: "var(--text-muted)" }}
-              >
+              <p className="text-readout mt-1 text-text-muted">
                 {stat.label}
               </p>
             </BroadcastCard>
@@ -210,13 +198,7 @@ export default function AdminPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr
-                  className="border-b"
-                  style={{
-                    borderColor: "var(--border)",
-                    background: "rgba(255,255,255,0.02)",
-                  }}
-                >
+                <tr className="border-b border-border bg-white/[0.02]">
                   {activeTab === "users" && (
                     <>
                       <th className="p-4 text-readout-sm text-muted">USER</th>
@@ -247,10 +229,7 @@ export default function AdminPage() {
                   )}
                 </tr>
               </thead>
-              <tbody
-                className="divide-y"
-                style={{ borderColor: "var(--border)" }}
-              >
+              <tbody className="divide-y divide-border">
                 {activeTab === "users" &&
                   users.map((user) => (
                     <tr
@@ -288,7 +267,7 @@ export default function AdminPage() {
                       </td>
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button className="p-2 hover:bg-white/5 rounded-lg text-muted">
+                          <button className="p-2 hover:bg-white/5 rounded-lg text-muted" title="More Options">
                             <MoreVertical size={14} />
                           </button>
                         </div>
@@ -339,7 +318,7 @@ export default function AdminPage() {
                           >
                             <Ban size={14} />
                           </button>
-                          <button className="p-2 hover:bg-white/5 rounded-lg text-muted">
+                          <button className="p-2 hover:bg-white/5 rounded-lg text-muted" title="More Options">
                             <MoreVertical size={14} />
                           </button>
                         </div>
@@ -422,10 +401,7 @@ export default function AdminPage() {
                   a Tier 1 creator.
                 </p>
                 <div className="flex items-center gap-3 mt-4">
-                  <button
-                    className="btn-primary btn-sm"
-                    style={{ background: "var(--gold)", color: "black" }}
-                  >
+                  <button className="btn-primary btn-sm bg-gold text-black border-none hover:bg-gold-300">
                     Hold Funds
                   </button>
                   <button className="btn-ghost btn-sm">Audit Account</button>

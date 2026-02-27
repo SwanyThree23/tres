@@ -6,6 +6,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useSocket } from "@/components/providers/SocketProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar } from "@/components/primitives/Avatar";
 import { SignalBars } from "@/components/primitives/SignalBars";
@@ -53,6 +54,7 @@ interface ChatMessage {
 
 export default function WatchPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
+  const { socket, isConnected } = useSocket();
   const [stream, setStream] = useState<Stream | null>(null);
   const [loading, setLoading] = useState(true);
   const [chat, setChat] = useState<ChatMessage[]>([]);
