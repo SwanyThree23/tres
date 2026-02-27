@@ -16,6 +16,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@mux/mux-node": "^12.8.1",
     "@prisma/client": "^5.22.0",
+    "@sentry/nextjs": "^10.40.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.34.3",
