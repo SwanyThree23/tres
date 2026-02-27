@@ -23,8 +23,21 @@ const fadeUp = {
 };
 const stagger = { animate: { transition: { staggerChildren: 0.04 } } };
 
+interface VideoPost {
+  id: string;
+  title: string;
+  thumbnailUrl?: string;
+  isPaywalled: boolean;
+  paywallAmount: number;
+  duration: number;
+  viewCount: number;
+  user: {
+    username: string;
+  };
+}
+
 export default function MarketplacePage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<VideoPost[]>([]);
   const [filter, setFilter] = useState<"all" | "free" | "premium">("all");
   const [showUpload, setShowUpload] = useState(false);
   const [isUploading, setIsUploading] = useState(false);

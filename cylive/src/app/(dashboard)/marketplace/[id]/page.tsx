@@ -22,9 +22,29 @@ const fadeUp = {
   animate: { opacity: 1, y: 0 },
 };
 
+interface VideoPost {
+  id: string;
+  title: string;
+  description: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  isPaywalled: boolean;
+  paywallAmount: number;
+  duration: number;
+  viewCount: number;
+  createdAt: string;
+  user: {
+    id: string;
+    username: string;
+    displayName?: string;
+    avatarUrl?: string;
+    verified: boolean;
+  };
+}
+
 export default function VideoPostPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
-  const [post, setPost] = useState<any>(null);
+  const [post, setPost] = useState<VideoPost | null>(null);
   const [hasAccess, setHasAccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
