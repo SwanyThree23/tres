@@ -118,23 +118,14 @@ export default function DashboardPage() {
         <BroadcastCard>
           <div className="relative overflow-hidden">
             {/* Background glows */}
-            <div
-              className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[100px] pointer-events-none"
-              style={{ background: "rgba(255, 21, 100, 0.1)" }}
-            />
-            <div
-              className="absolute bottom-0 left-0 w-56 h-56 rounded-full blur-[80px] pointer-events-none"
-              style={{ background: "rgba(0, 229, 255, 0.05)" }}
-            />
+            <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-[100px] pointer-events-none bg-accent/10" />
+            <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full blur-[80px] pointer-events-none bg-cyan/5" />
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-3">
                 <TierBadge tier={tier} size="md" />
                 {/* DM Mono readout */}
-                <span
-                  className="text-readout"
-                  style={{ color: "var(--text-muted)" }}
-                >
+                <span className="text-readout text-text-muted">
                   <Activity size={10} className="inline mr-1" />
                   System Active
                 </span>
@@ -146,10 +137,7 @@ export default function DashboardPage() {
               </h1>
 
               {/* Body copy — Barlow Condensed */}
-              <p
-                className="text-body"
-                style={{ color: "var(--text-secondary)", maxWidth: "32rem" }}
-              >
+              <p className="text-body text-text-secondary max-w-2xl">
                 Your command center is ready. Launch a stream, check your
                 earnings, or explore what&apos;s happening across the grid.
               </p>
