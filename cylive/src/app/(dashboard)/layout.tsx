@@ -73,6 +73,18 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const isAdmin =
+    session?.user?.role === "ADMIN" || session?.user?.username === "admin";
+
+  const currentTitle = pageTitle[pathname] || "CYLIVE";
+  const tier = (session?.user?.tier || "FREE") as
+    | "FREE"
+    | "CREATOR"
+    | "PRO"
+    | "STUDIO";
+
   return (
     <div
       className="flex flex-col md:flex-row h-screen overflow-hidden"
