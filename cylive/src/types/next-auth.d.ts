@@ -14,7 +14,7 @@ declare module "next-auth" {
       image?: string | null;
       displayName?: string | null;
       username?: string | null;
-      role?: "USER" | "CREATOR" | "ADMIN";
+      role?: "VIEWER" | "CREATOR" | "ADMIN";
       tier?: "FREE" | "CREATOR" | "PRO" | "STUDIO";
       verified?: boolean;
     };
@@ -27,7 +27,7 @@ declare module "next-auth" {
     image?: string | null;
     displayName?: string | null;
     username?: string | null;
-    role?: "USER" | "CREATOR" | "ADMIN";
+    role?: "VIEWER" | "CREATOR" | "ADMIN";
     tier?: "FREE" | "CREATOR" | "PRO" | "STUDIO";
     verified?: boolean;
   }
@@ -36,7 +36,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
-    role?: "USER" | "CREATOR" | "ADMIN";
+    role?: "VIEWER" | "CREATOR" | "ADMIN";
     tier?: "FREE" | "CREATOR" | "PRO" | "STUDIO";
     username?: string | null;
     displayName?: string | null;
