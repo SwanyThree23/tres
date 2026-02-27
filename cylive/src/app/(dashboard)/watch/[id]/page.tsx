@@ -62,6 +62,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
   const [showTipModal, setShowTipModal] = useState(false);
   const [tipAmount, setTipAmount] = useState("");
   const [following, setFollowing] = useState(false);
+  const [liveViewerCount, setLiveViewerCount] = useState<number>(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -134,8 +135,29 @@ export default function WatchPage({ params }: { params: { id: string } }) {
       setChat((prev) => [...prev, newMessage]);
     });
 
+    // Listen for viewer count updates
+    socket.on("viewer-count", (data: { count: number }) => {
+      setLiveViewerCount(data.count);
+    });
+
+    // Listen for tips
+    socket.on("tip", (data: { user: string; amount: number }) => {
+      const tipMsg: ChatMessage = {
+        id: `tip-${Date.now()}`,
+        user: "SYSTEM",
+        message: `${data.user} sent a $${(data.amount / 100).toFixed(2)} tip!`,
+        timestamp: new Date(),
+        badge: "pro",
+        isTip: true,
+        tipAmount: data.amount,
+      };
+      setChat((prev) => [...prev, tipMsg]);
+    });
+
     return () => {
       socket.off("message");
+      socket.off("viewer-count");
+      socket.off("tip");
     };
   }, [socket, isConnected, params.id]);
 
@@ -208,19 +230,18 @@ export default function WatchPage({ params }: { params: { id: string } }) {
 
       // In a real app, we'd use Stripe Elements to confirm the payment
       // For now, we simulate success
+      // Broadcast tip to socket
+      if (socket && isConnected) {
+        socket.emit("send-tip", {
+          streamId: params.id,
+          amount: data.amount,
+          user: session.user.displayName || session.user.username,
+        });
+      }
+
       setShowTipModal(false);
       setTipAmount("");
       alert(`Tip of $${(data.amount / 100).toFixed(2)} sent successfully!`);
-
-      // Add tip message to chat local UI
-      const tipMsg: ChatMessage = {
-        id: `tip-${Date.now()}`,
-        user: "SYSTEM",
-        message: `${session.user.displayName || session.user.username} sent a $${(data.amount / 100).toFixed(2)} tip!`,
-        timestamp: new Date(),
-        badge: "pro",
-      };
-      setChat((prev) => [...prev, tipMsg]);
     } catch (err) {
       console.error("Tip error:", err);
       if (err instanceof Error) {
@@ -390,11 +411,13 @@ export default function WatchPage({ params }: { params: { id: string } }) {
               <MessageCircle size={16} style={{ color: "var(--cyan)" }} />
               <span className="text-card-title text-white">Live Chat</span>
             </div>
-            <span
-              className="text-readout-sm"
-              style={{ color: "var(--text-muted)" }}
-            >
-              {stream.peakViewers.toLocaleString()} watching
+            <span className="text-readout-sm text-green flex items-center gap-1.5 font-bold">
+              <div className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
+              {(liveViewerCount > 0
+                ? liveViewerCount
+                : stream.peakViewers
+              ).toLocaleString()}{" "}
+              watching
             </span>
           </div>
 
@@ -557,11 +580,3 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                   <DollarSign size={16} />
                 )}
                 {isTipping ? "Processing..." : "Send Tip"}
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}

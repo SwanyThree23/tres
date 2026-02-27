@@ -18,26 +18,54 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
       addTrailingSlash: false,
     });
 
+    const streamViewers = new Map<string, Set<string>>();
+
     io.on("connection", (socket) => {
       console.log("[Socket.io] New connection:", socket.id);
 
       socket.on("join-stream", (streamId: string) => {
         socket.join(`stream:${streamId}`);
+
+        // Track viewer
+        if (!streamViewers.has(streamId)) {
+          streamViewers.set(streamId, new Set());
+        }
+        streamViewers.get(streamId)?.add(socket.id);
+
+        // Broadcast new viewer count
+        const count = streamViewers.get(streamId)?.size || 0;
+        io.to(`stream:${streamId}`).emit("viewer-count", { count });
+
         console.log(
-          `[Socket.io] Socket ${socket.id} joined stream:${streamId}`,
+          `[Socket.io] Socket ${socket.id} joined stream:${streamId}. Total: ${count}`,
         );
+
+        socket.on("disconnect", () => {
+          streamViewers.get(streamId)?.delete(socket.id);
+          const newCount = streamViewers.get(streamId)?.size || 0;
+          io.to(`stream:${streamId}`).emit("viewer-count", { count: newCount });
+          console.log("[Socket.io] Disconnected:", socket.id);
+        });
       });
 
       socket.on(
         "send-message",
-        (data: { streamId: string; content: string; user: any }) => {
+        (data: {
+          streamId: string;
+          content: string;
+          user: any;
+          badge?: string;
+        }) => {
           io.to(`stream:${data.streamId}`).emit("message", data);
         },
       );
 
-      socket.on("disconnect", () => {
-        console.log("[Socket.io] Disconnected:", socket.id);
-      });
+      socket.on(
+        "send-tip",
+        (data: { streamId: string; amount: number; user: string }) => {
+          io.to(`stream:${data.streamId}`).emit("tip", data);
+        },
+      );
     });
 
     res.socket.server.io = io;
