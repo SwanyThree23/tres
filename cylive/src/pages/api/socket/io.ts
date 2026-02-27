@@ -1,7 +1,7 @@
 import { Server as NetServer } from "http";
 import { NextApiRequest } from "next";
 import { Server as ServerIO } from "socket.io";
-import { NextApiResponseServerIO } from "@/types/socket";
+import { NextApiResponseServerIO } from "../../../types/socket";
 
 export const config = {
   api: {
@@ -12,7 +12,7 @@ export const config = {
 const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
   if (!res.socket.server.io) {
     const path = "/api/socket/io";
-    const httpServer: NetServer = res.socket.server as any;
+    const httpServer: NetServer = res.socket.server as unknown as NetServer;
     const io = new ServerIO(httpServer, {
       path: path,
       addTrailingSlash: false,
@@ -53,7 +53,7 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
         (data: {
           streamId: string;
           content: string;
-          user: any;
+          user: string;
           badge?: string;
         }) => {
           io.to(`stream:${data.streamId}`).emit("message", data);
