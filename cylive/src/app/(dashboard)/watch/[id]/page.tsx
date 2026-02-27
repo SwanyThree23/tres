@@ -20,7 +20,8 @@ import {
   MessageCircle,
   Gift,
   X,
-  Loader,
+  Loader2,
+  CheckCircle2, // Changed from CheckCircle to CheckCircle2 as per instruction
 } from "lucide-react";
 
 interface Stream {
@@ -196,7 +197,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
   };
 
   const handleFollow = async () => {
-    if (!session?.user?.id || !stream?.userId) return;
+    if (!session?.user?.id || !stream?.userId) return; // Added stream null check
     try {
       const res = await fetch(`/api/users/${stream.userId}/follow`, {
         method: "POST",
@@ -214,6 +215,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
 
     setIsTipping(true);
     try {
+      if (!stream) return;
       const res = await fetch("/api/payments/tip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -264,7 +266,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader className="animate-spin text-accent" size={48} />
+        <Loader2 className="animate-spin text-accent" size={48} />
       </div>
     );
   }
