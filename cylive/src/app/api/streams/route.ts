@@ -11,6 +11,12 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { createStreamSchema } from "@/schemas";
 import { v4 as uuidv4 } from "uuid";
+import Mux from "@mux/mux-node";
+
+const mux = new Mux({
+  tokenId: process.env.MUX_TOKEN_ID || "dev_token",
+  tokenSecret: process.env.MUX_TOKEN_SECRET || "dev_secret",
+});
 
 // ── GET: List Streams ───────────────────────────────────────────────────────
 
@@ -136,8 +142,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate stream key (encrypted in prod, plain UUID for now)
-    const streamKey = uuidv4().replace(/-/g, "");
+    // Generate stream key and global ingest paths via Mux (Code A)
+    let streamKey = uuidv4().replace(/-/g, "");
+    let ingestUrl = "rtmps://ingest.cylive.app/live";
+    let playbackUrl: string | undefined;
+
+    try {
+      if (process.env.MUX_TOKEN_ID) {
+        const liveStream = await mux.video.liveStreams.create({
+          playback_policy: ["public"],
+          new_asset_settings: { playback_policy: ["public"] },
+        });
+        streamKey = liveStream.stream_key || streamKey;
+        ingestUrl = "rtmps://global-live.mux.com:443/app";
+        if (liveStream.playback_ids?.[0]) {
+          playbackUrl = `https://stream.mux.com/${liveStream.playback_ids[0].id}.m3u8`;
+        }
+      }
+    } catch (muxErr) {
+      console.error("[Mux] Stream creation failed, using fallback:", muxErr);
+    }
 
     // Create the stream
     const stream = await prisma.stream.create({
@@ -151,7 +175,8 @@ export async function POST(req: NextRequest) {
         isPaywalled,
         paywallAmount: paywallAmountCents,
         streamKey,
-        ingestUrl: `rtmps://ingest.cylive.app/live`,
+        ingestUrl,
+        playbackUrl,
         auraMode,
         scheduledAt: scheduledAt ? new Date(scheduledAt) : undefined,
         startedAt: scheduledAt ? undefined : new Date(),
