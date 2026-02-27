@@ -30,7 +30,6 @@ import {
   ArrowUpRight,
   Eye,
   Activity,
-  RefreshCw,
   Info,
 } from "lucide-react";
 import GoldTierCard from "@/components/monetization/GoldTierCard";
@@ -44,12 +43,34 @@ const stagger = {
   animate: { transition: { staggerChildren: 0.06 } },
 };
 
+interface Transaction {
+  id: string;
+  amount: number;
+  type: string;
+  status: string;
+  createdAt: string;
+}
+
+interface LiveStream {
+  id: string;
+  title: string;
+  thumbnailUrl?: string;
+  viewers: number;
+  user: { displayName: string; username: string };
+}
+
+interface UserStats {
+  id: string;
+  totalViews?: number;
+  totalEarnings?: number;
+  followers?: number;
+}
+
 export default function DashboardPage() {
   const { data: session } = useSession();
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [liveStreams, setLiveStreams] = useState<any[]>([]);
-  const [userStats, setUserStats] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [liveStreams, setLiveStreams] = useState<LiveStream[]>([]);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
 
   const displayName =
     session?.user?.displayName || session?.user?.username || "Creator";
@@ -77,8 +98,6 @@ export default function DashboardPage() {
         setUserStats(userData.user);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
-      } finally {
-        setIsLoading(false);
       }
     }
 
