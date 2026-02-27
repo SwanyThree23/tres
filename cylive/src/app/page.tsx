@@ -135,13 +135,13 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <Link
-              href="/login"
+              href="/dashboard"
               className="text-body-sm text-white/70 hover:text-white transition-colors px-4 py-2"
             >
-              Log In
+              Skip
             </Link>
-            <Link href="/login" className="btn-primary text-sm px-6 py-2.5">
-              Get Started
+            <Link href="/dashboard" className="btn-primary text-sm px-6 py-2.5">
+              Enter Platform
             </Link>
           </div>
         </nav>
@@ -198,10 +198,10 @@ export default function LandingPage() {
 
           <div className="flex items-center justify-center gap-4 mt-10">
             <Link
-              href="/login"
+              href="/dashboard"
               className="btn-primary text-base px-8 py-3.5 flex items-center gap-2"
             >
-              Start Streaming Free →
+              Launch Dashboard →
             </Link>
             <Link href="#features" className="btn-ghost text-base px-8 py-3.5">
               See Features
@@ -338,7 +338,7 @@ export default function LandingPage() {
                 ))}
               </ul>
               <Link
-                href="/login"
+                href="/dashboard"
                 className="btn-ghost w-full mt-6 text-center block"
                 style={
                   t.badge
@@ -350,7 +350,7 @@ export default function LandingPage() {
                     : undefined
                 }
               >
-                Get {t.name}
+                Launch Studio
               </Link>
             </div>
           ))}
@@ -373,10 +373,10 @@ export default function LandingPage() {
           card required.
         </p>
         <Link
-          href="/login"
+          href="/dashboard"
           className="btn-primary text-base px-10 py-4 mt-8 inline-flex items-center gap-2"
         >
-          Create Your Free Account →
+          Enter Your Command Center →
         </Link>
       </section>
 
