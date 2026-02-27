@@ -56,7 +56,6 @@ export async function POST(req: NextRequest) {
           thumbnailUrl ||
           "https://images.unsplash.com/photo-1485846234645-a62644ffb1e7?w=800&q=80",
         viewCount: 0,
-        likeCount: 0,
         duration: 0, // In a real app, calculate from video file
       },
     });
