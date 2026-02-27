@@ -421,7 +421,7 @@ export default function StudioPage() {
                 <input
                   type="password"
                   readOnly
-                  value={streamKey}
+                  value={streamKey || ""}
                   aria-label="Stream Key"
                   className="input-field font-mono text-xs flex-1"
                 />

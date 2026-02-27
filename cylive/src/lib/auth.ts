@@ -41,7 +41,7 @@ export const authOptions: NextAuthOptions = {
         // Validate input
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) {
-          throw new Error(parsed.error.errors[0].message);
+          throw new Error("Invalid email or password format");
         }
 
         // Find user
