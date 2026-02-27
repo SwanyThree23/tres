@@ -433,18 +433,35 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                 key={msg.id}
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex gap-2.5"
+                className={`flex gap-2.5 p-2 rounded-lg transition-colors ${
+                  msg.isTip ? "bg-gold/10 border border-gold/20" : ""
+                }`}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-body-sm font-bold text-white">
+                    {msg.isTip && (
+                      <div className="p-1 bg-gold rounded text-black flex items-center justify-center">
+                        <Gift size={10} />
+                      </div>
+                    )}
+                    <span
+                      className={`text-body-sm font-bold ${
+                        msg.isTip ? "text-gold" : "text-white"
+                      }`}
+                    >
                       {msg.user}
                     </span>
                     <span className="text-timestamp">
                       {formatTime(msg.timestamp)}
                     </span>
                   </div>
-                  <p className="text-body-sm text-text-muted">{msg.message}</p>
+                  <p
+                    className={`text-body-sm ${
+                      msg.isTip ? "text-white font-medium" : "text-text-muted"
+                    }`}
+                  >
+                    {msg.message}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -580,3 +597,11 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                   <DollarSign size={16} />
                 )}
                 {isTipping ? "Processing..." : "Send Tip"}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
