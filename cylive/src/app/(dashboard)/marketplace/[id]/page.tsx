@@ -2,18 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft,
+  ChevronLeft,
   Lock,
   Play,
   Eye,
   Clock,
   Calendar,
   DollarSign,
-  ShieldCheck,
+  Shield,
   Clapperboard,
-  CheckCircle2,
+  CheckCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/primitives/Avatar";
@@ -72,8 +71,10 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
       } else {
         throw new Error(data.error || "Purchase failed");
       }
-    } catch (err: any) {
-      alert(err.message || "Failed to process purchase");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to process purchase";
+      alert(message);
     } finally {
       setPurchasing(false);
     }
@@ -118,12 +119,12 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
           className="group flex items-center gap-2 text-readout text-text-muted hover:text-white transition-colors"
         >
           <div className="p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
-            <ArrowLeft size={16} />
+            <ChevronLeft size={16} />
           </div>
           Back to Market
         </Link>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-border">
-          <ShieldCheck size={14} className="text-cyan" />
+          <Shield size={14} className="text-cyan" />
           <span className="text-readout-sm text-text-muted">
             Secure Marketplace Listing
           </span>
@@ -145,12 +146,14 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
               />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-6">
-                <div className="absolute inset-0 z-0">
-                  <img
-                    src={post.thumbnailUrl}
-                    className="w-full h-full object-cover blur-2xl opacity-40"
-                    alt=""
-                  />
+                <div className="absolute inset-0 z-0 opacity-40 blur-2xl">
+                  {post.thumbnailUrl && (
+                    <img
+                      src={post.thumbnailUrl}
+                      className="w-full h-full object-cover"
+                      alt=""
+                    />
+                  )}
                 </div>
 
                 <div className="relative z-10 space-y-6 max-w-sm">
@@ -261,7 +264,7 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/2 border border-border">
                 <div className="flex items-center gap-2 text-text-muted">
-                  <CheckCircle2 size={14} className="text-green" />
+                  <CheckCircle size={14} className="text-green" />
                   <span className="text-readout-sm">Format</span>
                 </div>
                 <span className="text-readout-sm text-white font-bold">
@@ -308,8 +311,8 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
               Creator Notes
             </h3>
             <p className="text-readout-sm text-text-muted italic leading-relaxed">
-              "This broadcast covers the advanced nuances of the CYLive platform
-              architecture. Hope you enjoy the deep dive!"
+              &quot;This broadcast covers the advanced nuances of the CYLive
+              platform architecture. Hope you enjoy the deep dive!&quot;
             </p>
           </div>
         </div>
