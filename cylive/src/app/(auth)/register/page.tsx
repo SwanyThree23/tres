@@ -92,7 +92,7 @@ export default function RegisterPage() {
           <div className="flex items-center justify-center gap-3 mb-4">
             {/* Status readout */}
             <SignalBars size="sm" />
-            <span className="text-readout-sm" className="text-green">
+            <span className="text-readout-sm text-green">
               Creating Account
             </span>
           </div>
@@ -103,8 +103,7 @@ export default function RegisterPage() {
             JOIN CYLIVE
           </h1>
           <p
-            className="text-body-sm mt-2"
-            className="text-text-muted"
+            className="text-body-sm mt-2 text-text-muted"
           >
             Create your creator account and start streaming
           </p>
@@ -132,8 +131,7 @@ export default function RegisterPage() {
             </label>
             <div className="relative">
               <span
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-readout-sm"
-                className="text-text-dim"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-readout-sm text-text-dim"
               >
                 @
               </span>
@@ -193,8 +191,7 @@ export default function RegisterPage() {
               </button>
             </div>
             <p
-              className="text-readout-sm mt-1.5 ml-1"
-              className="text-text-dim"
+              className="text-readout-sm mt-1.5 ml-1 text-text-dim"
             >
               Use 8+ characters with a mix of letters, numbers & symbols
             </p>
@@ -262,7 +259,7 @@ export default function RegisterPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-body-sm" className="text-text-muted">
+          <p className="text-body-sm text-text-muted">
             Already have an account?{" "}
             <Link
               href="/login"

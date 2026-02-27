@@ -226,8 +226,7 @@ export default function DashboardPage() {
               </p>
               {/* Label — DM Mono */}
               <p
-                className="text-readout mt-1"
-                className="text-text-muted"
+                className="text-readout mt-1 text-text-muted"
               >
                 {stat.label}
               </p>
@@ -247,8 +246,7 @@ export default function DashboardPage() {
       <motion.div variants={fadeUp}>
         {/* Section header — Bebas Neue 12px uppercase */}
         <h3
-          className="text-section-header-sm ml-1 mb-4"
-          className="text-text-muted"
+          className="text-section-header-sm ml-1 mb-4 text-text-muted"
         >
           Quick Actions
         </h3>
@@ -285,8 +283,7 @@ export default function DashboardPage() {
                   />
                   <ArrowUpRight
                     size={16}
-                    className="group-hover:text-white transition-colors"
-                    className="text-text-dim"
+                    className="group-hover:text-white transition-colors text-text-dim"
                   />
                 </div>
                 {/* Card title — Barlow Condensed Bold */}
@@ -295,8 +292,7 @@ export default function DashboardPage() {
                 </h4>
                 {/* Body — Barlow Condensed */}
                 <p
-                  className="text-body-sm mt-1"
-                  className="text-text-muted"
+                  className="text-body-sm mt-1 text-text-muted"
                 >
                   {action.desc}
                 </p>
@@ -311,15 +307,13 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           {/* Section header — Bebas Neue */}
           <h3
-            className="text-section-header-sm ml-1"
-            className="text-text-muted"
+            className="text-section-header-sm ml-1 text-text-muted"
           >
             Live Now on CYLive
           </h3>
           <Link
             href="/browse"
-            className="text-readout-sm flex items-center gap-1 hover:text-white transition-colors"
-            className="text-accent"
+            className="text-readout-sm flex items-center gap-1 hover:text-white transition-colors text-accent"
           >
             View All <ArrowUpRight size={10} />
           </Link>
@@ -391,15 +385,13 @@ export default function DashboardPage() {
                         verified={stream.user.verified}
                       />
                       <span
-                        className="text-body-sm"
-                        className="text-text-muted"
+                        className="text-body-sm text-text-muted"
                       >
                         @{stream.user.username}
                       </span>
                     </div>
                     <span
-                      className="text-readout-sm"
-                      className="text-cyan"
+                      className="text-readout-sm text-cyan"
                     >
                       {stream.genre.replace("_", " ")}
                     </span>
@@ -421,8 +413,7 @@ export default function DashboardPage() {
       <motion.div variants={fadeUp}>
         {/* Section header — Bebas Neue */}
         <h3
-          className="text-section-header-sm ml-1 mb-4"
-          className="text-text-muted"
+          className="text-section-header-sm ml-1 mb-4 text-text-muted"
         >
           Recent Earnings
         </h3>
@@ -462,8 +453,7 @@ export default function DashboardPage() {
                       {tx.type} {tx.isOutgoing ? "Sent" : "Received"}
                     </p>
                     <p
-                      className="text-body-sm"
-                      className="text-text-muted"
+                      className="text-body-sm text-text-muted"
                     >
                       {tx.isOutgoing ? "to" : "from"} @
                       {tx.counterparty?.username || "Anonymous"}
@@ -492,8 +482,7 @@ export default function DashboardPage() {
                       }}
                     />
                     <span
-                      className="text-readout-sm"
-                      className="text-text-muted"
+                      className="text-readout-sm text-text-muted"
                     >
                       {new Date(tx.createdAt).toLocaleDateString()}
                     </span>

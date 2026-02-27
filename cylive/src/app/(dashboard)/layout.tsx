@@ -151,8 +151,7 @@ export default function DashboardLayout({
 
         {/* Bottom Actions */}
         <div
-          className="flex flex-col items-center gap-2 mt-4 w-full px-3 pt-4"
-          className="border-t border-border"
+          className="flex flex-col items-center gap-2 mt-4 w-full px-3 pt-4 border-t border-border"
         >
           {isAdmin && (
             <Link
@@ -207,8 +206,7 @@ export default function DashboardLayout({
             onClick={() => signOut({ callbackUrl: "/login" })}
             title="Sign Out"
             aria-label="Sign Out"
-            className="w-full p-3.5 rounded-2xl transition-all flex flex-col items-center gap-1.5 hover:bg-red-500/5"
-            className="text-text-muted"
+            className="w-full p-3.5 rounded-2xl transition-all flex flex-col items-center gap-1.5 hover:bg-red-500/5 text-text-muted"
           >
             <LogOut size={20} />
             <span
@@ -293,8 +291,7 @@ export default function DashboardLayout({
               <div className="flex items-center gap-2 mt-0.5">
                 <SignalBars size="sm" color="green" />
                 <span
-                  className="text-readout-sm hidden sm:inline"
-                  className="text-text-muted"
+                  className="text-readout-sm hidden sm:inline text-text-muted"
                 >
                   Connected
                 </span>
