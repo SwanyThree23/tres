@@ -111,9 +111,31 @@ export default function WatchPage({ params }: { params: { id: string } }) {
       }
     }
     fetchMessages();
-    const interval = setInterval(fetchMessages, 5000); // Polling for demo
-    return () => clearInterval(interval);
   }, [params.id]);
+
+  // Socket.io Real-time implementation
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    // Join the specific stream room
+    socket.emit("join-stream", params.id);
+
+    // Listen for incoming messages
+    socket.on("message", (data: any) => {
+      const newMessage: ChatMessage = {
+        id: data.id || `msg-${Date.now()}`,
+        user: data.user,
+        message: data.content,
+        timestamp: new Date(),
+        badge: data.badge,
+      };
+      setChat((prev) => [...prev, newMessage]);
+    });
+
+    return () => {
+      socket.off("message");
+    };
+  }, [socket, isConnected, params.id]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -134,14 +156,15 @@ export default function WatchPage({ params }: { params: { id: string } }) {
 
       const data = await res.json();
       if (data.message) {
-        const newMessage: ChatMessage = {
-          id: data.message.id,
-          user: data.message.user.displayName || data.message.user.username,
-          message: data.message.content,
-          timestamp: new Date(data.message.createdAt),
-          badge: data.message.user.tier !== "FREE" ? "pro" : undefined,
-        };
-        setChat((prev) => [...prev, newMessage]);
+        // Broadcast to socket
+        if (socket && isConnected) {
+          socket.emit("send-message", {
+            streamId: params.id,
+            content: data.message.content,
+            user: data.message.user.displayName || data.message.user.username,
+            badge: data.message.user.tier !== "FREE" ? "pro" : undefined,
+          });
+        }
       }
     } catch (err) {
       console.error("Send message error:", err);
