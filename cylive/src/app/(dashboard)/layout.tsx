@@ -75,7 +75,7 @@ export default function DashboardLayout({
   const isAdmin =
     session?.user?.role === "ADMIN" || session?.user?.username === "admin";
 
-  const currentTitle = pageTitle[pathname] || "CYLive";
+  const currentTitle = pageTitle[pathname] || "SEEWHY LIVE";
   const tier = (session?.user?.tier || "FREE") as
     | "FREE"
     | "CREATOR"
