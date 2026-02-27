@@ -8,11 +8,14 @@ import {
   Lock,
   Play,
   Eye,
-  MessageCircle,
-  Gift,
-  X,
-  Loader2,
+  Clock,
+  Calendar,
+  DollarSign,
+  ShieldCheck,
+  Clapperboard,
   Check,
+  CircleCheck,
+  LoaderCircle,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -145,7 +148,7 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
           Back to Market
         </Link>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-border">
-          <Shield size={14} className="text-cyan" />
+          <ShieldCheck size={14} className="text-cyan" />
           <span className="text-readout-sm text-text-muted">
             Secure Marketplace Listing
           </span>
@@ -197,7 +200,7 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
                     className="btn-gold w-full py-4 text-lg flex items-center justify-center gap-3 active:scale-95 transition-transform"
                   >
                     {purchasing ? (
-                      <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                      <LoaderCircle size={20} className="animate-spin" />
                     ) : (
                       <Play size={20} fill="currentColor" />
                     )}
@@ -286,7 +289,7 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/2 border border-border">
                 <div className="flex items-center gap-2 text-text-muted">
-                  <CheckCircle size={14} className="text-green" />
+                  <Check size={14} className="text-green" />
                   <span className="text-readout-sm">Format</span>
                 </div>
                 <span className="text-readout-sm text-white font-bold">
@@ -318,7 +321,7 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
             {hasAccess && (
               <div className="p-4 rounded-xl bg-green/5 border border-green/20">
                 <p className="text-readout-sm text-green font-bold flex items-center gap-2">
-                  <Check size={14} />
+                  <CircleCheck size={14} />
                   Access Granted
                 </p>
                 <p className="text-[10px] text-text-muted mt-1">
