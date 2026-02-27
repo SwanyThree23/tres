@@ -31,7 +31,9 @@ import {
   Eye,
   Activity,
   RefreshCw,
+  Info,
 } from "lucide-react";
+import GoldTierCard from "@/components/monetization/GoldTierCard";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -329,10 +331,18 @@ export default function DashboardPage() {
                       }}
                     />
                     <div className="absolute top-3 left-3 flex items-center gap-2">
-                      <span className="badge-live">
-                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-live-pulse" />
-                        Live
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="badge-live px-3 py-1">
+                          PHASE 2: BETA
+                        </span>
+                        <Link
+                          href="/terms"
+                          className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[#D4AF37] hover:text-white transition-colors"
+                        >
+                          <Info size={10} />
+                          Learn More
+                        </Link>
+                      </div>
                       <span
                         className="text-readout-sm text-white"
                         style={{

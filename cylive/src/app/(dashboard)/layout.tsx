@@ -56,6 +56,7 @@ const pageTitle: Record<string, string> = {
   "/studio": "Creator Studio",
   "/audio-rooms": "Voice Nodes",
   "/marketplace": "Content Market",
+  "/community": "Inner Circle Forum",
   "/scheduler": "Time Manifest",
   "/analytics": "Performance Matrix",
   "/settings": "Manifest Config",
