@@ -24,6 +24,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
   });
+  const [agreed, setAgreed] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -214,10 +215,39 @@ export default function RegisterPage() {
             </motion.p>
           )}
 
+          <div className="flex items-start gap-3 pt-2">
+            <input
+              id="agree-beta"
+              type="checkbox"
+              required
+              checked={agreed}
+              className="mt-1"
+              onChange={(e) => setAgreed(e.target.checked)}
+            />
+            <label
+              htmlFor="agree-beta"
+              className="text-[10px] text-text-muted leading-relaxed"
+            >
+              I agree to the{" "}
+              <Link href="/terms" className="text-gold hover:underline">
+                Beta Participation Agreement
+              </Link>
+              ,{" "}
+              <Link href="/guidelines" className="text-gold hover:underline">
+                Community Guidelines
+              </Link>
+              , and{" "}
+              <Link href="/privacy" className="text-gold hover:underline">
+                Privacy Policy
+              </Link>
+              .
+            </label>
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
-            className="btn-primary w-full flex items-center justify-center gap-2 py-3 disabled:opacity-50"
+            disabled={loading || !agreed}
+            className="btn-primary w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

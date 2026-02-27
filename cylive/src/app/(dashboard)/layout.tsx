@@ -43,6 +43,7 @@ const navItems = [
   { href: "/browse", icon: Compass, label: "Explore" },
   { href: "/studio", icon: LayoutDashboard, label: "Studio" },
   { href: "/audio-rooms", icon: Mic, label: "Rooms" },
+  { href: "/community", icon: Users, label: "Forum" },
   { href: "/marketplace", icon: Clapperboard, label: "Market" },
   { href: "/scheduler", icon: Calendar, label: "Plan" },
   { href: "/analytics", icon: BarChart3, label: "Stats" },
@@ -374,14 +375,36 @@ export default function DashboardLayout({
           <footer className="mt-20 py-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex bg- Burgundy/10 items-center gap-2 px-3 py-1.5 rounded-lg border border-red/20">
               <Shield size={14} className="text-red" />
-              <span className="text-readout-sm text-red font-bold">Beta Phase v1.0.4</span>
+              <span className="text-readout-sm text-red font-bold">
+                Beta Phase v1.0.4
+              </span>
             </div>
-            
+
             <nav className="flex items-center gap-6">
-              <Link href="/terms" className="text-readout-sm text-text-muted hover:text-gold transition-colors">Agreement</Link>
-              <Link href="/guidelines" className="text-readout-sm text-text-muted hover:text-gold transition-colors">Guidelines</Link>
-              <Link href="/privacy" className="text-readout-sm text-text-muted hover:text-gold transition-colors">Privacy</Link>
-              <Link href="/api/support/bug-report" className="text-readout-sm text-text-muted hover:text-gold transition-colors font-bold uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">Report Bug</Link>
+              <Link
+                href="/terms"
+                className="text-readout-sm text-text-muted hover:text-gold transition-colors"
+              >
+                Agreement
+              </Link>
+              <Link
+                href="/guidelines"
+                className="text-readout-sm text-text-muted hover:text-gold transition-colors"
+              >
+                Guidelines
+              </Link>
+              <Link
+                href="/privacy"
+                className="text-readout-sm text-text-muted hover:text-gold transition-colors"
+              >
+                Privacy
+              </Link>
+              <Link
+                href="/api/support/bug-report"
+                className="text-readout-sm text-text-muted hover:text-gold transition-colors font-bold uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/10"
+              >
+                Report Bug
+              </Link>
             </nav>
 
             <p className="text-readout-sm text-text-dim">
