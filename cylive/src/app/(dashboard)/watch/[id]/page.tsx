@@ -287,12 +287,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
         {/* ── Video Player ────────────────────────────────────────── */}
         <div className="space-y-4">
-          <div
-            className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl"
-            style={{
-              background: "linear-gradient(135deg, #0f172a, #020617)",
-            }}
-          >
+          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#0f172a] to-[#020617]">
             {/* Simulated video feed */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
@@ -302,13 +297,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Gradient overlay */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(0,0,0,0.6), transparent 30%, transparent 80%, rgba(0,0,0,0.4))",
-              }}
-            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
 
             {/* Top bar */}
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
@@ -316,13 +305,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                 <Badge variant="live" size="sm">
                   LIVE
                 </Badge>
-                <span
-                  className="px-2.5 py-1 rounded-full text-readout-sm text-white flex items-center gap-1.5"
-                  style={{
-                    background: "rgba(0,0,0,0.5)",
-                    backdropFilter: "blur(8px)",
-                  }}
-                >
+                <span className="px-2.5 py-1 rounded-full text-readout-sm text-white flex items-center gap-1.5 bg-black/50 backdrop-blur-md">
                   <Users size={11} />
                   {stream.peakViewers.toLocaleString()}
                 </span>
@@ -356,16 +339,10 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                 {stream.title}
               </h1>
               <div className="flex items-center gap-3 mt-1.5">
-                <span
-                  className="text-readout-sm"
-                  style={{ color: "var(--text-muted)" }}
-                >
+                <span className="text-readout-sm text-text-muted">
                   🎬 {stream.genre.replace("_", " ")}
                 </span>
-                <span
-                  className="text-readout-sm"
-                  style={{ color: "var(--text-muted)" }}
-                >
+                <span className="text-readout-sm text-text-muted">
                   ⏱ Broadcast ID: {stream.id.split("-")[0]}
                 </span>
               </div>
@@ -398,17 +375,11 @@ export default function WatchPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* ── Chat Panel ──────────────────────────────────────────── */}
-        <div
-          className="glass-panel flex flex-col"
-          style={{ height: "calc(100vh - 220px)", maxHeight: "680px" }}
-        >
+        <div className="glass-panel flex flex-col h-[calc(100vh-220px)] max-h-[680px]">
           {/* Chat header */}
-          <div
-            className="flex items-center justify-between p-4 border-b"
-            style={{ borderColor: "var(--border)" }}
-          >
+          <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center gap-2">
-              <MessageCircle size={16} style={{ color: "var(--cyan)" }} />
+              <MessageCircle size={16} className="text-cyan" />
               <span className="text-card-title text-white">Live Chat</span>
             </div>
             <span className="text-readout-sm text-green flex items-center gap-1.5 font-bold">
@@ -469,10 +440,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Chat input */}
-          <div
-            className="p-3 border-t"
-            style={{ borderColor: "var(--border)" }}
-          >
+          <div className="p-3 border-t border-border">
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -487,6 +455,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                 onClick={sendMessage}
                 disabled={!chatInput.trim()}
                 className="p-2.5 rounded-xl transition-all disabled:opacity-30 bg-accent"
+                title="Send message"
               >
                 <Send size={16} className="text-white" />
               </button>
@@ -502,11 +471,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-            style={{
-              background: "rgba(0,0,0,0.6)",
-              backdropFilter: "blur(6px)",
-            }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
             onClick={() => setShowTipModal(false)}
           >
             <motion.div
@@ -518,7 +483,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-section-header text-white flex items-center gap-2">
-                  <Gift size={18} style={{ color: "var(--gold)" }} />
+                  <Gift size={18} className="text-gold" />
                   Send a Tip
                 </h3>
                 <motion.button
@@ -531,13 +496,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                 </motion.button>
               </div>
 
-              <div
-                className="flex items-center gap-3 mb-6 p-3 rounded-xl"
-                style={{
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid var(--border)",
-                }}
-              >
+              <div className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-white/[0.02] border border-border">
                 <Avatar size="sm" alt={creator.username} />
                 <div>
                   <p className="text-card-title text-white">
@@ -554,18 +513,11 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                   <button
                     key={amount}
                     onClick={() => setTipAmount(amount)}
-                    className="py-2.5 rounded-xl text-readout font-bold transition-all"
-                    style={{
-                      background:
-                        tipAmount === amount
-                          ? "rgba(255,184,0,0.2)"
-                          : "rgba(255,255,255,0.04)",
-                      color:
-                        tipAmount === amount
-                          ? "var(--gold)"
-                          : "var(--text-muted)",
-                      border: `1px solid ${tipAmount === amount ? "rgba(255,184,0,0.3)" : "var(--border)"}`,
-                    }}
+                    className={`py-2.5 rounded-xl text-readout font-bold transition-all border ${
+                      tipAmount === amount
+                        ? "bg-gold/20 text-gold border-gold/30"
+                        : "bg-white/4 text-text-muted border-border"
+                    }`}
                   >
                     ${amount}
                   </button>
