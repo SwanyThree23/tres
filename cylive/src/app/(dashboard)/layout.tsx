@@ -73,18 +73,6 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const isAdmin =
-    session?.user?.role === "ADMIN" || session?.user?.username === "admin";
-
-  const currentTitle = pageTitle[pathname] || "SEEWHY LIVE";
-  const tier = (session?.user?.tier || "FREE") as
-    | "FREE"
-    | "CREATOR"
-    | "PRO"
-    | "STUDIO";
-
   return (
     <div
       className="flex flex-col md:flex-row h-screen overflow-hidden"
@@ -150,9 +138,7 @@ export default function DashboardLayout({
         </nav>
 
         {/* Bottom Actions */}
-        <div
-          className="flex flex-col items-center gap-2 mt-4 w-full px-3 pt-4 border-t border-border"
-        >
+        <div className="flex flex-col items-center gap-2 mt-4 w-full px-3 pt-4 border-t border-border">
           {isAdmin && (
             <Link
               href="/admin"
@@ -290,9 +276,7 @@ export default function DashboardLayout({
               {/* Status readout — DM Mono with SignalBars */}
               <div className="flex items-center gap-2 mt-0.5">
                 <SignalBars size="sm" color="green" />
-                <span
-                  className="text-readout-sm hidden sm:inline text-text-muted"
-                >
+                <span className="text-readout-sm hidden sm:inline text-text-muted">
                   Connected
                 </span>
               </div>
@@ -303,9 +287,8 @@ export default function DashboardLayout({
           <div className="hidden lg:flex flex-1 max-w-sm mx-6">
             <div className="relative w-full">
               <Search
-                className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
                 size={15}
-                className="text-text-muted"
               />
               <input
                 id="global-search"

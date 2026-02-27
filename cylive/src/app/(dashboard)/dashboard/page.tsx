@@ -43,27 +43,26 @@ const stagger = {
   animate: { transition: { staggerChildren: 0.06 } },
 };
 
-interface Transaction {
+interface Transaction extends Record<string, any> {
   id: string;
   amount: number;
   type: string;
   status: string;
   createdAt: string;
-  isOutgoing?: boolean;
-  counterparty?: string;
-  amountCents?: number;
 }
 
-interface LiveStream {
+interface LiveStream extends Record<string, any> {
   id: string;
   title: string;
   thumbnailUrl?: string;
   viewers: number;
-  user: { displayName: string; username: string };
-  genre?: string;
+  user: { displayName: string; username: string; verified?: boolean } & Record<
+    string,
+    any
+  >;
 }
 
-interface UserStats {
+interface UserStats extends Record<string, any> {
   id: string;
   totalViews?: number;
   totalEarnings?: number;
