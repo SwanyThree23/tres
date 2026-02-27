@@ -305,12 +305,14 @@ model Payment {
   updatedAt        DateTime      @updatedAt @map("updated_at")
 
   fromUser User?   @relation("PaymentSender", fields: [fromUserId], references: [id])
-  toUser   User    @relation("PaymentReceiver", fields: [toUserId], references: [id])
-  stream   Stream? @relation(fields: [streamId], references: [id])
+  toUser    User       @relation("PaymentReceiver", fields: [toUserId], references: [id])
+  stream    Stream?    @relation(fields: [streamId], references: [id])
+  videoPost VideoPost? @relation(fields: [videoPostId], references: [id])
 
   @@index([toUserId])
   @@index([fromUserId])
   @@index([streamId])
+  @@index([videoPostId])
   @@map("payments")
 }
 
@@ -353,6 +355,7 @@ model VideoPost {
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments Payment[]
 
   @@index([userId])
   @@map("video_posts")
