@@ -546,7 +546,7 @@ export default function WatchPage({ params }: { params: { id: string } }) {
                 aria-label="Process Tip"
               >
                 {isTipping ? (
-                  <Loader className="animate-spin" size={16} />
+                  <Loader2 className="animate-spin" size={16} />
                 ) : (
                   <DollarSign size={16} />
                 )}
