@@ -41,12 +41,43 @@ export async function POST(req: NextRequest) {
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         const paymentType = paymentIntent.metadata?.type;
+        const userId = paymentIntent.metadata?.userId;
+        const coins = parseInt(paymentIntent.metadata?.cyCoins || "0", 10);
 
         if (paymentType) {
-          await prisma.payment.updateMany({
-            where: { stripeTransferId: paymentIntent.id },
-            data: { status: "SUCCEEDED" },
+          // Secure check: Stop double-crediting via Webhook re-deliveries
+          const existingPayment = await prisma.payment.findFirst({
+            where: { stripeTransferId: paymentIntent.id, status: "SUCCEEDED" },
           });
+
+          if (existingPayment) {
+            console.log(
+              `[Webhook] Payment ${paymentIntent.id} already processed. Fraud prevented.`,
+            );
+            break;
+          }
+
+          if (paymentType === "CY_COIN_PURCHASE" && userId && coins > 0) {
+            // Transaction handles state + delivery in one shot
+            await prisma.$transaction([
+              prisma.payment.updateMany({
+                where: { stripeTransferId: paymentIntent.id },
+                data: { status: "SUCCEEDED" },
+              }),
+              prisma.user.update({
+                where: { id: userId },
+                data: { cyCoinBalance: { increment: coins } },
+              }),
+            ]);
+            console.log(
+              `[Webhook] Scaled! Credited ${coins} Cy Coins to user ${userId}`,
+            );
+          } else {
+            await prisma.payment.updateMany({
+              where: { stripeTransferId: paymentIntent.id },
+              data: { status: "SUCCEEDED" },
+            });
+          }
         }
         break;
       }
