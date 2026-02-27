@@ -294,6 +294,7 @@ model Payment {
   fromUserId       String?       @map("from_user_id")
   toUserId         String        @map("to_user_id")
   streamId         String?       @map("stream_id")
+  videoPostId      String?       @map("video_post_id")
   type             PaymentType
   amountCents      Int           @map("amount_cents")
   platformFeeCents Int           @default(0) @map("platform_fee_cents")
