@@ -26,12 +26,14 @@ import {
   Send,
   RefreshCw,
 } from "lucide-react";
+import { useSocket } from "@/components/providers/SocketProvider";
 
 type PanelConfig = 1 | 2 | 3 | 4 | 6 | 9;
 type AuraMode = "SASSY" | "HYPE" | "CALM" | "KIND";
 
 export default function StudioPage() {
   const { data: session } = useSession();
+  const { socket, isConnected } = useSocket();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // ── State ─────────────────────────────────────────────────────────
@@ -138,6 +140,15 @@ export default function StudioPage() {
       setIsLive(true);
       setViewers(Math.floor(Math.random() * 50) + 10);
       setDuration(0);
+
+      // Socket.io: Join stream room and broadcast start
+      if (socket && isConnected) {
+        socket.emit("join-stream", data.stream.id);
+        socket.emit("stream-start", {
+          streamId: data.stream.id,
+          title: streamTitle,
+        });
+      }
     } catch (err) {
       console.error("[Studio] Go Live Error:", err);
       alert("Failed to start stream. Please try again.");
