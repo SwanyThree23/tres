@@ -13,40 +13,6 @@ import bcrypt from "bcryptjs";
 import prisma from "./prisma";
 import { loginSchema } from "@/schemas";
 
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      email: string;
-      username: string;
-      displayName: string;
-      avatarUrl: string | null;
-      role: string;
-      tier: string;
-      verified: boolean;
-    };
-  }
-
-  interface User {
-    username: string;
-    displayName: string;
-    role: string;
-    tier: string;
-    verified: boolean;
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: string;
-    username: string;
-    displayName: string;
-    role: string;
-    tier: string;
-    verified: boolean;
-  }
-}
-
 export const authOptions: NextAuthOptions = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: PrismaAdapter(prisma) as any,
