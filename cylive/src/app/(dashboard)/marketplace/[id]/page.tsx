@@ -8,12 +8,11 @@ import {
   Lock,
   Play,
   Eye,
-  Clock,
-  Calendar,
-  DollarSign,
-  Shield,
-  Clapperboard,
-  CheckCircle,
+  MessageCircle,
+  Gift,
+  X,
+  Loader2,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -319,7 +318,7 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
             {hasAccess && (
               <div className="p-4 rounded-xl bg-green/5 border border-green/20">
                 <p className="text-readout-sm text-green font-bold flex items-center gap-2">
-                  <CheckCircle2 size={14} />
+                  <Check size={14} />
                   Access Granted
                 </p>
                 <p className="text-[10px] text-text-muted mt-1">
