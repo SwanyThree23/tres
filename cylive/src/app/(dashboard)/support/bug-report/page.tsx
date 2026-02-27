@@ -69,7 +69,7 @@ export default function BugReportPage() {
         className="space-y-2"
       >
         <h1 className="text-page-title text-white flex items-center gap-3">
-          <Bug size={24} className="text-red" />
+          <Bug size={24} className="text-accent" />
           Bug Report Portal
         </h1>
         <p className="text-readout text-text-muted">
