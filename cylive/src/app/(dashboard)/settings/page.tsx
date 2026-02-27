@@ -26,6 +26,7 @@ import {
   Palette,
   Key,
   Save,
+  Copy,
   LogOut,
   Eye,
 } from "lucide-react";
