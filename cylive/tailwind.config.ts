@@ -32,14 +32,14 @@ const config: Config = {
          ────────────────────────────────────────────────────────────── */
       colors: {
         accent: {
-          DEFAULT: "#FF1564",
-          300: "#FF4D88",
-          700: "#CC0E50",
+          DEFAULT: "#800020",
+          300: "#a02040",
+          700: "#600018",
         },
         gold: {
-          DEFAULT: "#FFB800",
-          300: "#FFD54F",
-          700: "#CC9300",
+          DEFAULT: "#D4AF37",
+          300: "#e5c966",
+          700: "#b38d2a",
         },
         cyan: {
           DEFAULT: "#00E5FF",
@@ -142,8 +142,16 @@ const config: Config = {
           "100%": { transform: "translateX(-100%)" },
         },
         "red-pulse": {
-          "0%, 100%": { opacity: "1", transform: "scale(1)", boxShadow: "0 0 4px var(--red)" },
-          "50%": { opacity: "0.4", transform: "scale(1.2)", boxShadow: "0 0 12px var(--red)" },
+          "0%, 100%": {
+            opacity: "1",
+            transform: "scale(1)",
+            boxShadow: "0 0 4px var(--red)",
+          },
+          "50%": {
+            opacity: "0.4",
+            transform: "scale(1.2)",
+            boxShadow: "0 0 12px var(--red)",
+          },
         },
         "fade-in": {
           from: { opacity: "0" },
