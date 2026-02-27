@@ -143,6 +143,7 @@ model User {
   sessions          Session[]
   moderationActions Moderation[]    @relation("ModerationModerator")
   moderationTargets Moderation[]    @relation("ModerationTarget")
+  bugReports        BugReport[]
 
   @@index([email])
   @@index([username])
@@ -444,4 +445,22 @@ model Moderation {
   @@index([streamId])
   @@index([targetUserId])
   @@map("moderations")
+}
+
+// ── Bug Reports ──────────────────────────────────────────────────────────────
+
+model BugReport {
+  id              String   @id @default(uuid())
+  userId          String?  @map("user_id")
+  title           String
+  device          String
+  stepsToReproduce String  @map("steps_to_reproduce")
+  severity        String
+  status          String   @default("OPEN")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("bug_reports")
 }
