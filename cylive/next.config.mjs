@@ -24,6 +24,7 @@ const nextConfig = {
   },
   // Allow Stripe webhook to send raw body
   experimental: {
+    instrumentationHook: true,
     serverActions: {
       bodySizeLimit: "2mb",
     },
