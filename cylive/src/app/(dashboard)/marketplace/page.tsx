@@ -25,6 +25,14 @@ const stagger = { animate: { transition: { staggerChildren: 0.04 } } };
 export default function MarketplacePage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [filter, setFilter] = useState<"all" | "free" | "premium">("all");
+  const [showUpload, setShowUpload] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadData, setUploadData] = useState({
+    title: "",
+    isPaywalled: false,
+    paywallAmount: "4.99",
+    videoUrl: "",
+  });
 
   useEffect(() => {
     async function fetchPosts() {
@@ -89,7 +97,10 @@ export default function MarketplacePage() {
               </button>
             ))}
           </div>
-          <button className="btn-gold flex items-center gap-2">
+          <button 
+            onClick={() => setShowUpload(true)}
+            className="btn-gold flex items-center gap-2"
+          >
             <Upload size={14} />
             Upload
           </button>
@@ -181,6 +192,123 @@ export default function MarketplacePage() {
           </motion.div>
         ))}
       </motion.div>
+
+      {/* ── Upload Modal ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showUpload && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowUpload(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass-panel w-full max-w-lg p-6 space-y-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div>
+                <h2 className="text-section-header text-white">Broadcast New Content</h2>
+                <p className="text-readout-sm text-muted mt-1">Upload a video post to the CYLive market</p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="input-label">Content Title</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="e.g. Masterclass: Neo-Soul Techniques"
+                    value={uploadData.title}
+                    onChange={(e) => setUploadData({ ...uploadData, title: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="input-label">Video URL (Static Assets/S3)</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="https://..."
+                    value={uploadData.videoUrl}
+                    onChange={(e) => setUploadData({ ...uploadData, videoUrl: e.target.value })}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border">
+                  <div>
+                    <h4 className="text-card-title text-white">Private Listing</h4>
+                    <p className="text-readout-sm text-muted">Gate content behind a paywall</p>
+                  </div>
+                  <button
+                    onClick={() => setUploadData({ ...uploadData, isPaywalled: !uploadData.isPaywalled })}
+                    className="toggle-track"
+                    data-active={uploadData.isPaywalled}
+                  >
+                    <div className="toggle-knob" data-active={uploadData.isPaywalled} />
+                  </button>
+                </div>
+
+                {uploadData.isPaywalled && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}>
+                    <label className="input-label">Price (USD)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold font-stat">$</span>
+                      <input
+                        type="number"
+                        className="input-field pl-8"
+                        value={uploadData.paywallAmount}
+                        onChange={(e) => setUploadData({ ...uploadData, paywallAmount: e.target.value })}
+                        step="0.01"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  onClick={() => setShowUpload(false)}
+                  className="btn-ghost flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!uploadData.title || !uploadData.videoUrl) return;
+                    setIsUploading(true);
+                    try {
+                      const res = await fetch("/api/marketplace/upload", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          ...uploadData,
+                          paywallAmountCents: Math.round(parseFloat(uploadData.paywallAmount) * 100),
+                        }),
+                      });
+                      if (!res.ok) throw new Error("Upload failed");
+                      setShowUpload(false);
+                      setUploadData({ title: "", isPaywalled: false, paywallAmount: "4.99", videoUrl: "" });
+                      alert("Content published successfully!");
+                    } catch (err) {
+                      alert("Error publishing content. Check logs.");
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  }}
+                  disabled={isUploading || !uploadData.title || !uploadData.videoUrl}
+                  className="btn-gold flex-1 py-3"
+                >
+                  {isUploading ? "Processing..." : "Publish Post"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
