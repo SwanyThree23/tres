@@ -12,7 +12,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { BroadcastCard } from "@/components/primitives/BroadcastCard";
 import { Clapperboard, Lock, Eye, Upload } from "lucide-react";
 
