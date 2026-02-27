@@ -30,12 +30,12 @@
 
 :root {
   /* ── Color Tokens ──────────────────────────────────────────────── */
-  --accent: #ff1564;
-  --accent-300: #ff4d88;
-  --accent-700: #cc0e50;
-  --gold: #ffb800;
-  --gold-300: #ffd54f;
-  --gold-700: #cc9300;
+  --accent: #800020;
+  --accent-300: #a02040;
+  --accent-700: #600018;
+  --gold: #d4af37;
+  --gold-300: #e5c966;
+  --gold-700: #b38d2a;
   --cyan: #00e5ff;
   --cyan-300: #4de8ff;
   --cyan-700: #00b8cc;
