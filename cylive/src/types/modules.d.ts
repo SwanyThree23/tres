@@ -116,11 +116,13 @@ declare module "lucide-react" {
   export const Lock: LucideIcon;
   export const LogOut: LucideIcon;
   export const LoaderCircle: LucideIcon;
+  export const Loader2: LucideIcon;
   export const Mail: LucideIcon;
   export const MessageCircle: LucideIcon;
   export const MessageSquare: LucideIcon;
   export const Mic: LucideIcon;
   export const MicOff: LucideIcon;
+  export const MoreVertical: LucideIcon;
   export const Palette: LucideIcon;
   export const Play: LucideIcon;
   export const Plus: LucideIcon;
@@ -136,11 +138,13 @@ declare module "lucide-react" {
   export const Shield: LucideIcon;
   export const ShieldAlert: LucideIcon;
   export const ShieldCheck: LucideIcon;
+  export const Slash: LucideIcon;
   export const Sparkles: LucideIcon;
   export const Star: LucideIcon;
   export const ThumbsUp: LucideIcon;
   export const TrendingUp: LucideIcon;
   export const TrendingDown: LucideIcon;
+  export const Trash2: LucideIcon;
   export const Unlock: LucideIcon;
   export const Upload: LucideIcon;
   export const User: LucideIcon;
@@ -151,6 +155,7 @@ declare module "lucide-react" {
   export const Volume2: LucideIcon;
   export const X: LucideIcon;
   export const Zap: LucideIcon;
+  export const Ban: LucideIcon;
 }
 
 // ── NextAuth React ──────────────────────────────────────────────────────────
