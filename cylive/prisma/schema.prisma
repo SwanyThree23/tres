@@ -59,6 +59,7 @@ enum PaymentType {
   PAYWALL
   GIFT
   PAYOUT
+  CY_COIN_PURCHASE
 }
 
 enum PaymentStatus {
@@ -120,6 +121,7 @@ model User {
   stripeConnectedAcctId String?   @unique @map("stripe_connected_account_id")
   followerCount         Int       @default(0) @map("follower_count")
   totalEarnings         Decimal   @default(0) @map("total_earnings") @db.Decimal(12, 2)
+  cyCoinBalance         Int       @default(0) @map("cy_coin_balance")
   preferredLanguage     String    @default("en") @map("preferred_language")
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
