@@ -2,6 +2,8 @@ import { Server as NetServer } from "http";
 import { NextApiRequest } from "next";
 import { Server as ServerIO } from "socket.io";
 import { NextApiResponseServerIO } from "../../../types/socket";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { createClient } from "redis";
 
 export const config = {
   api: {
@@ -9,7 +11,7 @@ export const config = {
   },
 };
 
-const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
+const ioHandler = async (req: NextApiRequest, res: NextApiResponseServerIO) => {
   if (!res.socket.server.io) {
     const path = "/api/socket/io";
     const httpServer: NetServer = res.socket.server;
@@ -18,32 +20,49 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
       addTrailingSlash: false,
     });
 
-    const streamViewers = new Map<string, Set<string>>();
+    try {
+      const pubClient = createClient({
+        url: process.env.REDIS_URL || "redis://localhost:6379",
+      });
+      const subClient = pubClient.duplicate();
+      await pubClient.connect();
+      await subClient.connect();
+      io.adapter(createAdapter(pubClient, subClient));
+      console.log("[Socket.io] Redis Adapter connected successfully.");
+    } catch (e) {
+      console.error(
+        "[Socket.io] Redis connection error, falling back to in-memory adapter:",
+        e,
+      );
+    }
 
     io.on("connection", (socket) => {
       console.log("[Socket.io] New connection:", socket.id);
 
-      socket.on("join-stream", (streamId: string) => {
-        socket.join(`stream:${streamId}`);
+      socket.on("join-stream", async (streamId: string) => {
+        const roomName = `stream:${streamId}`;
+        socket.join(roomName);
 
-        // Track viewer
-        if (!streamViewers.has(streamId)) {
-          streamViewers.set(streamId, new Set());
-        }
-        streamViewers.get(streamId)?.add(socket.id);
+        // Fetch cross-node viewer count (an approximation or direct map)
+        // With Redis adapter, we can use fetchSockets() to get a global count if needed,
+        // but for high scale standard size works best if we use server-side aggregation.
+        // As a quick fix, io.in(room).fetchSockets() returns the global count across redis.
+        const sockets = await io.in(roomName).fetchSockets();
+        const count = sockets.length;
 
-        // Broadcast new viewer count
-        const count = streamViewers.get(streamId)?.size || 0;
-        io.to(`stream:${streamId}`).emit("viewer-count", { count });
-
+        io.to(roomName).emit("viewer-count", { count });
         console.log(
-          `[Socket.io] Socket ${socket.id} joined stream:${streamId}. Total: ${count}`,
+          `[Socket.io] Socket ${socket.id} joined ${roomName}. Total: ${count}`,
         );
 
-        socket.on("disconnect", () => {
-          streamViewers.get(streamId)?.delete(socket.id);
-          const newCount = streamViewers.get(streamId)?.size || 0;
-          io.to(`stream:${streamId}`).emit("viewer-count", { count: newCount });
+        socket.on("disconnect", async () => {
+          // Delay briefly to allow socket leave event processing across Redis before counting
+          setTimeout(async () => {
+            const updatedSockets = await io.in(roomName).fetchSockets();
+            io.to(roomName).emit("viewer-count", {
+              count: updatedSockets.length,
+            });
+          }, 500);
           console.log("[Socket.io] Disconnected:", socket.id);
         });
       });
