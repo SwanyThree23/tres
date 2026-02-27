@@ -354,8 +354,8 @@ export default function DashboardLayout({
 
         {/* ── Main Viewport ──────────────────────────────────────── */}
         <main
-          className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar"
-          style={{ paddingBottom: "calc(var(--chiron-height) + 32px)" }}
+          className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar relative"
+          style={{ paddingBottom: "calc(var(--chiron-height) + 100px)" }}
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -369,6 +369,25 @@ export default function DashboardLayout({
               {children}
             </motion.div>
           </AnimatePresence>
+
+          {/* ── Beta Footer ────────────────────────────────────────── */}
+          <footer className="mt-20 py-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex bg- Burgundy/10 items-center gap-2 px-3 py-1.5 rounded-lg border border-red/20">
+              <Shield size={14} className="text-red" />
+              <span className="text-readout-sm text-red font-bold">Beta Phase v1.0.4</span>
+            </div>
+            
+            <nav className="flex items-center gap-6">
+              <Link href="/terms" className="text-readout-sm text-text-muted hover:text-gold transition-colors">Agreement</Link>
+              <Link href="/guidelines" className="text-readout-sm text-text-muted hover:text-gold transition-colors">Guidelines</Link>
+              <Link href="/privacy" className="text-readout-sm text-text-muted hover:text-gold transition-colors">Privacy</Link>
+              <Link href="/api/support/bug-report" className="text-readout-sm text-text-muted hover:text-gold transition-colors font-bold uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">Report Bug</Link>
+            </nav>
+
+            <p className="text-readout-sm text-text-dim">
+              &copy; 2026 CYLive Inner Circle. All circuits reserved.
+            </p>
+          </footer>
         </main>
       </div>
     </div>
