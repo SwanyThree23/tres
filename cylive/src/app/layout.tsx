@@ -40,11 +40,11 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "CYLive — Culture Creator Live Streaming",
-    template: "%s | CYLive",
+    default: "SEEWHY LIVE — Culture Creator Live Streaming",
+    template: "%s | SEEWHY LIVE",
   },
   description:
-    "CYLive is the live streaming platform for culture creators. Multi-panel streaming, 90% direct payouts, AI co-host, and real-time audience engagement.",
+    "SEEWHY LIVE is the live streaming platform for culture creators. Multi-panel streaming, 90% direct payouts, AI co-host, and real-time audience engagement.",
   keywords: [
     "live streaming",
     "creator platform",
@@ -54,15 +54,16 @@ export const metadata: Metadata = {
     "culture creators",
   ],
   openGraph: {
-    title: "CYLive — Culture Creator Live Streaming",
+    title: "SEEWHY LIVE — Culture Creator Live Streaming",
     description:
       "Stream in multi-panel formats. Earn 90% of all payments. Engage audiences with AI-powered tools.",
-    type: "website",
-    siteName: "CYLive",
+    url: "https://seewhylive.com",
+    siteName: "SEEWHY LIVE",
+    images: ["/og-image.webp"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CYLive — Culture Creator Live Streaming",
+    title: "SEEWHY LIVE — Culture Creator Live Streaming",
     description:
       "Stream in multi-panel formats. Earn 90% of all payments.",
   },
