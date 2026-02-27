@@ -55,21 +55,30 @@ export default function AnalyticsPage() {
           </p>
         </div>
         {/* Period toggle — DM Mono */}
-        <div className="flex rounded-xl p-1" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)" }}>
-          {(["7d", "30d", "90d"] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className="text-readout px-4 py-2 rounded-lg transition-all"
-              style={{
-                background: period === p ? "var(--cyan)" : "transparent",
-                color: period === p ? "black" : "var(--text-muted)",
-                fontWeight: period === p ? 500 : 400,
-              }}
-            >
-              {p}
-            </button>
-          ))}
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex rounded-xl p-1" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)" }}>
+            {(["7d", "30d", "90d"] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className="text-readout px-4 py-2 rounded-lg transition-all"
+                style={{
+                  background: period === p ? "var(--cyan)" : "transparent",
+                  color: period === p ? "black" : "var(--text-muted)",
+                  fontWeight: period === p ? 500 : 400,
+                }}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1 rounded bg-gold/10 border border-gold/20 shadow-lg shadow-gold/5">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
+            <span className="text-[10px] text-gold font-bold uppercase tracking-widest">
+              Beta Integrity Disclaimer: System Test Data Active
+            </span>
+          </div>
         </div>
       </motion.div>
 
