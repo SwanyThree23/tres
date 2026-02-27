@@ -79,6 +79,7 @@ declare module "lucide-react" {
   export const Activity: LucideIcon;
   export const AlertCircle: LucideIcon;
   export const AlertTriangle: LucideIcon;
+  export const Anchor: LucideIcon;
   export const ArrowDown: LucideIcon;
   export const ArrowLeft: LucideIcon;
   export const ArrowRight: LucideIcon;
@@ -97,9 +98,11 @@ declare module "lucide-react" {
   export const Compass: LucideIcon;
   export const Copy: LucideIcon;
   export const CreditCard: LucideIcon;
+  export const Database: LucideIcon;
   export const DollarSign: LucideIcon;
   export const Eye: LucideIcon;
   export const EyeOff: LucideIcon;
+  export const FileText: LucideIcon;
   export const Flame: LucideIcon;
   export const Gift: LucideIcon;
   export const Globe: LucideIcon;
@@ -115,6 +118,7 @@ declare module "lucide-react" {
   export const LoaderCircle: LucideIcon;
   export const Mail: LucideIcon;
   export const MessageCircle: LucideIcon;
+  export const MessageSquare: LucideIcon;
   export const Mic: LucideIcon;
   export const MicOff: LucideIcon;
   export const Palette: LucideIcon;
@@ -123,12 +127,14 @@ declare module "lucide-react" {
   export const Radio: LucideIcon;
   export const RefreshCw: LucideIcon;
   export const Save: LucideIcon;
+  export const Scale: LucideIcon;
   export const ScreenShare: LucideIcon;
   export const Search: LucideIcon;
   export const Send: LucideIcon;
   export const Settings: LucideIcon;
   export const Share2: LucideIcon;
   export const Shield: LucideIcon;
+  export const ShieldAlert: LucideIcon;
   export const ShieldCheck: LucideIcon;
   export const Sparkles: LucideIcon;
   export const Star: LucideIcon;
