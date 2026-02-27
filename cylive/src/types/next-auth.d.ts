@@ -12,6 +12,7 @@ declare module "next-auth" {
       email: string;
       name?: string | null;
       image?: string | null;
+      avatarUrl?: string | null;
       displayName?: string | null;
       username?: string | null;
       role?: "VIEWER" | "CREATOR" | "ADMIN";
@@ -25,6 +26,7 @@ declare module "next-auth" {
     email: string;
     name?: string | null;
     image?: string | null;
+    avatarUrl?: string | null;
     displayName?: string | null;
     username?: string | null;
     role?: "VIEWER" | "CREATOR" | "ADMIN";
