@@ -114,10 +114,10 @@ export default function SettingsPage() {
     >
       <div>
         <h1 className="text-page-title text-white flex items-center gap-3">
-          <Settings size={22} style={{ color: "var(--text-muted)" }} />
+          <Settings size={22} className="text-text-muted" />
           Settings
         </h1>
-        <p className="text-readout mt-1" style={{ color: "var(--text-muted)" }}>
+        <p className="text-readout mt-1 text-text-muted">
           Manage your account, preferences, and stream configuration
         </p>
       </div>
@@ -129,24 +129,19 @@ export default function SettingsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-body-sm transition-all text-left"
-              style={{
-                background:
-                  activeTab === tab.id ? "var(--accent)" : "transparent",
-                color: activeTab === tab.id ? "white" : "var(--text-muted)",
-              }}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-body-sm transition-all text-left ${
+                activeTab === tab.id
+                  ? "bg-accent text-white"
+                  : "bg-transparent text-text-muted hover:bg-white/5"
+              }`}
             >
               {tab.icon}
               {tab.label}
             </button>
           ))}
-          <div
-            className="border-t my-2"
-            style={{ borderColor: "var(--border)" }}
-          />
+          <div className="border-t border-border my-2" />
           <button
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-body-sm transition-all text-left hover:bg-white/5"
-            style={{ color: "var(--accent)" }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-body-sm transition-all text-left hover:bg-white/5 text-accent"
             aria-label="Sign Out"
           >
             <LogOut size={16} />
@@ -173,18 +168,11 @@ export default function SettingsPage() {
                   <p className="text-card-title text-white">
                     {displayName || "Your Name"}
                   </p>
-                  <p
-                    className="text-readout-sm"
-                    style={{ color: "var(--text-muted)" }}
-                  >
+                  <p className="text-readout-sm text-text-muted">
                     @{username || "username"}
                   </p>
                   <button
-                    className="text-body-sm mt-2 px-3 py-1 rounded-lg"
-                    style={{
-                      background: "rgba(255,255,255,0.05)",
-                      color: "var(--cyan)",
-                    }}
+                    className="text-body-sm mt-2 px-3 py-1 rounded-lg bg-white/5 text-cyan"
                     aria-label="Change Avatar"
                   >
                     Change Avatar
@@ -211,10 +199,7 @@ export default function SettingsPage() {
                     Username
                   </label>
                   <div className="relative">
-                    <span
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-readout-sm"
-                      style={{ color: "var(--text-dim)" }}
-                    >
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-readout-sm text-text-dim">
                       @
                     </span>
                     <input
@@ -329,18 +314,11 @@ export default function SettingsPage() {
                 ].map((item) => (
                   <div
                     key={item.key}
-                    className="flex items-center justify-between p-4 rounded-xl"
-                    style={{
-                      background: "rgba(255,255,255,0.02)",
-                      border: "1px solid var(--border)",
-                    }}
+                    className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-border"
                   >
                     <div>
                       <p className="text-card-title text-white">{item.label}</p>
-                      <p
-                        className="text-readout-sm"
-                        style={{ color: "var(--text-muted)" }}
-                      >
+                      <p className="text-readout-sm text-text-muted">
                         {item.desc}
                       </p>
                     </div>
@@ -372,13 +350,7 @@ export default function SettingsPage() {
               <h2 className="text-section-header text-white mb-6">
                 Subscription
               </h2>
-              <div
-                className="flex items-center gap-4 mb-6 p-5 rounded-xl"
-                style={{
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid var(--border)",
-                }}
-              >
+              <div className="flex items-center gap-4 mb-6 p-5 rounded-xl bg-white/[0.02] border border-border">
                 <TierBadge
                   tier={tier as "FREE" | "CREATOR" | "PRO" | "STUDIO"}
                   size="md"
@@ -387,10 +359,7 @@ export default function SettingsPage() {
                   <p className="text-card-title text-white">
                     Current Tier: {tier}
                   </p>
-                  <p
-                    className="text-readout-sm"
-                    style={{ color: "var(--text-muted)" }}
-                  >
+                  <p className="text-readout-sm text-text-muted">
                     {tier === "FREE"
                       ? "Upgrade to unlock multi-panel streaming and AI features"
                       : `Next billing date: March 1, 2026`}
@@ -470,19 +439,10 @@ export default function SettingsPage() {
               <h2 className="text-section-header text-white mb-6">
                 Appearance
               </h2>
-              <div
-                className="flex items-center justify-between p-4 rounded-xl"
-                style={{
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid var(--border)",
-                }}
-              >
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-border">
                 <div>
                   <p className="text-card-title text-white">Dark Mode</p>
-                  <p
-                    className="text-readout-sm"
-                    style={{ color: "var(--text-muted)" }}
-                  >
+                  <p className="text-readout-sm text-text-muted">
                     CYLive is designed for dark mode. Light mode coming soon.
                   </p>
                 </div>
@@ -552,10 +512,7 @@ export default function SettingsPage() {
                       <Copy size={12} className="text-text-muted" />
                     </button>
                   </div>
-                  <p
-                    className="text-readout-sm mt-1.5 ml-1"
-                    style={{ color: "var(--text-dim)" }}
-                  >
+                  <p className="text-readout-sm mt-1.5 ml-1 text-text-dim">
                     Never share your stream key publicly
                   </p>
                 </div>
