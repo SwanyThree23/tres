@@ -141,6 +141,10 @@ const config: Config = {
           "0%": { transform: "translateX(100%)" },
           "100%": { transform: "translateX(-100%)" },
         },
+        "red-pulse": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)", boxShadow: "0 0 4px var(--red)" },
+          "50%": { opacity: "0.4", transform: "scale(1.2)", boxShadow: "0 0 12px var(--red)" },
+        },
         "fade-in": {
           from: { opacity: "0" },
           to: { opacity: "1" },
@@ -163,6 +167,7 @@ const config: Config = {
         "fade-in": "fade-in 0.3s ease-out",
         "slide-up": "slide-up 0.35s ease-out",
         "scale-in": "scale-in 0.25s ease-out",
+        "red-pulse": "red-pulse 1.5s ease-in-out infinite",
       },
 
       /* ── Box Shadow ────────────────────────────────────────────── */

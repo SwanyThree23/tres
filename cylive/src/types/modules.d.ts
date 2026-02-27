@@ -77,6 +77,7 @@ declare module "lucide-react" {
 
   // All icons used in the project
   export const Activity: LucideIcon;
+  export const AlertCircle: LucideIcon;
   export const AlertTriangle: LucideIcon;
   export const ArrowDown: LucideIcon;
   export const ArrowLeft: LucideIcon;
