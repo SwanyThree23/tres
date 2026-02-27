@@ -77,4 +77,4 @@ export async function sendPaymentReceiptEmail(
   });
 }
 
-export default resend;
+export default getResend;
