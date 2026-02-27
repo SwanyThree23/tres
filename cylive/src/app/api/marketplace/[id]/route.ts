@@ -38,7 +38,7 @@ export async function GET(
       // Check for successful payment
       const payment = await prisma.payment.findFirst({
         where: {
-          videoPostId: params.id,
+          videoPost: { id: params.id },
           fromUserId: userId,
           status: "SUCCEEDED",
           type: "PAYWALL",
