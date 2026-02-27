@@ -401,7 +401,7 @@ export default function DashboardLayout({
                 Privacy
               </Link>
               <Link
-                href="/api/support/bug-report"
+                href="/support/bug-report"
                 className="text-readout-sm text-text-muted hover:text-gold transition-colors font-bold uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/10"
               >
                 Report Bug
