@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { motion } from "framer-motion";
 import {
-  ChevronLeft,
+  ArrowLeft,
   Lock,
   Play,
   Eye,
@@ -15,6 +16,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Avatar } from "@/components/primitives/Avatar";
 
 const fadeUp = {
@@ -139,7 +141,7 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
           className="group flex items-center gap-2 text-readout text-text-muted hover:text-white transition-colors"
         >
           <div className="p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
-            <ChevronLeft size={16} />
+            <ArrowLeft size={16} /> {/* Changed ChevronLeft to ArrowLeft */}
           </div>
           Back to Market
         </Link>
@@ -168,9 +170,10 @@ export default function VideoPostPage({ params }: { params: { id: string } }) {
               <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-6">
                 <div className="absolute inset-0 z-0 opacity-40 blur-2xl">
                   {post.thumbnailUrl && (
-                    <img
+                    <Image
                       src={post.thumbnailUrl}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                       alt=""
                     />
                   )}
