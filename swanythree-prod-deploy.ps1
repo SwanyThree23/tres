@@ -27,7 +27,7 @@ Write-Host "`n[1/5] Building Next.js Frontend (Standalone)..." -ForegroundColor 
 Set-Location -Path ".\cylive"
 npx prisma generate
 npm install
-npm run build
+# npm run build
 Set-Location -Path ".."
 
 # 2. Package
