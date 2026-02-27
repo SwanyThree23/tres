@@ -49,6 +49,9 @@ interface Transaction {
   type: string;
   status: string;
   createdAt: string;
+  isOutgoing?: boolean;
+  counterparty?: string;
+  amountCents?: number;
 }
 
 interface LiveStream {
@@ -57,6 +60,7 @@ interface LiveStream {
   thumbnailUrl?: string;
   viewers: number;
   user: { displayName: string; username: string };
+  genre?: string;
 }
 
 interface UserStats {
@@ -225,11 +229,7 @@ export default function DashboardPage() {
                 {stat.value}
               </p>
               {/* Label — DM Mono */}
-              <p
-                className="text-readout mt-1 text-text-muted"
-              >
-                {stat.label}
-              </p>
+              <p className="text-readout mt-1 text-text-muted">{stat.label}</p>
             </BroadcastCard>
           </motion.div>
         ))}
@@ -245,9 +245,7 @@ export default function DashboardPage() {
       {/* ── Quick Actions Grid ──────────────────────────────────────── */}
       <motion.div variants={fadeUp}>
         {/* Section header — Bebas Neue 12px uppercase */}
-        <h3
-          className="text-section-header-sm ml-1 mb-4 text-text-muted"
-        >
+        <h3 className="text-section-header-sm ml-1 mb-4 text-text-muted">
           Quick Actions
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -291,9 +289,7 @@ export default function DashboardPage() {
                   {action.label}
                 </h4>
                 {/* Body — Barlow Condensed */}
-                <p
-                  className="text-body-sm mt-1 text-text-muted"
-                >
+                <p className="text-body-sm mt-1 text-text-muted">
                   {action.desc}
                 </p>
               </BroadcastCard>
@@ -306,9 +302,7 @@ export default function DashboardPage() {
       <motion.div variants={fadeUp}>
         <div className="flex items-center justify-between mb-4">
           {/* Section header — Bebas Neue */}
-          <h3
-            className="text-section-header-sm ml-1 text-text-muted"
-          >
+          <h3 className="text-section-header-sm ml-1 text-text-muted">
             Live Now on CYLive
           </h3>
           <Link
@@ -384,15 +378,11 @@ export default function DashboardPage() {
                         alt={stream.user.displayName || stream.user.username}
                         verified={stream.user.verified}
                       />
-                      <span
-                        className="text-body-sm text-text-muted"
-                      >
+                      <span className="text-body-sm text-text-muted">
                         @{stream.user.username}
                       </span>
                     </div>
-                    <span
-                      className="text-readout-sm text-cyan"
-                    >
+                    <span className="text-readout-sm text-cyan">
                       {stream.genre.replace("_", " ")}
                     </span>
                   </div>
@@ -412,9 +402,7 @@ export default function DashboardPage() {
       {/* ── Recent Earnings Ledger ───────────────────────────────────── */}
       <motion.div variants={fadeUp}>
         {/* Section header — Bebas Neue */}
-        <h3
-          className="text-section-header-sm ml-1 mb-4 text-text-muted"
-        >
+        <h3 className="text-section-header-sm ml-1 mb-4 text-text-muted">
           Recent Earnings
         </h3>
         <div
@@ -452,9 +440,7 @@ export default function DashboardPage() {
                     <p className="text-card-title text-white">
                       {tx.type} {tx.isOutgoing ? "Sent" : "Received"}
                     </p>
-                    <p
-                      className="text-body-sm text-text-muted"
-                    >
+                    <p className="text-body-sm text-text-muted">
                       {tx.isOutgoing ? "to" : "from"} @
                       {tx.counterparty?.username || "Anonymous"}
                     </p>
@@ -481,9 +467,7 @@ export default function DashboardPage() {
                             : "var(--gold)",
                       }}
                     />
-                    <span
-                      className="text-readout-sm text-text-muted"
-                    >
+                    <span className="text-readout-sm text-text-muted">
                       {new Date(tx.createdAt).toLocaleDateString()}
                     </span>
                   </div>
