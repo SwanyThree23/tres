@@ -34,6 +34,7 @@ import {
   Shield,
   Bell,
   Search,
+  Users,
 } from "lucide-react";
 
 // ── Navigation Config ───────────────────────────────────────────────────────
