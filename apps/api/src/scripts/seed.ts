@@ -1,4 +1,4 @@
-import { PrismaClient, Role, StageStatus } from '@prisma/client';
+import { PrismaClient, UserRole, StageStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { faker } from '@faker-js/faker';
 
@@ -17,7 +17,7 @@ async function main() {
       passwordHash: adminPassword,
       username: 'admin',
       displayName: 'System Admin',
-      role: Role.ADMIN,
+      role: UserRole.ADMIN,
       emailVerified: true,
     },
   });
@@ -35,7 +35,7 @@ async function main() {
         passwordHash: creatorPassword,
         username: `creator_${i}`,
         displayName: faker.person.fullName(),
-        role: Role.CREATOR,
+        role: UserRole.CREATOR,
         emailVerified: true,
         bio: faker.person.bio(),
         stripeAccountId: `acct_dummy_stripe_${i}`,
@@ -58,7 +58,7 @@ async function main() {
         passwordHash: testerPassword,
         username: `tester_${i}`,
         displayName: faker.person.fullName(),
-        role: Role.USER,
+        role: UserRole.USER,
         emailVerified: true,
       },
     });
