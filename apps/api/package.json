@@ -13,7 +13,9 @@
     "prisma:studio": "prisma studio",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
-    "keygen": "node -e \"const crypto = require('crypto'); const { generateKeyPairSync } = crypto; const { publicKey, privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048, publicKeyEncoding: { type: 'spki', format: 'pem' }, privateKeyEncoding: { type: 'pkcs8', format: 'pem' } }); console.log('JWT_PRIVATE_KEY=\\\"' + privateKey.replace(/\\n/g, '\\\\n') + '\\\"'); console.log('JWT_PUBLIC_KEY=\\\"' + publicKey.replace(/\\n/g, '\\\\n') + '\\\"');\""
+    "keygen": "node -e \"const crypto = require('crypto'); const { generateKeyPairSync } = crypto; const { publicKey, privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048, publicKeyEncoding: { type: 'spki', format: 'pem' }, privateKeyEncoding: { type: 'pkcs8', format: 'pem' } }); console.log('JWT_PRIVATE_KEY=\\\"' + privateKey.replace(/\\n/g, '\\\\n') + '\\\"'); console.log('JWT_PUBLIC_KEY=\\\"' + publicKey.replace(/\\n/g, '\\\\n') + '\\\"');\"",
+    "seed": "tsx src/scripts/seed.ts",
+    "load-test": "tsx src/scripts/load-test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
