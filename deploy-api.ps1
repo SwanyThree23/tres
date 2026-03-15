@@ -85,7 +85,7 @@ $REMOTE_SCRIPT = @"
 
     echo '[Server] Installing Production Dependencies & Generating Prisma Client...'
     cd $SERVER_DIR/apps/api
-    npm ci --omit=dev
+    npm ci
     npx prisma generate
     cd $SERVER_DIR
 
