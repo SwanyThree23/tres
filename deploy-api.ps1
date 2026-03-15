@@ -48,15 +48,15 @@ if (Test-Path $STAGING_DIR) { Remove-Item $STAGING_DIR -Recurse -Force }
 New-Item -ItemType Directory -Path $STAGING_DIR | Out-Null
 
 Write-Host "      Copying build files..."
-# Copy dist, package, prisma, ecosystem, mediamtx
-Copy-Item -Path ".\apps\api\dist" -Destination "$STAGING_DIR\dist" -Recurse -Force
-Copy-Item -Path ".\apps\api\package.json" -Destination "$STAGING_DIR\" -Force
-Copy-Item -Path ".\apps\api\package-lock.json" -Destination "$STAGING_DIR\" -Force
+New-Item -ItemType Directory -Path "$STAGING_DIR\apps\api" | Out-Null
+Copy-Item -Path ".\apps\api\dist" -Destination "$STAGING_DIR\apps\api\dist" -Recurse -Force
+Copy-Item -Path ".\apps\api\package.json" -Destination "$STAGING_DIR\apps\api\" -Force
+Copy-Item -Path ".\apps\api\package-lock.json" -Destination "$STAGING_DIR\apps\api\" -Force
 Copy-Item -Path ".\ecosystem.config.cjs" -Destination "$STAGING_DIR\" -Force
 Copy-Item -Path ".\mediamtx.yml" -Destination "$STAGING_DIR\" -Force
 
-New-Item -ItemType Directory -Path "$STAGING_DIR\src" | Out-Null
-Copy-Item -Path ".\apps\api\src\prisma" -Destination "$STAGING_DIR\src\prisma" -Recurse -Force
+New-Item -ItemType Directory -Path "$STAGING_DIR\apps\api\src" | Out-Null
+Copy-Item -Path ".\apps\api\src\prisma" -Destination "$STAGING_DIR\apps\api\src\prisma" -Recurse -Force
 
 # Create tar.gz archive
 Write-Host "      Compressing files..."
@@ -84,9 +84,10 @@ $REMOTE_SCRIPT = @"
     rm -f /tmp/$ARCHIVE_NAME
 
     echo '[Server] Installing Production Dependencies & Generating Prisma Client...'
-    cd $SERVER_DIR
+    cd $SERVER_DIR/apps/api
     npm ci --omit=dev
     npx prisma generate
+    cd $SERVER_DIR
 
     echo '[Server] Ensuring PM2 logrotate is installed...'
     pm2 install pm2-logrotate || true
