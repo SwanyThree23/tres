@@ -1,0 +1,356 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CY Live — Prisma Schema  |  Postgres 16
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  USER
+  CREATOR
+  ADMIN
+}
+
+enum StageStatus {
+  UPCOMING
+  LIVE
+  ENDED
+}
+
+enum GuestRole {
+  HOST
+  GUEST
+  VIEWER
+}
+
+enum Platform {
+  YOUTUBE
+  TWITCH
+  TIKTOK
+  FACEBOOK
+  CUSTOM
+  OBS
+  WHIP
+}
+
+enum TxType {
+  SUPER_CHAT
+  SUBSCRIPTION
+  TIP
+  PRODUCT_SALE
+}
+
+enum TxStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum SubscriptionTier {
+  BRONZE
+  SILVER
+  GOLD
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DELETED
+}
+
+// ── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  passwordHash        String
+  username            String    @unique
+  displayName         String?
+  avatarUrl           String?
+  bio                 String?
+  role                UserRole  @default(USER)
+  stripeAccountId     String?   @unique
+  stripeCustomerId    String?   @unique
+  chargesEnabled      Boolean   @default(false)
+  emailVerified       Boolean   @default(false)
+  emailVerifyToken    String?
+  passwordResetToken  String?
+  passwordResetExpiry DateTime?
+  refreshTokenHash    String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relations
+  stages              Stage[]
+  streamKeys          StreamKey[]
+  sentTransactions    Transaction[]   @relation("SentTransactions")
+  receivedTransactions Transaction[]  @relation("ReceivedTransactions")
+  feeLedger           FeeLedgerEntry[] @relation("FeeLedgerCreator")
+  subscriptionsAsSubscriber Subscription[] @relation("Subscriber")
+  subscriptionsAsCreator    Subscription[] @relation("SubscribedCreator")
+  products            Product[]
+  purchases           ProductPurchase[]
+  stageGuests         StageGuest[]
+  watchPartyMembers   WatchPartyMember[]
+  notifications       Notification[]
+  chatMessages        ChatMessage[]
+
+  @@index([email])
+  @@index([username])
+  @@index([stripeAccountId])
+}
+
+model Stage {
+  id            String      @id @default(uuid())
+  title         String
+  description   String?
+  thumbnailUrl  String?
+  status        StageStatus @default(UPCOMING)
+  scheduledAt   DateTime?
+  startedAt     DateTime?
+  endedAt       DateTime?
+  viewerCount   Int         @default(0)
+  peakViewers   Int         @default(0)
+  isPrivate     Boolean     @default(false)
+  creatorId     String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  creator       User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  streamKeys    StreamKey[]
+  transactions  Transaction[]
+  guests        StageGuest[]
+  chatMessages  ChatMessage[]
+  watchParties  WatchParty[]
+
+  @@index([creatorId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model StreamKey {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  platform  Platform @default(CUSTOM)
+  rtmpUrl   String?
+  isActive  Boolean  @default(true)
+  stageId   String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  stage     Stage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([stageId])
+  @@index([userId])
+  @@index([key])
+}
+
+model Transaction {
+  id                  String   @id @default(uuid())
+  type                TxType
+  status              TxStatus @default(PENDING)
+  grossAmount         Float
+  platformFee         Float
+  creatorAmount       Float
+  currency            String   @default("USD")
+  stripePaymentIntentId String?  @unique
+  stripeChargeId      String?
+  idempotencyKey      String   @unique
+  metadata            Json?
+  fromUserId          String
+  toUserId            String
+  stageId             String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  fromUser            User     @relation("SentTransactions", fields: [fromUserId], references: [id])
+  toUser              User     @relation("ReceivedTransactions", fields: [toUserId], references: [id])
+  stage               Stage?   @relation(fields: [stageId], references: [id])
+  feeLedgerEntry      FeeLedgerEntry?
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([stageId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+/// Append-only ledger — Layer 3 of fee enforcement
+/// Never updated, never deleted. INSERT only.
+model FeeLedgerEntry {
+  id              String   @id @default(uuid())
+  transactionId   String   @unique
+  grossAmount     Float
+  platformFee     Float
+  creatorAmount   Float
+  feeRate         Float    @default(0.10)
+  currency        String   @default("USD")
+  creatorId       String
+  verifiedAt      DateTime @default(now())
+  verifiedCorrect Boolean  @default(false)
+
+  // Relations
+  transaction     Transaction @relation(fields: [transactionId], references: [id])
+  creator         User        @relation("FeeLedgerCreator", fields: [creatorId], references: [id])
+
+  @@index([creatorId])
+  @@index([verifiedAt])
+}
+
+model Subscription {
+  id                      String           @id @default(uuid())
+  tier                    SubscriptionTier
+  status                  String           @default("active")
+  stripeSubscriptionId    String?          @unique
+  stripeCustomerId        String?
+  currentPeriodStart      DateTime?
+  currentPeriodEnd        DateTime?
+  cancelAtPeriodEnd       Boolean          @default(false)
+  subscriberId            String
+  creatorId               String
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+
+  // Relations
+  subscriber              User @relation("Subscriber", fields: [subscriberId], references: [id])
+  creator                 User @relation("SubscribedCreator", fields: [creatorId], references: [id])
+
+  @@unique([subscriberId, creatorId])
+  @@index([subscriberId])
+  @@index([creatorId])
+  @@index([stripeSubscriptionId])
+  @@index([status])
+}
+
+model Product {
+  id                  String        @id @default(uuid())
+  name                String
+  description         String?
+  price               Float
+  imageUrl            String?
+  status              ProductStatus @default(ACTIVE)
+  stripeProductId     String?       @unique
+  stripePriceId       String?
+  stock               Int?
+  creatorId           String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  // Relations
+  creator             User              @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  purchases           ProductPurchase[]
+
+  @@index([creatorId])
+  @@index([status])
+}
+
+model ProductPurchase {
+  id                    String   @id @default(uuid())
+  stripeSessionId       String?  @unique
+  stripePaymentIntentId String?
+  status                String   @default("pending")
+  buyerId               String
+  productId             String
+  createdAt             DateTime @default(now())
+
+  // Relations
+  buyer                 User    @relation(fields: [buyerId], references: [id])
+  product               Product @relation(fields: [productId], references: [id])
+
+  @@index([buyerId])
+  @@index([productId])
+}
+
+model StageGuest {
+  id        String    @id @default(uuid())
+  role      GuestRole @default(VIEWER)
+  joinedAt  DateTime  @default(now())
+  leftAt    DateTime?
+  stageId   String
+  userId    String
+
+  // Relations
+  stage     Stage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([stageId, userId])
+  @@index([stageId])
+  @@index([userId])
+}
+
+model WatchParty {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  stageId   String
+  isActive  Boolean  @default(true)
+  maxSize   Int      @default(10)
+  createdAt DateTime @default(now())
+
+  // Relations
+  stage     Stage              @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  members   WatchPartyMember[]
+
+  @@index([stageId])
+  @@index([code])
+}
+
+model WatchPartyMember {
+  id           String   @id @default(uuid())
+  watchPartyId String
+  userId       String
+  joinedAt     DateTime @default(now())
+
+  // Relations
+  watchParty   WatchParty @relation(fields: [watchPartyId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([watchPartyId, userId])
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  content   String
+  stageId   String
+  userId    String
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  stage     Stage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([stageId, createdAt])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  body      String?
+  data      Json?
+  read      Boolean  @default(false)
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
