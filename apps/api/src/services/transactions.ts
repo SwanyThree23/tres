@@ -132,7 +132,7 @@ export async function markTransactionFailed(stripePaymentIntentId: string) {
 /**
  * Verify fee integrity for a transaction
  */
-export async function verifyFee(grossAmount: number, recordedFee: number): boolean {
+export function verifyFee(grossAmount: number, recordedFee: number): boolean {
   const expected = Math.round(grossAmount * 0.10 * 100) / 100;
   return recordedFee === expected;
 }

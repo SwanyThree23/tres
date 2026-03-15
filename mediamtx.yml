@@ -1,0 +1,53 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# CY Live — MediaMTX Configuration  |  RTMP Sidecar
+# ──────────────────────────────────────────────────────────────────────────────
+
+# General
+logLevel: info
+logDestinations: [stdout]
+
+# API
+api: yes
+apiAddress: :9997
+
+# RTSP
+rtsp: yes
+rtspAddress: :8554
+
+# RTMP (for OBS / streaming software)
+rtmp: yes
+rtmpAddress: :1935
+
+# HLS
+hls: yes
+hlsAddress: :8888
+hlsAlwaysRemux: yes
+
+# WebRTC
+webrtc: yes
+webrtcAddress: :8889
+webrtcICEServers2:
+  - url: stun:stun.l.google.com:19302
+
+# Default path settings
+pathDefaults:
+  # Record streams
+  record: no
+  
+  # Source can be any protocol
+  source: publisher
+  
+  # Allow anyone to read
+  readUser: ""
+  readPass: ""
+
+# Paths — prefix-based matching
+paths:
+  # CY Live streams use cylive_ prefix
+  "cylive_~":
+    source: publisher
+    # In production, add authentication here
+    
+  # All other paths
+  "~^.+$":
+    source: publisher
