@@ -47,7 +47,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 // Join watch party by code
 router.post('/join/:code', requireAuth, async (req: Request, res: Response) => {
   const party = await prisma.watchParty.findUnique({
-    where: { code: req.params.code.toUpperCase() },
+    where: { code: (req.params.code as string).toUpperCase() },
     include: { _count: { select: { members: true } } },
   });
 
@@ -77,7 +77,7 @@ router.post('/join/:code', requireAuth, async (req: Request, res: Response) => {
 // Leave watch party
 router.post('/:id/leave', requireAuth, async (req: Request, res: Response) => {
   await prisma.watchPartyMember.deleteMany({
-    where: { watchPartyId: req.params.id, userId: req.user!.sub },
+    where: { watchPartyId: req.params.id as string, userId: req.user!.sub },
   });
   res.json({ success: true });
 });
@@ -85,7 +85,7 @@ router.post('/:id/leave', requireAuth, async (req: Request, res: Response) => {
 // Get watch party details
 router.get('/:id', requireAuth, async (req: Request, res: Response) => {
   const party = await prisma.watchParty.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       members: {
         include: {
@@ -105,7 +105,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
 // End watch party
 router.post('/:id/end', requireAuth, async (req: Request, res: Response) => {
   await prisma.watchParty.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { isActive: false },
   });
   res.json({ success: true });
