@@ -18,7 +18,7 @@ router.get('/room/:stageId', requireAuth, async (req: Request, res: Response) =>
   }
 
   const config = videoService.getVdoNinjaConfig(
-    req.params.stageId,
+    req.params.stageId as string,
     role as 'host' | 'guest' | 'viewer',
   );
   res.json(config);
@@ -26,7 +26,7 @@ router.get('/room/:stageId', requireAuth, async (req: Request, res: Response) =>
 
 // Get stream status
 router.get('/status/:streamKey', requireAuth, async (req: Request, res: Response) => {
-  const status = await videoService.getStreamStatus(req.params.streamKey);
+  const status = await videoService.getStreamStatus(req.params.streamKey as string);
   res.json(status);
 });
 

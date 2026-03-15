@@ -93,7 +93,7 @@ router.post('/', requireAuth, requireRole('CREATOR', 'ADMIN'), async (req: Reque
 // ── Update product ──────────────────────────────────────────────────────────
 
 router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
-  const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+  const product = await prisma.product.findUnique({ where: { id: req.params.id as string } });
   if (!product) throw new AppError(404, 'Product not found');
   if (product.creatorId !== req.user!.sub) throw new AppError(403, 'Not authorized');
 
@@ -110,7 +110,7 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
   }
 
   const updated = await prisma.product.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data,
   });
 
@@ -120,12 +120,12 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
 // ── Soft delete product ─────────────────────────────────────────────────────
 
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
-  const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+  const product = await prisma.product.findUnique({ where: { id: req.params.id as string } });
   if (!product) throw new AppError(404, 'Product not found');
   if (product.creatorId !== req.user!.sub) throw new AppError(403, 'Not authorized');
 
   await prisma.product.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { status: 'DELETED' },
   });
 
@@ -141,7 +141,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
 
 router.post('/:id/purchase', requireAuth, async (req: Request, res: Response) => {
   const product = await prisma.product.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: { creator: true },
   });
 
