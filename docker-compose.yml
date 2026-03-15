@@ -1,56 +1,90 @@
-version: '3.8'
+# ──────────────────────────────────────────────────────────────────────────────
+# CY Live — Docker Compose  |  Postgres 16 + Redis 7 + MediaMTX
+# ──────────────────────────────────────────────────────────────────────────────
+
+version: '3.9'
 
 services:
-  backend:
-    build: 
-      context: ./backend
+  # ── API ──────────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./apps/api
       dockerfile: Dockerfile
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "${PORT:-4000}:4000"
     env_file:
-      - ./backend/.env
+      - .env
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: unless-stopped
     networks:
-      - swanythree-network
+      - cylive-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 
-  db:
-    image: postgres:15-alpine
+  # ── PostgreSQL 16 ───────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-swanythree}
+      POSTGRES_USER: ${POSTGRES_USER:-cylive}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cylive_secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-cylive}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ../infrastructure/docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./apps/api/src/prisma/migrations:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
+    restart: unless-stopped
     networks:
-      - swanythree-network
+      - cylive-network
 
+  # ── Redis 7 ─────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
     networks:
-      - swanythree-network
+      - cylive-network
+
+  # ── MediaMTX (RTMP Sidecar) ────────────────────────────────────────────
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    ports:
+      - "8554:8554"   # RTSP
+      - "1935:1935"   # RTMP
+      - "8888:8888"   # HLS
+      - "8889:8889"   # WebRTC
+      - "9997:9997"   # API
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+    restart: unless-stopped
+    networks:
+      - cylive-network
 
 networks:
-  swanythree-network:
+  cylive-network:
     driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:
