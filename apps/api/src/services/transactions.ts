@@ -8,7 +8,8 @@
 // If you write code that makes the fee adjustable, DELETE IT.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { TxType, TxStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import type { TxType, TxStatus } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import logger from '../lib/logger.js';
 
@@ -52,7 +53,7 @@ export async function processTransaction(opts: ProcessTransactionOpts) {
     throw new Error('Fee split computation error');
   }
 
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     // Create transaction record
     const transaction = await tx.transaction.create({
       data: {
@@ -67,7 +68,7 @@ export async function processTransaction(opts: ProcessTransactionOpts) {
         toUserId: opts.toUserId,
         stageId: opts.stageId ?? null,
         stripePaymentIntentId: opts.stripePaymentIntentId ?? null,
-        metadata: opts.metadata ?? null,
+        metadata: opts.metadata ?? undefined,
       },
     });
 
