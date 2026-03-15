@@ -32,14 +32,14 @@ router.post('/', requireAuth, requireRole('CREATOR', 'ADMIN'), async (req: Reque
 
 // List my stream keys for a stage
 router.get('/stage/:stageId', requireAuth, async (req: Request, res: Response) => {
-  const keys = await videoService.getStageStreamKeys(req.params.stageId, req.user!.sub);
+  const keys = await videoService.getStageStreamKeys(req.params.stageId as string, req.user!.sub);
   res.json(keys);
 });
 
 // Revoke a stream key
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    await videoService.revokeStreamKey(req.params.id, req.user!.sub);
+    await videoService.revokeStreamKey(req.params.id as string, req.user!.sub);
     res.json({ success: true });
   } catch {
     throw new AppError(404, 'Stream key not found');
@@ -48,7 +48,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
 
 // Get stream status
 router.get('/:id/status', requireAuth, async (req: Request, res: Response) => {
-  const streamKey = await prisma.streamKey.findUnique({ where: { id: req.params.id } });
+  const streamKey = await prisma.streamKey.findUnique({ where: { id: req.params.id as string } });
   if (!streamKey) throw new AppError(404, 'Stream key not found');
 
   const status = await videoService.getStreamStatus(streamKey.key);

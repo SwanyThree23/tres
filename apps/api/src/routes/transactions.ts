@@ -167,7 +167,7 @@ router.get('/earnings', requireAuth, async (req: Request, res: Response) => {
       creatorEarnings: monthEarnings._sum.creatorAmount ?? 0,
       count: monthEarnings._count,
     },
-    byType: byType.map((t) => ({
+    byType: byType.map((t: any) => ({
       type: t.type,
       creatorEarnings: t._sum.creatorAmount ?? 0,
       grossRevenue: t._sum.grossAmount ?? 0,

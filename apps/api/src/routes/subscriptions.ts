@@ -121,7 +121,7 @@ router.delete('/:creatorId', requireAuth, async (req: Request, res: Response) =>
     where: {
       subscriberId_creatorId: {
         subscriberId: req.user!.sub,
-        creatorId: req.params.creatorId,
+        creatorId: req.params.creatorId as string,
       },
     },
   });
