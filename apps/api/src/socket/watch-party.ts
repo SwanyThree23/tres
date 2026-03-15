@@ -4,8 +4,8 @@
 
 import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import logger from '../../lib/logger.js';
-import type { JwtPayload } from '../../middleware/auth.js';
+import logger from '../lib/logger.js';
+import type { JwtPayload } from '../middleware/auth.js';
 
 const JWT_PUBLIC_KEY = (process.env.JWT_PUBLIC_KEY ?? '').replace(/\\n/g, '\n');
 
