@@ -67,7 +67,7 @@ export async function processTransaction(opts: ProcessTransactionOpts) {
         toUserId: opts.toUserId,
         stageId: opts.stageId ?? null,
         stripePaymentIntentId: opts.stripePaymentIntentId ?? null,
-        metadata: opts.metadata ?? undefined,
+        metadata: (opts.metadata as Prisma.InputJsonValue) ?? undefined,
       },
     });
 
