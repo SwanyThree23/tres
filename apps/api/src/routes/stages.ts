@@ -65,7 +65,7 @@ router.get('/', optionalAuth, async (req: Request, res: Response) => {
 // Get single stage
 router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
   const stage = await prisma.stage.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       creator: {
         select: { id: true, username: true, displayName: true, avatarUrl: true },
@@ -109,7 +109,7 @@ router.post('/', requireAuth, requireRole('CREATOR', 'ADMIN'), async (req: Reque
 
 // Update stage
 router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
-  const stage = await prisma.stage.findUnique({ where: { id: req.params.id } });
+  const stage = await prisma.stage.findUnique({ where: { id: req.params.id as string } });
   if (!stage) throw new AppError(404, 'Stage not found');
   if (stage.creatorId !== req.user!.sub && req.user!.role !== 'ADMIN') {
     throw new AppError(403, 'Not authorized');
@@ -128,7 +128,7 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
   }
 
   const updated = await prisma.stage.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: updateData,
     include: {
       creator: {
@@ -142,25 +142,25 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response) => {
 
 // Delete stage
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
-  const stage = await prisma.stage.findUnique({ where: { id: req.params.id } });
+  const stage = await prisma.stage.findUnique({ where: { id: req.params.id as string } });
   if (!stage) throw new AppError(404, 'Stage not found');
   if (stage.creatorId !== req.user!.sub && req.user!.role !== 'ADMIN') {
     throw new AppError(403, 'Not authorized');
   }
 
-  await prisma.stage.delete({ where: { id: req.params.id } });
+  await prisma.stage.delete({ where: { id: req.params.id as string } });
   res.json({ success: true });
 });
 
 // Go live
 router.post('/:id/go-live', requireAuth, async (req: Request, res: Response) => {
-  const stage = await prisma.stage.findUnique({ where: { id: req.params.id } });
+  const stage = await prisma.stage.findUnique({ where: { id: req.params.id as string } });
   if (!stage) throw new AppError(404, 'Stage not found');
   if (stage.creatorId !== req.user!.sub) throw new AppError(403, 'Not authorized');
   if (stage.status === 'LIVE') throw new AppError(400, 'Stage is already live');
 
   const updated = await prisma.stage.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { status: StageStatus.LIVE, startedAt: new Date() },
   });
 
@@ -169,12 +169,12 @@ router.post('/:id/go-live', requireAuth, async (req: Request, res: Response) => 
 
 // End stage
 router.post('/:id/end', requireAuth, async (req: Request, res: Response) => {
-  const stage = await prisma.stage.findUnique({ where: { id: req.params.id } });
+  const stage = await prisma.stage.findUnique({ where: { id: req.params.id as string } });
   if (!stage) throw new AppError(404, 'Stage not found');
   if (stage.creatorId !== req.user!.sub) throw new AppError(403, 'Not authorized');
 
   const updated = await prisma.stage.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { status: StageStatus.ENDED, endedAt: new Date() },
   });
 

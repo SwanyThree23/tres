@@ -8,8 +8,7 @@
 // If you write code that makes the fee adjustable, DELETE IT.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { Prisma } from '@prisma/client';
-import type { TxType, TxStatus } from '@prisma/client';
+import { Prisma, TxType, TxStatus } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import logger from '../lib/logger.js';
 

@@ -169,7 +169,7 @@ router.patch('/me', requireAuth, async (req: Request, res: Response) => {
 
 router.get('/:id', async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     select: {
       id: true,
       username: true,
