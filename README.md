@@ -4,29 +4,29 @@ A full-stack, production-grade **AI-augmented live streaming platform** built wi
 
 ## Tech Stack
 
-| Layer      | Technology                                                 |
-|------------|------------------------------------------------------------|
-| Frontend   | React 18, TypeScript, Vite, Tailwind CSS v3, Framer Motion |
-| Backend    | FastAPI, SQLAlchemy (async), SQLite / PostgreSQL           |
-| Auth       | JWT (access + refresh), bcrypt via passlib                 |
-| Payments   | Stripe Connect (tips, subscriptions, payouts)              |
-| AI         | OpenRouter API — highlight detection & NFT metadata        |
-| NFTs       | Polygon smart contract via Thirdweb                        |
-| Real-time  | WebSocket (FastAPI native)                                 |
-| Security   | AES-256 vault, rate limiting, CORS                         |
+| Layer     | Technology                                                 |
+| --------- | ---------------------------------------------------------- |
+| Frontend  | React 18, TypeScript, Vite, Tailwind CSS v3, Framer Motion |
+| Backend   | FastAPI, SQLAlchemy (async), SQLite / PostgreSQL           |
+| Auth      | JWT (access + refresh), bcrypt via passlib                 |
+| Payments  | Stripe Connect (tips, subscriptions, payouts)              |
+| AI        | OpenRouter API — highlight detection & NFT metadata        |
+| NFTs      | Polygon smart contract via Thirdweb                        |
+| Real-time | WebSocket (FastAPI native)                                 |
+| Security  | AES-256 vault, rate limiting, CORS                         |
 
 ## Pages
 
-| Route      | Component    | Description                                    |
-|------------|--------------|------------------------------------------------|
-| `/`        | Dashboard    | Platform overview, leaderboard, live activity  |
-| Explore    | Browse       | Stream discovery with categories               |
-| Studio     | Studio       | Creator broadcast control center               |
-| Watch      | Watch        | Live stream viewer with chat + tipping         |
-| Insights   | Analytics    | Engagement graphs and traffic sources          |
-| Finance    | Payouts      | Stripe balance and transaction ledger          |
-| Vault      | NFTs         | AI-minted highlight management                 |
-| Settings   | Settings     | Profile, security, notifications, integrations |
+| Route    | Component | Description                                    |
+| -------- | --------- | ---------------------------------------------- |
+| `/`      | Dashboard | Platform overview, leaderboard, live activity  |
+| Explore  | Browse    | Stream discovery with categories               |
+| Studio   | Studio    | Creator broadcast control center               |
+| Watch    | Watch     | Live stream viewer with chat + tipping         |
+| Insights | Analytics | Engagement graphs and traffic sources          |
+| Finance  | Payouts   | Stripe balance and transaction ledger          |
+| Vault    | NFTs      | AI-minted highlight management                 |
+| Settings | Settings  | Profile, security, notifications, integrations |
 
 ## Getting Started
 
