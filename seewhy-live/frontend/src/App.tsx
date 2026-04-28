@@ -11,6 +11,9 @@ import Dashboard from '@/pages/Dashboard'
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
 import Profile from '@/pages/Profile'
+import Creators from '@/pages/Creators'
+import WhyItWorks from '@/pages/WhyItWorks'
+import NotFound from '@/pages/NotFound'
 import { useAuthStore } from '@/stores/authStore'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -67,6 +70,8 @@ export default function App() {
         <Route path="/watch-party/:streamId" element={<Layout><WatchParty /></Layout>} />
         <Route path="/watch-party/:streamId/:partyId" element={<Layout><WatchParty /></Layout>} />
         <Route path="/profile/:username" element={<Layout><Profile /></Layout>} />
+        <Route path="/creators" element={<Layout><Creators /></Layout>} />
+        <Route path="/why" element={<Layout><WhyItWorks /></Layout>} />
 
         {/* Protected routes */}
         <Route path="/studio" element={
@@ -80,8 +85,8 @@ export default function App() {
           </ProtectedRoute>
         } />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* 404 */}
+        <Route path="*" element={<Layout><NotFound /></Layout>} />
       </Routes>
     </BrowserRouter>
   )

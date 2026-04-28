@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from ..core.config import get_settings
 from ..core.database import init_db
-from .routes import auth, streams, users
+from .routes import auth, streams, users, watch_party, payments
 from .websocket import sio
 
 settings = get_settings()
@@ -40,6 +40,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(streams.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
+app.include_router(watch_party.router, prefix="/api/v1")
+app.include_router(payments.router, prefix="/api/v1")
 
 
 @app.get("/api/health")
