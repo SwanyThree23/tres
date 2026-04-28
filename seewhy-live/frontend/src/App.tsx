@@ -5,6 +5,7 @@ import Footer from '@/components/Footer'
 import Home from '@/pages/Home'
 import Browse from '@/pages/Browse'
 import Watch from '@/pages/Watch'
+import WatchParty from '@/pages/WatchParty'
 import Studio from '@/pages/Studio'
 import Dashboard from '@/pages/Dashboard'
 import Login from '@/pages/Login'
@@ -63,6 +64,8 @@ export default function App() {
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/browse" element={<Layout><Browse /></Layout>} />
         <Route path="/watch/:streamId" element={<Layout><Watch /></Layout>} />
+        <Route path="/watch-party/:streamId" element={<Layout><WatchParty /></Layout>} />
+        <Route path="/watch-party/:streamId/:partyId" element={<Layout><WatchParty /></Layout>} />
         <Route path="/profile/:username" element={<Layout><Profile /></Layout>} />
 
         {/* Protected routes */}

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
   Heart, Share2, BadgeCheck, Users, Eye, ChevronRight,
-  AlertCircle, Loader2, ArrowLeft,
+  AlertCircle, Loader2, ArrowLeft, PartyPopper,
 } from 'lucide-react'
 import { streamsApi, usersApi } from '@/lib/api'
 import VideoPlayer from '@/components/VideoPlayer'
@@ -134,6 +134,12 @@ export default function Watch() {
                 <h1 className="text-xl md:text-2xl font-bold text-white leading-snug">{stream.title}</h1>
               </div>
               <div className="flex items-center gap-2">
+                <Link
+                  to={`/watch-party/${stream.id}`}
+                  className="btn-secondary gap-2 text-sm py-2"
+                >
+                  <PartyPopper className="w-4 h-4" /> Watch Party
+                </Link>
                 <button
                   onClick={handleShare}
                   className="btn-ghost gap-2 text-sm"

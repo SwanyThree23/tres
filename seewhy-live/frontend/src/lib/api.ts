@@ -71,6 +71,16 @@ export const usersApi = {
     api.patch('/users/me', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
 }
 
+// Watch Party
+export const watchPartyApi = {
+  create: (streamId: string) => api.post(`/streams/${streamId}/watch-party`),
+  get: (partyId: string) => api.get(`/watch-parties/${partyId}`),
+  join: (partyId: string) => api.post(`/watch-parties/${partyId}/join`),
+  leave: (partyId: string) => api.post(`/watch-parties/${partyId}/leave`),
+  sync: (partyId: string, position: number, playing: boolean) =>
+    api.post(`/watch-parties/${partyId}/sync`, { position, playing }),
+}
+
 // Questions (the "why" feature)
 export const questionsApi = {
   ask: (streamId: string, question: string) =>

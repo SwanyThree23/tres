@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Radio, Copy, RefreshCw, Check, Settings, Users, Eye,
   MessageSquare, HelpCircle, Zap, Plus, Trash2, Share2, Globe,
-  Loader2, AlertCircle,
+  Loader2, AlertCircle, Signal, Volume2, UserPlus, Mic, MicOff,
 } from 'lucide-react'
 import { streamsApi } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
@@ -13,6 +13,7 @@ import { useStreamStore } from '@/stores/streamStore'
 import type { StreamInfo } from '@/stores/streamStore'
 import { formatViewers, CATEGORIES } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import CollapsePanel from '@/components/CollapsePanel'
 
 const RTMP_URL = 'rtmp://ingest.seewhylive.online/live'
 
@@ -26,12 +27,32 @@ export default function Studio() {
   const [streamKey, setStreamKey] = useState('sk_live_••••••••••••••••')
   const [keyCopied, setKeyCopied] = useState(false)
   const [urlCopied, setUrlCopied] = useState(false)
+  const [sfuStats, setSfuStats] = useState({
+    activeSpeakers: 0, packetsLost: 0, jitter: 8,
+    bitrate: 4800, latency: 28,
+  })
+  const [guestsMuted, setGuestsMuted] = useState<Record<string, boolean>>({})
   const [form, setForm] = useState({
     title: '',
     description: '',
     category: 'Technology',
     tags: '',
   })
+
+  // Simulated SFU stat refresh while live
+  useEffect(() => {
+    if (tab !== 'live') return
+    const id = setInterval(() => {
+      setSfuStats((s) => ({
+        activeSpeakers: Math.floor(Math.random() * 3),
+        packetsLost: s.packetsLost + Math.floor(Math.random() * 2),
+        jitter: Math.max(0, s.jitter + (Math.random() - 0.5) * 3),
+        bitrate: Math.max(1000, s.bitrate + (Math.random() - 0.5) * 300),
+        latency: Math.max(8, s.latency + (Math.random() - 0.5) * 6),
+      }))
+    }, 3000)
+    return () => clearInterval(id)
+  }, [tab])
 
   const { data: activeStream } = useQuery<StreamInfo>({
     queryKey: ['studio', 'active-stream'],
@@ -317,13 +338,63 @@ export default function Studio() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
-          {/* Creator tip */}
-          <div className="card p-4 border-brand-500/30">
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-4 h-4 text-brand-400" />
-              <span className="text-sm font-semibold text-white">Creator Tips</span>
+        <div className="space-y-3">
+
+          {/* Stage Manager */}
+          <CollapsePanel title="Stage Manager" badge={`0/${20}`}>
+            <div className="space-y-2">
+              <p className="text-[10px] text-white/40 mb-2">Manage guest microphones and video slots</p>
+              {['Guest #1', 'Guest #2'].map((name) => (
+                <div key={name} className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-brand-500/30 border border-brand-500/50 flex items-center justify-center text-[10px] text-brand-400 font-bold flex-shrink-0">
+                    {name[0]}
+                  </div>
+                  <span className="text-xs text-white/60 flex-1">{name}</span>
+                  <button
+                    onClick={() => setGuestsMuted((m) => ({ ...m, [name]: !m[name] }))}
+                    className="p-1 rounded bg-white/5 hover:bg-brand-500/20 transition-colors"
+                  >
+                    {guestsMuted[name]
+                      ? <MicOff className="w-3 h-3 text-red-400" />
+                      : <Mic className="w-3 h-3 text-white/50" />}
+                  </button>
+                  <button className="p-1 rounded bg-white/5 hover:bg-brand-500/20 transition-colors">
+                    <Volume2 className="w-3 h-3 text-white/50" />
+                  </button>
+                </div>
+              ))}
+              <button className="btn-secondary w-full py-1.5 text-xs justify-center gap-1 mt-2">
+                <UserPlus className="w-3 h-3" /> Invite Guest
+              </button>
             </div>
+          </CollapsePanel>
+
+          {/* SFU Stats */}
+          <CollapsePanel title="SFU Stats" defaultOpen={false}>
+            <div className="space-y-1.5">
+              {[
+                { label: 'Active Speakers', value: sfuStats.activeSpeakers, suffix: '' },
+                { label: 'Bitrate', value: Math.round(sfuStats.bitrate), suffix: ' kbps', color: sfuStats.bitrate > 3000 ? '#10b981' : '#f59e0b' },
+                { label: 'Latency', value: Math.round(sfuStats.latency), suffix: ' ms', color: sfuStats.latency < 50 ? '#10b981' : '#ef4444' },
+                { label: 'Jitter', value: sfuStats.jitter.toFixed(1), suffix: ' ms' },
+                { label: 'Packets Lost', value: sfuStats.packetsLost, suffix: '' },
+              ].map(({ label, value, suffix, color }) => (
+                <div key={label} className="flex justify-between items-center">
+                  <span className="text-[10px] text-white/40 font-mono">{label}</span>
+                  <span className="text-[10px] font-bold font-mono" style={{ color: color ?? '#e2e8f0' }}>
+                    {value}{suffix}
+                  </span>
+                </div>
+              ))}
+              <div className="pt-1 border-t border-white/5 flex items-center gap-1.5">
+                <Signal className="w-3 h-3 text-emerald-400" />
+                <span className="text-[10px] text-emerald-400 font-semibold">Connection healthy</span>
+              </div>
+            </div>
+          </CollapsePanel>
+
+          {/* Creator Tips */}
+          <CollapsePanel title="Creator Tips" defaultOpen={false}>
             <ul className="space-y-2">
               {[
                 'Start with a clear "why" question to hook viewers',
@@ -337,15 +408,11 @@ export default function Studio() {
                 </li>
               ))}
             </ul>
-          </div>
+          </CollapsePanel>
 
           {/* Quick stats */}
           {user && (
-            <div className="card p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <Users className="w-4 h-4 text-cyan-400" />
-                Your Stats
-              </h3>
+            <CollapsePanel title="Your Stats">
               <div className="space-y-2">
                 {[
                   { label: 'Total Streams', value: user.stream_count },
@@ -357,7 +424,7 @@ export default function Studio() {
                   </div>
                 ))}
               </div>
-            </div>
+            </CollapsePanel>
           )}
         </div>
       </div>
