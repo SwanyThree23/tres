@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Bell, Menu, X, Radio, LayoutDashboard, LogOut,
-  User, ChevronDown, Zap,
+  User, ChevronDown, Zap, Swords, Trophy, Headphones, Cpu,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { cn, getInitials } from '@/lib/utils'
@@ -27,7 +27,10 @@ export default function Navbar() {
   const navLinks = [
     { label: 'Browse', href: '/browse' },
     { label: 'Creators', href: '/creators' },
-    { label: 'Why It Works', href: '/why' },
+    { label: 'Classic', href: '/classic', icon: Trophy },
+    { label: 'PK Battle', href: '/pk-battle', icon: Swords },
+    { label: 'Vibe', href: '/vibe', icon: Headphones },
+    { label: 'Joyce AI', href: '/joyce', icon: Cpu },
   ]
 
   return (
@@ -47,20 +50,24 @@ export default function Navbar() {
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                  location.pathname === link.href
-                    ? 'text-brand-400 bg-brand-500/10'
-                    : 'text-white/70 hover:text-white hover:bg-white/10',
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const Icon = link.icon
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                    location.pathname === link.href
+                      ? 'text-brand-400 bg-brand-500/10'
+                      : 'text-white/70 hover:text-white hover:bg-white/10',
+                  )}
+                >
+                  {Icon && <Icon className="w-3.5 h-3.5" />}
+                  {link.label}
+                </Link>
+              )
+            })}
           </div>
 
           {/* Search */}

@@ -5,18 +5,20 @@ import { motion } from 'framer-motion'
 import {
   BarChart3, TrendingUp, Users, Radio, DollarSign,
   HelpCircle, Eye, Clock, Plus, ChevronRight, Zap,
-  Star, Award,
+  Star, Award, Workflow,
 } from 'lucide-react'
 import { streamsApi } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
 import StreamCard from '@/components/StreamCard'
+import CollapsePanel from '@/components/CollapsePanel'
+import N8nAutomation from '@/components/N8nAutomation'
 import type { StreamInfo } from '@/stores/streamStore'
-import { formatNumber, formatViewers, timeAgo } from '@/lib/utils'
+import { formatNumber, formatViewers } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 export default function Dashboard() {
   const { user } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<'overview' | 'streams' | 'earnings'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'streams' | 'earnings' | 'infra'>('overview')
 
   const { data: myStreams } = useQuery<StreamInfo[]>({
     queryKey: ['streams', 'mine'],
@@ -92,6 +94,7 @@ export default function Dashboard() {
           { id: 'overview', label: 'Overview' },
           { id: 'streams', label: 'My Streams' },
           { id: 'earnings', label: 'Earnings' },
+          { id: 'infra', label: 'Infrastructure' },
         ].map(({ id, label }) => (
           <button
             key={id}
@@ -229,15 +232,39 @@ export default function Dashboard() {
             <StatCard icon={Zap} label="Pending Payout" value="$127.50" color="from-cyan-500 to-cyan-700" />
           </div>
 
+          {/* 90/10 split visualization */}
           <div className="card p-6">
-            <h3 className="text-lg font-semibold text-white mb-2">Revenue Breakdown</h3>
-            <p className="text-sm text-white/50 mb-4">You keep 90% of all earnings.</p>
-            <div className="space-y-3">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">Revenue Split</h3>
+              <span className="text-xs font-mono text-white/40">Stripe Connect enforced</span>
+            </div>
+            <div className="flex h-8 rounded-xl overflow-hidden mb-3">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: '90%' }}
+                transition={{ duration: 1.2, ease: 'easeOut' }}
+                className="flex items-center justify-center text-sm font-bold text-dark-500"
+                style={{ background: 'linear-gradient(90deg, #D4AF37, #F0D060)' }}
+              >
+                90% YOU
+              </motion.div>
+              <div className="flex-1 flex items-center justify-center text-xs font-bold text-white/60"
+                style={{ background: 'rgba(255,255,255,0.05)' }}>
+                10%
+              </div>
+            </div>
+            <p className="text-xs text-white/40">
+              You keep 90% of every tip, automatically routed via Stripe Connect. No math required.
+            </p>
+          </div>
+
+          <CollapsePanel title="Revenue Breakdown" defaultOpen>
+            <div className="space-y-3 pt-2">
               {[
-                { label: 'Tips & Donations', amount: 1_240, pct: 44 },
-                { label: 'Subscriptions', amount: 980, pct: 34 },
-                { label: 'Super Why (pinned questions)', amount: 627, pct: 22 },
-              ].map(({ label, amount, pct }) => (
+                { label: 'Tips & Donations', amount: 1_240, pct: 44, color: '#D4AF37' },
+                { label: 'Subscriptions', amount: 980, pct: 34, color: '#7c3aed' },
+                { label: 'Super Why (pinned questions)', amount: 627, pct: 22, color: '#06b6d4' },
+              ].map(({ label, amount, pct, color }) => (
                 <div key={label}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-white/70">{label}</span>
@@ -248,13 +275,14 @@ export default function Dashboard() {
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
-                      className="h-full bg-gradient-to-r from-brand-500 to-cyan-500 rounded-full"
+                      className="h-full rounded-full"
+                      style={{ background: color }}
                     />
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </CollapsePanel>
 
           <div className="card p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Payout History</h3>
@@ -277,6 +305,19 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'infra' && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Workflow className="text-gold w-5 h-5" />
+            <div>
+              <h2 className="text-xl font-bold text-white">Infrastructure & Automation</h2>
+              <p className="text-white/40 text-sm">n8n workflows + server health</p>
+            </div>
+          </div>
+          <N8nAutomation />
         </div>
       )}
     </div>
