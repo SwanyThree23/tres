@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Send, HelpCircle, MessageSquare, TrendingUp, Lock } from 'lucide-react'
 import { useStreamStore, type ChatMessage, type WhyQuestion } from '@/stores/streamStore'
 import { useAuthStore } from '@/stores/authStore'
-import { getInitials, timeAgo } from '@/lib/utils'
+import { getInitials } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 type Tab = 'chat' | 'why'
@@ -12,7 +12,7 @@ interface Props {
   streamId: string
 }
 
-export default function ChatPanel({ streamId }: Props) {
+export default function ChatPanel({ streamId: _streamId }: Props) {
   const { user, isAuthenticated } = useAuthStore()
   const { messages, whyQuestions, sendMessage, askWhy, upvoteQuestion, isConnected } = useStreamStore()
   const [tab, setTab] = useState<Tab>('chat')

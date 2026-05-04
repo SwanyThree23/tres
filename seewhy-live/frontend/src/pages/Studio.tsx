@@ -24,7 +24,7 @@ export default function Studio() {
   const navigate = useNavigate()
 
   const [tab, setTab] = useState<'setup' | 'live'>('setup')
-  const [streamKey, setStreamKey] = useState('sk_live_••••••••••••••••')
+  const [streamKey, setStreamKey] = useState('sw_live_••••••••••••••••')
   const [keyCopied, setKeyCopied] = useState(false)
   const [urlCopied, setUrlCopied] = useState(false)
   const [sfuStats, setSfuStats] = useState({
@@ -101,7 +101,7 @@ export default function Studio() {
   }
 
   const regenerateKey = () => {
-    const key = 'sk_live_' + Math.random().toString(36).slice(2, 18)
+    const key = 'sw_live_' + Math.random().toString(36).slice(2, 18)
     setStreamKey(key)
   }
 

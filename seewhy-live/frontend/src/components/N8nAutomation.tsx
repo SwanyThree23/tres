@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Workflow, Play, CheckCircle2, AlertCircle, Clock, Server, RefreshCw } from 'lucide-react'
+import { Workflow as WorkflowIcon, Play, Clock, Server, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-interface Workflow {
+interface WorkflowItem {
   id: string
   name: string
   status: 'active' | 'inactive' | 'error'
@@ -13,7 +13,7 @@ interface Workflow {
   desc: string
 }
 
-const WORKFLOWS: Workflow[] = [
+const WORKFLOWS: WorkflowItem[] = [
   {
     id: 'wf1',
     name: 'Stream Start Alert',
@@ -92,13 +92,13 @@ export default function N8nAutomation() {
     }, 1500)
   }
 
-  const statusColors: Record<Workflow['status'], string> = {
+  const statusColors: Record<WorkflowItem['status'], string> = {
     active: '#10b981',
     inactive: 'rgba(255,255,255,0.3)',
     error: '#DC143C',
   }
 
-  const statusLabels: Record<Workflow['status'], string> = {
+  const statusLabels: Record<WorkflowItem['status'], string> = {
     active: 'ACTIVE',
     inactive: 'PAUSED',
     error: 'ERROR',
@@ -109,7 +109,7 @@ export default function N8nAutomation() {
       {/* Workflows */}
       <div>
         <h3 className="text-sm font-semibold text-white/70 mb-3 flex items-center gap-2">
-          <Workflow size={14} className="text-gold" />
+          <WorkflowIcon size={14} className="text-gold" />
           n8n Workflows
           <span className="text-xs font-mono text-white/30 ml-auto">srv1587098</span>
         </h3>
